@@ -1,4 +1,6 @@
 from client import Client
+import time
 
 c = Client()
-c.connect()
+c.run()
+c.set_msg("Hello, back")
