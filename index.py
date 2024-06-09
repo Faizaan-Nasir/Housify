@@ -20,14 +20,24 @@ class mainWindow(QMainWindow):
 
       # Host a Game Button
       self.hostGame=QPushButton('Host a Game',self)
-      self.hostGame.setStyleSheet('font-family: Poppins; font-size: 21px; background: #69B1F4; border: 2px solid black')
+      self.hostGame.setStyleSheet('''QPushButton{
+                                  font-family: Poppins; font-size: 21px; background: #69B1F4; border: 2px solid black;
+                                  }
+                                  QPushButton::hover{
+                                  background: #63a9eb;
+                                  }''')
       self.hostGame.setFixedSize(200,55)
       self.hostGame.move(340,310)
       #self.hostGame.clicked.connect()
 
       # Join a Game Button
       self.joinGame=QPushButton('Join a Game',self)
-      self.joinGame.setStyleSheet('font-family: Poppins; font-size: 21px; background: #69B1F4; border: 2px solid black')
+      self.joinGame.setStyleSheet('''QPushButton{
+                                  font-family: Poppins; font-size: 21px; background: #69B1F4; border: 2px solid black;
+                                  }
+                                  QPushButton::hover{
+                                  background: #63a9eb;
+                                  }''')
       self.joinGame.setFixedSize(200,55)
       self.joinGame.move(580,310)
       #self.joinGame.clicked.connect()
