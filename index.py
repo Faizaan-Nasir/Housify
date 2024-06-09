@@ -1,16 +1,19 @@
 import sys
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import *
-from PyQt5.QtGui import QFontDatabase
+from PyQt5.QtGui import QFontDatabase , QPixmap , QPalette , QBrush
 
 # main window
-class mainWindow(QMainWindow):
-   def __init__(self, parent = None):
-      super(mainWindow, self).__init__(parent)
+class mainWindow(QWidget):
+   def __init__(self):
+      super().__init__()
       self.setFixedSize(1120,560)
-      self.setWindowTitle("Housify")  
-      self.setStyleSheet('background:url("./src/background.png") center no-repeat') 
-
+      self.setWindowTitle("Housify")
+      pixmap = QPixmap('./src/background.png')
+      palette = self.palette()
+      palette.setBrush(QPalette.Background, QBrush(pixmap))
+      self.setPalette(palette)
+      
       # Title
       self.mainTitle=QLabel("HOUSIFY",self)
       self.mainTitle.setFixedSize(1120,50)
@@ -21,7 +24,10 @@ class mainWindow(QMainWindow):
       # Host a Game Button
       self.hostGame=QPushButton('Host a Game',self)
       self.hostGame.setStyleSheet('''QPushButton{
-                                  font-family: Poppins; font-size: 21px; background: #69B1F4; border: 2px solid black;
+                                  font-family: Poppins; 
+                                  font-size: 21px; 
+                                  background: #69B1F4; 
+                                  border: 2px solid black;
                                   }
                                   QPushButton::hover{
                                   background: #63a9eb;
@@ -33,7 +39,10 @@ class mainWindow(QMainWindow):
       # Join a Game Button
       self.joinGame=QPushButton('Join a Game',self)
       self.joinGame.setStyleSheet('''QPushButton{
-                                  font-family: Poppins; font-size: 21px; background: #69B1F4; border: 2px solid black;
+                                  font-family: Poppins; 
+                                  font-size: 21px; 
+                                  background: #69B1F4; 
+                                  border: 2px solid black;
                                   }
                                   QPushButton::hover{
                                   background: #63a9eb;
