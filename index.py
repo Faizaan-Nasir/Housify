@@ -13,7 +13,20 @@ class mainWindow(QWidget):
       palette = self.palette()
       palette.setBrush(QPalette.Background, QBrush(pixmap))
       self.setPalette(palette)
-      
+      self.MainUI()
+   
+   # function to show joinGameWindow
+   def joinGameButton(self):
+      self.newWin = joinGameWindow()
+      self.newWin.show()
+      # self.hide()
+   
+   def hostGameButton(self):
+      self.newWin = hostGameWindow()
+      self.newWin.show()
+      # self.hide()
+
+   def MainUI(self):
       # HOUSIFY
       self.mainTitle=QLabel("HOUSIFY",self)
       self.mainTitle.setFixedSize(1120,52)
@@ -34,7 +47,7 @@ class mainWindow(QWidget):
                                  background: #63a9eb;}''')
       self.hostGame.setFixedSize(200,55)
       self.hostGame.move(340,310)
-      #self.hostGame.clicked.connect()
+      self.hostGame.clicked.connect(self.hostGameButton)
 
       # Join a Game Button
       self.joinGame=QPushButton('Join a Game',self)
@@ -58,12 +71,6 @@ class mainWindow(QWidget):
       self.copyright.setAlignment(QtCore.Qt.AlignCenter)
       self.copyright.move(280,390)
 
-   # function to show joinGameWindow
-   def joinGameButton(self):
-      self.newWin = joinGameWindow()
-      self.newWin.show()
-      # self.hide()
-
 # join a game window
 class joinGameWindow(QWidget):
    def __init__(self):
@@ -74,7 +81,9 @@ class joinGameWindow(QWidget):
       palette = self.palette()
       palette.setBrush(QPalette.Background, QBrush(pixmap))
       self.setPalette(palette)
+      self.MainUI()
 
+   def MainUI(self):
       # HOUSIFY
       self.mainTitle=QLabel("HOUSIFY",self)
       self.mainTitle.setFixedSize(1120,52)
@@ -106,6 +115,24 @@ class joinGameWindow(QWidget):
       self.submitGameCode.setFixedSize(200,55)
       self.submitGameCode.move(580,310)
       #self.submitGameCode.clicked.connect()
+
+class hostGameWindow(QWidget):
+   def __init__(self):
+      super().__init__()
+      self.setWindowTitle('Housify - Host a Game')
+      pixmap = QPixmap('./src/background_host.png')
+      palette = self.palette()
+      palette.setBrush(QPalette.Background, QBrush(pixmap))
+      self.setPalette(palette)
+      self.MainUI()
+   
+   def MainUI(self):
+      # HOUSIFY
+      self.mainTitle=QLabel("HOUSIFY",self)
+      self.mainTitle.setFixedSize(1120,52)
+      self.mainTitle.move(0,210)
+      self.mainTitle.setAlignment(QtCore.Qt.AlignCenter)
+      self.mainTitle.setStyleSheet("font-family: Paytone One; background: transparent; font-size:60px; color: black;")
 
 def main():
    app = QApplication(sys.argv)
