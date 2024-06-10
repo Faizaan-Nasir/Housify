@@ -16,18 +16,15 @@ class Client :
         print("CLIENT CONNECTED")
         t = threading.Thread(target=self._run)
         t.start()
-        t.join()
+        # t.join()
     
     def _run(self) : 
         while True : 
             msg = self.socket.recv(1024).decode(self.FORMATTING)
             if msg : 
                 print(f"[MSG RECIEVED] {msg} {len(msg)}")
-            if self.msg : 
-                self.socket.sendall(self.msg.encode(self.FORMATTING))
-                print(f"SENT MESSAGE: {self.msg}")
-                self.msg = ""
-    
-    def set_msg(self, msg) : 
-        print("MESSAGE SET")
-        self.msg = msg
+            # Handle sending message
+
+if __name__ == "__main__" : 
+    c = Client()
+    c.run()

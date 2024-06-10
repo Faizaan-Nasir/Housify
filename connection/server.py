@@ -36,3 +36,7 @@ class Server :
                 print(f"[MSG RECIEVED] {msg} {len(msg)}")
                 msg = ""
 
+
+if __name__ == "__main__" : 
+    s = Server()
+    s.start()
