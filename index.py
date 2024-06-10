@@ -21,6 +21,7 @@ class mainWindow(QWidget):
       self.newWin.show()
       # self.hide()
    
+   # function to show hostGameWindow
    def hostGameButton(self):
       self.newWin = hostGameWindow()
       self.newWin.show()
@@ -116,6 +117,7 @@ class joinGameWindow(QWidget):
       self.submitGameCode.move(580,310)
       #self.submitGameCode.clicked.connect()
 
+# host a game window
 class hostGameWindow(QWidget):
    def __init__(self):
       super().__init__()
