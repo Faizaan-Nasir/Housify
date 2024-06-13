@@ -158,7 +158,7 @@ class hostGameWindow(QWidget):
       self.gameCode.setStyleSheet("color: black; font-family: Poppins; font-weight: 900; font-size: 62px;")
       self.gameCode.move(535,217)
 
-      # Star Game Button
+      # Start Game Button
       self.startGame=QPushButton('Start Game',self)
       self.startGame.setStyleSheet('''QPushButton{
                                  font-family: Poppins; 
