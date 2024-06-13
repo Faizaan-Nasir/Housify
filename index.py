@@ -142,10 +142,10 @@ class hostGameWindow(QWidget):
       # Game Code Label
       self.gameCodeLabelGame=QLabel('Game',self)
       self.gameCodeLabelGame.setStyleSheet("color: black; font-family: Poppins; font-weight: 700; font-size: 22px;")
-      self.gameCodeLabelGame.move(393,230)
+      self.gameCodeLabelGame.move(393,235)
       self.gameCodeLabelCode=QLabel('Code',self)
       self.gameCodeLabelCode.setStyleSheet("color: black; font-family: Poppins; font-weight: 700; font-size: 22px;")
-      self.gameCodeLabelCode.move(397,255)
+      self.gameCodeLabelCode.move(397,260)
 
       # Colon
       self.colon=QLabel(':',self)
@@ -156,7 +156,7 @@ class hostGameWindow(QWidget):
       self.newGameCode=str(random.randint(10000,99999))
       self.gameCode=QLabel(self.newGameCode,self)
       self.gameCode.setStyleSheet("color: black; font-family: Poppins; font-weight: 900; font-size: 62px;")
-      self.gameCode.move(535,217)
+      self.gameCode.move(535,215)
 
       # Start Game Button
       self.startGame=QPushButton('Start Game',self)
