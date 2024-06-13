@@ -13,3 +13,5 @@ A python based application to play Housie
 
 ## Design
 ![image](https://github.com/Faizaan-Nasir/Housify/assets/82143161/ef72a8e9-26cb-4219-b51d-a9b170a42bbf)
+
+### © 2024 Housify. All Rights Reserved.
