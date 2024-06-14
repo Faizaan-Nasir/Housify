@@ -1,8 +1,12 @@
 import mysql.connector as sql
+import os
 import random
+from dotenv import load_dotenv
+
+load_dotenv()
+
 try:
-    pass
-# have forwarded this on whatsapp
+    con=sql.connect(host=os.getenv("HOST"),port=int(os.getenv("PORT")),user=os.getenv("USER"),charset="utf8mb4",password=os.getenv("PASSWORD"),database='defaultdb')
 except Exception as error:
     with open('connection-error.txt','w') as file:
         file.write(error)
