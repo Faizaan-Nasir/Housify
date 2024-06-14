@@ -2,8 +2,8 @@ import sys
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QFontDatabase , QPixmap , QPalette , QBrush
-import random
 import pyperclip
+import logic
 
 # main window
 class mainWindow(QWidget):
@@ -153,7 +153,7 @@ class hostGameWindow(QWidget):
       self.colon.move(490,210)
 
       # Game Code
-      self.newGameCode=str(random.randint(10000,99999))
+      self.newGameCode=logic.createGame()
       self.gameCode=QLabel(self.newGameCode,self)
       self.gameCode.setStyleSheet("color: black; font-family: Poppins; font-weight: 900; font-size: 62px;")
       self.gameCode.move(535,215)
