@@ -1,9 +1,9 @@
 
 class Messenger : 
 
-    def __init__(self, _type) : 
+    def __init__(self, _type, dest = "") :
         self.msg = []
-        self.dest = ""
+        self.dest = dest
         self.type = _type
 
     def send(self, msg) : 
@@ -14,3 +14,15 @@ class Messenger :
             return
         msg = self.msg.pop(0)
         return msg
+    
+
+class MessengerGroup :
+
+    def __init__(self) : 
+        self.messengers = {}
+    
+    def add(self, m) : 
+        self.messengers[m.dest] = m
+    
+    def remove(self, addr) : 
+        del self.messengers[addr]

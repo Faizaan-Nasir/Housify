@@ -34,9 +34,10 @@ class Client :
             # Handle sending message
             n_msg = messenger.release()
             if n_msg: 
-                print(f"SENDING '{msg}'")
+                print(f"SENDING '{n_msg}'")
                 self.socket.sendall(n_msg.encode(self.FORMATTING))
 
+# USAGE EXAMPLE
 if __name__ == "__main__" : 
     c = Client()
     m = Messenger(_type="CLIENT")
