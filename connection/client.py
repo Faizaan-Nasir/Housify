@@ -1,7 +1,7 @@
-import time
-import socket, threading
+import socket
 import pickle
-from messenger import Messenger
+import errno
+import sys
 
 class Client : 
 
@@ -13,54 +13,34 @@ class Client :
         self.b_ip = ip
         self.b_port = port
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.msg = ""
-
-    def run(self, messenger) : 
         self.socket.connect((self.b_ip, self.b_port))
         self.socket.setblocking(False)
-        self.socket.settimeout(1)
-        print("CLIENT CONNECTED")
-        t = threading.Thread(target=self._run, args = (messenger,))
-        t.start()
-    
-    def _run(self, messenger) : 
-        msg = b""
-        mlen = 0
-        flag = True
-        while True : 
-            try:
-                rmsg = self.socket.recv(self.BUFFER_SIZE)
-                if flag and rmsg: 
-                    flag = False
-                    mlen = int(rmsg[:self.HEADER_LENGTH])
-                msg += rmsg
-                if len(msg) - self.HEADER_LENGTH == mlen : 
-                    obj = pickle.loads(msg[self.HEADER_LENGTH:])
-                    print(f"[MSG RECEIVED] {obj}")
-                    if obj == "DISCONNECT" : 
-                        break
-                    mlen = 0
-                    msg = b""
-                    flag = True
-            except TimeoutError : 
-                pass
-            except Exception as e: 
-                print(e)
-                break
-            # Handle sending message
-            n_msg = messenger.release()
-            if n_msg:
-                self.socket.sendall(n_msg)
-                print(f"SENDING '{pickle.loads(n_msg[self.HEADER_LENGTH:])}'")
-        self.socket.close()
+
+    def run(self) : 
+        while True :
+            msg = input("> ") 
+            msg = pickle.dumps(msg)
+            header = f"{len(msg):<{self.HEADER_LENGTH}}".encode("utf-8")
+            self.socket.send(header + msg)
+            try : 
+                while True : 
+                    header = self.socket.recv(self.HEADER_LENGTH).decode(self.FORMATTING)
+                    if not len(header) : 
+                        print("Connection closed by the server")
+                        sys.exit()
+                    
+                    msg = self.socket.recv(int(header))
+                    msg = pickle.loads(msg)
+                    print(msg)
+
+            except IOError as e: 
+
+                if e.errno != errno.EAGAIN and e.errno != errno.EWOULDBLOCK : 
+                    print(f"Reading error: {str(e)}")
+                    sys.exit()
+
 
 # USAGE EXAMPLE
 if __name__ == "__main__" : 
     c = Client()
-    m = Messenger(_type="CLIENT")
-    c.run(m)
-    m.send("Hello, back")
-    m.send("How are you?")
-    m.send("I am a client")
-    time.sleep(10)
-    m.send("DISCONNECT")
+    c.run()

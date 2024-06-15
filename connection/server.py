@@ -1,7 +1,6 @@
 import socket
 import pickle
-import threading
-from messenger import Messenger, MessengerGroup
+import select
 
 class Server : 
     
@@ -9,58 +8,63 @@ class Server :
     BUFFER_SIZE = 16
     FORMATTING = "utf-8"
 
-    def __init__(self, mg) : 
+    def __init__(self) : 
         self.port = 4040
         self.host_ip = socket.gethostbyname(socket.gethostname())
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.socket.bind((self.host_ip, self.port))
-        self.mg = mg
+
+        self.sockets_list = [self.socket]
+        self.clients = {}
+        self.socket.listen()
+        print(f"Listening on port {self.port}")
     
     def start(self) :
-        self.socket.listen(5)
-        print(f"[SERVER STARTED] Listening on port {self.port}")
-        while True :
-            conn, addr = self.socket.accept()
-            print(f"[NEW CONNECTION] Received connection from {addr}")
-            m = Messenger(_type = "SERVER", dest = addr)
-            m.send("Hello! Welcome to the server!")
-            self.mg.add(m)
-            t = threading.Thread(target = self._handle_client, args=(conn, addr, m))
-            t.start()
-        
-
-    def _handle_client(self, conn, addr, messenger:Messenger) : 
-        msg = b""
-        mlen = 0
-        flag = True
         while True : 
-            # Send message
-            nmsg = messenger.release()
-            if nmsg : 
-                conn.sendall(nmsg)
-                print(f"[MSG SENT] '{pickle.loads(nmsg[self.HEADER_LENGTH:])}' sent to {addr}")
+            read_sockets, _, except_sockets = select.select(self.sockets_list, [], self.sockets_list)
+            
+            for n_socket in read_sockets : 
+                if n_socket == self.socket : # Connection request
+                    conn, addr = self.socket.accept()
+                    print(f"[NEW CONN]\tNew connection from {addr}")
+                    msg = self.receive_client(conn)
+                    if not msg : 
+                        continue
+                    print(msg)
+                    self.clients[conn] = addr
+                    self.sockets_list.append(conn)
+                else : # Received a message from client
+                    msg = self.receive_client(n_socket)
+                    if msg is False : 
+                        print(f"Closed connection")
+                        del self.clients[n_socket]
+                        self.sockets_list.remove(n_socket)
+                        continue
+                    
+                    print(f"[MSG RECVD]\tReceived '{msg}' from {self.clients[n_socket]}")
 
-            # Receiving message
-            rmsg = conn.recv(self.BUFFER_SIZE)
-            if flag and rmsg: 
-                flag = False
-                mlen = int(rmsg[:self.HEADER_LENGTH])
-            msg += rmsg
-            if len(msg) - self.HEADER_LENGTH == mlen : 
-                obj = pickle.loads(msg[self.HEADER_LENGTH:])
-                print(f"[MSG RECEIVED] {obj}")
-                if obj == "DISCONNECT" : 
-                    conn.sendall(msg)
-                    break
-                mlen = 0
-                msg = b""
-                flag = True
-        self.mg.remove(addr)
-        conn.close()
+            for n_sockets in except_sockets : 
+                self.sockets_list.remove(n_sockets)
+                del self.clients[n_sockets]
+
+    def receive_client(self, socket) : 
+        try : 
+            header = socket.recv(self.HEADER_LENGTH).decode(self.FORMATTING)
+
+            if len(header) == 0 : 
+                return False
+            
+            mlen = int(header)
+            msg = socket.recv(mlen)
+            msg = pickle.loads(msg)
+            # TODO: Do something with the message
+            return msg
+        except : 
+            return False
 
 
 # USAGE EXAMPLE
 if __name__ == "__main__" : 
-    mg = MessengerGroup()
-    s = Server(mg)
+    s = Server()
     s.start()
