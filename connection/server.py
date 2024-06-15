@@ -5,6 +5,7 @@ from messenger import Messenger, MessengerGroup
 class Server : 
     
     HEADER_LENGTH = 10
+    BUFFER_SIZE = 16
     FORMATTING = "utf-8"
 
     def __init__(self, mg) : 
@@ -20,8 +21,8 @@ class Server :
         while True :
             conn, addr = self.socket.accept()
             print(f"[NEW CONNECTION] Received connection from {addr}")
-            conn.sendall("Hello, world".encode(self.FORMATTING))
             m = Messenger(_type = "SERVER", dest = addr)
+            m.send("Hello! Welcome to the server!")
             self.mg.add(m)
             t = threading.Thread(target = self._handle_client, args=(conn, addr, m))
             t.start()
@@ -29,17 +30,29 @@ class Server :
 
     def _handle_client(self, conn, addr, messenger:Messenger) : 
         msg = ""
-        messenger.send(f"Hey there, {addr}, welcome from your personal messenger instance")
+        mlen = 0
+        flag = True
         while True : 
+            # Send message
             nmsg = messenger.release()
             if nmsg : 
                 conn.sendall(nmsg.encode(self.FORMATTING))
-                print(f"[MSG SENT] '{nmsg}' sent to {addr}")
-            msg = conn.recv(1024).decode(self.FORMATTING)
-            if msg : 
-                print(f"[MSG RECIEVED] {msg} {len(msg)}")
+                print(f"[MSG SENT] '{nmsg[self.HEADER_LENGTH:]}' sent to {addr}")
+
+            # Receiving message
+            rmsg = conn.recv(self.BUFFER_SIZE).decode(self.FORMATTING)
+            if flag and rmsg: 
+                flag = False
+                mlen = int(rmsg[:self.HEADER_LENGTH])
+            msg += rmsg
+            if len(msg) - self.HEADER_LENGTH == mlen : 
+                print(f"[MSG RECEIVED] {msg[self.HEADER_LENGTH:]}")
+                mlen = 0
                 msg = ""
-            # TODO: On disconnect, self.mg.remove(addr)
+                flag = True
+            
+            
+            # TODO: Manage disconnect
 
 
 # USAGE EXAMPLE

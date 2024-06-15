@@ -3,6 +3,7 @@ from messenger import Messenger
 
 class Client : 
 
+    BUFFER_SIZE = 16
     HEADER_LENGTH = 10
     FORMATTING = "utf-8"
 
@@ -14,18 +15,28 @@ class Client :
 
     def run(self, messenger) : 
         self.socket.connect((self.b_ip, self.b_port))
-        self.socket.setblocking(1)
+        self.socket.setblocking(False)
         self.socket.settimeout(1)
         print("CLIENT CONNECTED")
         t = threading.Thread(target=self._run, args = (messenger,))
         t.start()
     
     def _run(self, messenger) : 
+        msg = ""
+        mlen = 0
+        flag = True
         while True : 
             try:
-                msg = self.socket.recv(1024).decode(self.FORMATTING)
-                if msg : 
-                    print(f"[MSG RECIEVED] {msg} {len(msg)}")
+                rmsg = self.socket.recv(self.BUFFER_SIZE).decode(self.FORMATTING)
+                if flag and rmsg: 
+                    flag = False
+                    mlen = int(rmsg[:self.HEADER_LENGTH])
+                msg += rmsg
+                if len(msg) - self.HEADER_LENGTH == mlen : 
+                    print(f"[MSG RECEIVED] {msg[self.HEADER_LENGTH:]}")
+                    mlen = 0
+                    msg = ""
+                    flag = True
             except TimeoutError : 
                 pass
             except Exception as e: 
