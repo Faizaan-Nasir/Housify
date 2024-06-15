@@ -1,3 +1,4 @@
+import pickle
 
 class Messenger : 
 
@@ -15,8 +16,10 @@ class Messenger :
         if len(self.msg) == 0 : 
             return
         msg = self.msg.pop(0)
-        msg = f"{len(msg):<{self.HEADER_LENGTH}}" + msg
-        return msg
+        msg = pickle.dumps(msg)
+        header = f"{len(msg):<{self.HEADER_LENGTH}}"
+        final = bytes(header, "utf-8") + msg
+        return final
     
 
 class MessengerGroup :

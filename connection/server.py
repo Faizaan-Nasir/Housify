@@ -1,4 +1,5 @@
 import socket
+import pickle
 import threading
 from messenger import Messenger, MessengerGroup
 
@@ -29,29 +30,28 @@ class Server :
         
 
     def _handle_client(self, conn, addr, messenger:Messenger) : 
-        msg = ""
+        msg = b""
         mlen = 0
         flag = True
         while True : 
             # Send message
             nmsg = messenger.release()
             if nmsg : 
-                conn.sendall(nmsg.encode(self.FORMATTING))
-                print(f"[MSG SENT] '{nmsg[self.HEADER_LENGTH:]}' sent to {addr}")
+                conn.sendall(nmsg)
+                print(f"[MSG SENT] '{pickle.loads(nmsg[self.HEADER_LENGTH:])}' sent to {addr}")
 
             # Receiving message
-            rmsg = conn.recv(self.BUFFER_SIZE).decode(self.FORMATTING)
+            rmsg = conn.recv(self.BUFFER_SIZE)
             if flag and rmsg: 
                 flag = False
                 mlen = int(rmsg[:self.HEADER_LENGTH])
             msg += rmsg
             if len(msg) - self.HEADER_LENGTH == mlen : 
-                print(f"[MSG RECEIVED] {msg[self.HEADER_LENGTH:]}")
+                obj = pickle.loads(msg[self.HEADER_LENGTH:])
+                print(f"[MSG RECEIVED] {obj}")
                 mlen = 0
-                msg = ""
+                msg = b""
                 flag = True
-            
-            
             # TODO: Manage disconnect
 
 

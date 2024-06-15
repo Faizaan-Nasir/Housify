@@ -1,4 +1,5 @@
 import socket, threading
+import pickle
 from messenger import Messenger
 
 class Client : 
@@ -22,20 +23,21 @@ class Client :
         t.start()
     
     def _run(self, messenger) : 
-        msg = ""
+        msg = b""
         mlen = 0
         flag = True
         while True : 
             try:
-                rmsg = self.socket.recv(self.BUFFER_SIZE).decode(self.FORMATTING)
+                rmsg = self.socket.recv(self.BUFFER_SIZE)
                 if flag and rmsg: 
                     flag = False
                     mlen = int(rmsg[:self.HEADER_LENGTH])
                 msg += rmsg
                 if len(msg) - self.HEADER_LENGTH == mlen : 
-                    print(f"[MSG RECEIVED] {msg[self.HEADER_LENGTH:]}")
+                    obj = pickle.loads(msg[self.HEADER_LENGTH:])
+                    print(f"[MSG RECEIVED] {obj}")
                     mlen = 0
-                    msg = ""
+                    msg = b""
                     flag = True
             except TimeoutError : 
                 pass
@@ -44,9 +46,9 @@ class Client :
                 break
             # Handle sending message
             n_msg = messenger.release()
-            if n_msg: 
-                print(f"SENDING '{n_msg}'")
-                self.socket.sendall(n_msg.encode(self.FORMATTING))
+            if n_msg:
+                self.socket.sendall(n_msg)
+                print(f"SENDING '{pickle.loads(n_msg[self.HEADER_LENGTH:])}'")
 
 # USAGE EXAMPLE
 if __name__ == "__main__" : 
