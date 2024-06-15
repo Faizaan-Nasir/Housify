@@ -1,3 +1,4 @@
+import time
 import socket, threading
 import pickle
 from messenger import Messenger
@@ -36,6 +37,8 @@ class Client :
                 if len(msg) - self.HEADER_LENGTH == mlen : 
                     obj = pickle.loads(msg[self.HEADER_LENGTH:])
                     print(f"[MSG RECEIVED] {obj}")
+                    if obj == "DISCONNECT" : 
+                        break
                     mlen = 0
                     msg = b""
                     flag = True
@@ -49,6 +52,7 @@ class Client :
             if n_msg:
                 self.socket.sendall(n_msg)
                 print(f"SENDING '{pickle.loads(n_msg[self.HEADER_LENGTH:])}'")
+        self.socket.close()
 
 # USAGE EXAMPLE
 if __name__ == "__main__" : 
@@ -58,3 +62,5 @@ if __name__ == "__main__" :
     m.send("Hello, back")
     m.send("How are you?")
     m.send("I am a client")
+    time.sleep(10)
+    m.send("DISCONNECT")

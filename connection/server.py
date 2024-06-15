@@ -49,10 +49,14 @@ class Server :
             if len(msg) - self.HEADER_LENGTH == mlen : 
                 obj = pickle.loads(msg[self.HEADER_LENGTH:])
                 print(f"[MSG RECEIVED] {obj}")
+                if obj == "DISCONNECT" : 
+                    conn.sendall(msg)
+                    break
                 mlen = 0
                 msg = b""
                 flag = True
-            # TODO: Manage disconnect
+        self.mg.remove(addr)
+        conn.close()
 
 
 # USAGE EXAMPLE
