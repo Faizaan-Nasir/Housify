@@ -86,6 +86,11 @@ class joinGameWindow(QWidget):
       self.setPalette(palette)
       self.MainUI()
 
+   def joinGameButton(self):
+      self.newWin = waitingLobbyWindow()
+      self.newWin.show()
+      # self.hide()
+
    def MainUI(self):
       # HOUSIFY
       self.mainTitle=QLabel("HOUSIFY",self)
@@ -117,7 +122,7 @@ class joinGameWindow(QWidget):
                                  }''')
       self.submitGameCode.setFixedSize(200,55)
       self.submitGameCode.move(580,310)
-      #self.submitGameCode.clicked.connect()
+      self.submitGameCode.clicked.connect(self.joinGameButton)
 
 # host a game window
 class hostGameWindow(QWidget):
@@ -137,7 +142,7 @@ class hostGameWindow(QWidget):
       self.mainTitle.setFixedSize(1120,47)
       self.mainTitle.move(0,165)
       self.mainTitle.setAlignment(QtCore.Qt.AlignCenter)
-      self.mainTitle.setStyleSheet("font-family: Poppins; font-weight: 900; background: transparent; font-size:35px; color: black;")
+      self.mainTitle.setStyleSheet("font-family: Paytone One; background: transparent; font-size:35px; color: black;")
 
       # Game Code Label
       self.gameCodeLabelGame=QLabel('Game',self)
@@ -198,6 +203,65 @@ class hostGameWindow(QWidget):
       self.c2cb.setFixedSize(200,55)
       self.c2cb.move(580,325)
       self.c2cb.clicked.connect(lambda: c2cbFunc(self))
+
+class waitingLobbyWindow(QWidget):
+   def __init__(self):
+      super().__init__()
+      self.setFixedSize(1120,560)
+      self.setWindowTitle('Housify - Waiting Lobby')
+      pixmap = QPixmap('./src/background_gameplay.png')
+      palette = self.palette()
+      palette.setBrush(QPalette.Background, QBrush(pixmap))
+      self.setPalette(palette)
+      self.MainUI()
+
+   def leaveGame(self):
+      self.close()
+
+   def MainUI(self):
+      # HOUSIFY
+      self.mainTitle=QLabel("HOUSIFY",self)
+      self.mainTitle.setFixedSize(1120,47)
+      self.mainTitle.move(0,120)
+      self.mainTitle.setAlignment(QtCore.Qt.AlignCenter)
+      self.mainTitle.setStyleSheet("font-family: Paytone One; background: transparent; font-size:35px; color: black;")
+
+      # BODY TEXT
+      self.bodyText = QLabel('You have joined the game.',self)
+      self.bodyText.setStyleSheet("color: black; font-family: Poppins; font-weight: 400; font-size: 40px;")
+      self.bodyText.setFixedSize(1120,50)
+      self.bodyText.move(0,220)
+      self.bodyText.setAlignment(QtCore.Qt.AlignCenter)
+
+      self.bodyText2 = QLabel('Please wait for the host to start the game.😘',self)
+      self.bodyText2.setStyleSheet("color: black; font-family: Poppins; font-weight: 400; font-size: 40px;")
+      self.bodyText2.setFixedSize(1120,50)
+      self.bodyText2.move(0,280)
+      self.bodyText2.setAlignment(QtCore.Qt.AlignCenter)
+
+      self.gameCodeLabel=QLabel('Game code:',self)
+      self.gameCodeLabel.setStyleSheet("color: black; font-family: Poppins; font-weight: 700; font-size: 22px;")
+      self.gameCodeLabel.move(120,410)
+
+      #TODO: NEED TO FIGURE OUT CODE FOR BRINGING GAME CODE (SAVE INTO A LOCAL FILE/RETRIEVE FROM DB)
+      self.gameCode=QLabel('61123',self)
+      self.gameCode.setStyleSheet("color: black; font-family: Paytone One; font-size: 62px;")
+      self.gameCode.move(270,375)
+
+      # LEAVE BUTTON
+      self.leaveButton = QPushButton('Leave Game',self)
+      self.leaveButton.setStyleSheet('''QPushButton{
+                                 font-family: Poppins; 
+                                 font-size: 18px; 
+                                 background: #F46363; 
+                                 border: 2px solid black;
+                                 color: black;
+                                 }
+                                 QPushButton::hover{
+                                 background: #F27D7D;}''')
+      self.leaveButton.setFixedSize(150,55)
+      self.leaveButton.move(860,400)
+      self.leaveButton.clicked.connect(self.leaveGame)
 
 def main():
    app = QApplication(sys.argv)
