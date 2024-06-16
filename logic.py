@@ -32,7 +32,7 @@ def createGame():
 
 # need to fix the fact that a random game id could already exist too
 
-def joinGame(gameid):
+def generateTicket(ticketid):
     def generate():
         x=random.randint(1,9)
         coor=(x,i+1)
@@ -40,8 +40,6 @@ def joinGame(gameid):
             generate()
         else:
             l.append(coor)
-    ticketid='T'+str(random.randint(10000,99999))
-    cur.execute(f"insert into GamePlayers values ('{gameid}','{gamerid}','{ticketid}')")
     random.seed(int(ticketid[1:]))
     ticket={}
     l=[]
@@ -50,9 +48,9 @@ def joinGame(gameid):
             generate()
     def genNum():
         if coordinate[0]==1:
-            number=random.randint(coordinate[0],coordinate[0]+10)
+            number=random.randint(coordinate[0],coordinate[0]+9)
         else:
-            number=random.randint((coordinate[0]-1)*10,(coordinate[0]-1)*10+10)
+            number=random.randint((coordinate[0]-1)*10+1,(coordinate[0]-1)*10+10)
         return number
     for coordinate in l:
         value=genNum()
@@ -60,5 +58,19 @@ def joinGame(gameid):
             value=genNum()
         else:
             ticket[coordinate]=value
+    # print(ticket)
+    keys=sorted(list(ticket.keys()))
+    values=sorted(list(ticket.values()))
+    index=0
+    acticket={}
+    for key in keys:
+        acticket[key]=values[index]
+        index+=1
+    # print(acticket)
+    return acticket
+
+def joinGame(gameid):
+    ticketid='T'+str(random.randint(10000,99999))
+    cur.execute(f"insert into GamePlayers values ('{gameid}','{gamerid}','{ticketid}')")
+    print(generateTicket(ticketid))
     # makeTicket()
-    return ticket
