@@ -1,9 +1,9 @@
 import sys
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QFontDatabase
-from logic import generateTicket
+from logic import joinGame
 
-ticket=generateTicket('1234')
+ticket=joinGame('12345')
 
 class ticketMain(QWidget):
     def __init__(self):
