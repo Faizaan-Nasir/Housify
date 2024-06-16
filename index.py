@@ -200,6 +200,7 @@ class hostGameWindow(QWidget):
       self.c2cb.clicked.connect(lambda: c2cbFunc(self))
 
 def main():
+   logic.connectMe()
    app = QApplication(sys.argv)
    QFontDatabase.addApplicationFont('./src/fonts/Paytone_One/PaytoneOne-Regular.ttf')
    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-Regular.ttf')
