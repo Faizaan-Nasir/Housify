@@ -77,6 +77,7 @@ class mainWindow(QWidget):
 # join a game window
 class joinGameWindow(QWidget):
    def __init__(self):
+      # TODO: PLAYER CONNECTS TO SERVER
       super().__init__()
       self.setFixedSize(1120,560)
       self.setWindowTitle("Housify - Join a Game")
