@@ -12,11 +12,13 @@ class Client :
     HEADER_LENGTH = 10
     FORMATTING = "utf-8"
 
-    def __init__(self, ip = socket.gethostbyname(socket.gethostname()), port = 4040) : 
+    def __init__(self, m, t, status = "PLAYER", ip = socket.gethostbyname(socket.gethostname()), port = 4040) : 
         self.b_ip = ip
         self.b_port = port
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.msgr = m
+        self.trigger = t
+        self.status = status
 
     def _encode(self, msg) : 
         msg = pickle.dumps(msg)
@@ -32,6 +34,9 @@ class Client :
     def run(self) : 
         t = threading.Thread(target = self._run)
         t.start()
+
+    def disconnect(self) : 
+        self.socket.close()
 
     def _run(self) : 
         while True :
@@ -55,13 +60,34 @@ class Client :
             
                 msg = self.socket.recv(int(header))
                 msg = pickle.loads(msg)
+                self._handle_events(msg)
 
         except IOError as e: 
             if e.errno != errno.EAGAIN and e.errno != errno.EWOULDBLOCK : 
                 print(f"Reading error: {str(e)}")
                 self.socket.close()
                 sys.exit()
-                
+
+    def _handle_events(self, msg) : 
+        # This is for the player who is the host
+        if self.status == "HOST" :
+            if msg["msg"] == "FIRST ROW" :
+                self.trigger.HOST_FR_CALL(msg)
+            elif msg["msg"] == "SECOND ROW" :
+                self.trigger.HOST_SR_CALL(msg)
+            elif msg["msg"] == "THIRD ROW" :
+                self.trigger.HOST_TR_CALL(msg)
+            elif msg["msg"] == "FULL HOUSIE" : 
+                self.trigger.HOST_FH_CALL(msg)
+
+        # This is for a simple player
+        elif self.status == "PLAYER" : 
+            if msg["msg"] == "PAUSE GAME" : 
+                self.trigger.PLAYER_PAUSE(msg)
+            elif msg["msg"] == "NEW NUMBER" : 
+                self.trigger.NEW_NUMBER(msg)
+            elif msg["msg"] == "STATUS CHANGE" : 
+                self.trigger.STATUS_CHANGE(msg)
 
 # USAGE EXAMPLE
 if __name__ == "__main__" : 
