@@ -2,9 +2,7 @@ import socket
 import pickle
 import errno
 import sys
-import time
 import threading
-from middleware import Messenger
 
 class Client : 
 
@@ -87,15 +85,4 @@ class Client :
             elif msg["msg"] == "NEW NUMBER" : 
                 self.trigger.NEW_NUMBER(msg)
             elif msg["msg"] == "STATUS CHANGE" : 
-                self.trigger.STATUS_CHANGE(msg)
-
-# USAGE EXAMPLE
-if __name__ == "__main__" : 
-    m = Messenger(_type = "CLIENT")
-    c = Client(m)
-    username = input("Enter your username: ")
-    c.connect(username)
-    c.run()
-    time.sleep(10)
-    m.send("Hello")
-    
+                self.trigger.STATUS_CHANGE(msg)    
