@@ -19,6 +19,11 @@ class Server :
         self.clients = {}
         self.socket.listen()
         print(f"Listening on port {self.port}")
+
+    def _encode(self, msg) : 
+        msg = pickle.dumps(msg)
+        header = f"{len(msg):<{self.HEADER_LENGTH}}".encode("utf-8")
+        return header + msg
     
     def start(self) :
         while True : 
@@ -29,9 +34,9 @@ class Server :
                     conn, addr = self.socket.accept()
                     print(f"[NEW CONN]\tNew connection from {addr}")
                     msg = self.receive_client(conn)
-                    if not msg : 
+                    if msg is False : 
                         continue
-                    print(msg)
+                    print(f"[MSG RECVD]\tReceived '{msg}' from {addr}")
                     self.clients[conn] = addr
                     self.sockets_list.append(conn)
                 else : # Received a message from client
@@ -41,6 +46,12 @@ class Server :
                         del self.clients[n_socket]
                         self.sockets_list.remove(n_socket)
                         continue
+                    
+                    emsg = self._encode(msg)
+                    print(emsg)
+                    for s in self.clients: 
+                        if s != n_socket :
+                            s.send(emsg)
                     
                     print(f"[MSG RECVD]\tReceived '{msg}' from {self.clients[n_socket]}")
 
