@@ -2,15 +2,14 @@ import sys
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QFontDatabase
 from PyQt5 import QtCore
-from logic import joinGame
 from functools import partial
-
-ticket=joinGame('12345')
+import logic
 
 class ticketMain(QWidget):
-    def __init__(self):
+    def __init__(self,ticket):
+        self.ticket=ticket
         super().__init__()
-        self.setFixedSize(860,300)
+        self.setFixedSize(722,242)
         self.MainUI()
         self.setStyleSheet('color:black;')
 
@@ -19,9 +18,11 @@ class ticketMain(QWidget):
         global buttons
         ticketBox = QScrollArea(self)
         ticketBox.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        ticketBox.resize(860,300)
+        ticketBox.resize(722,242)
         new = QWidget()
         ticketButtons = QGridLayout()
+        ticketButtons.setSpacing(0)
+        ticketButtons.setContentsMargins(0,0,0,0)
         buttons = {}
         buttonid = 1
 
@@ -34,8 +35,8 @@ class ticketMain(QWidget):
                     color = '#F8EDD9'
                     hovercolor = '#ebe1ce'
 
-                if (x+1,y+1) in ticket:
-                    text = ticket[(x+1,y+1)]
+                if (x+1,y+1) in self.ticket:
+                    text = self.ticket[(x+1,y+1)]
                     buttons[buttonid] = QPushButton(str(text),self)
                     buttons[buttonid].setStyleSheet('''QPushButton{
                                                             font-family: poppins;
@@ -68,14 +69,15 @@ class ticketMain(QWidget):
     def disable(self,buttonid):
         buttons[buttonid].setStyleSheet('color:red')
 
-def main():
-    app = QApplication(sys.argv)
-    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-Regular.ttf')
-    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-ExtraBold.ttf')
-    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-SemiBold.ttf')
-    ex = ticketMain()
-    ex.show()
-    sys.exit(app.exec_())
+# def main():
+#     app = QApplication(sys.argv)
+#     QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-Regular.ttf')
+#     QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-ExtraBold.ttf')
+#     QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-SemiBold.ttf')
+#     temptick=logic.generateTicket('112233')
+#     ex = ticketMain(temptick)
+#     ex.show()
+#     sys.exit(app.exec_())
 
-if __name__=='__main__':
-    main()
+# if __name__=='__main__':
+#     main()

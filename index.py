@@ -5,6 +5,46 @@ from PyQt5.QtGui import QFontDatabase , QPixmap , QPalette , QBrush
 import pyperclip
 import logic
 
+# enter username
+class usernameWindow(QWidget):
+   def __init__(self):
+      super().__init__()
+      self.setFixedSize(500,200)
+      self.setWindowTitle("Housify")
+      self.mainUI()
+   
+   def openCloseWindow(self,username):
+      global name
+      with open('username.txt','w') as file:
+         file.write(username)
+      name=username
+      self.hide()
+      self.newin=mainWindow()
+      self.newin.show()
+
+   def mainUI(self):
+      self.usernameText=QLineEdit(self)
+      self.usernameText.setStyleSheet("color: black; font-family: Poppins; font-size: 21px; background: #D7D7D7; border: 2px solid black;")
+      self.usernameText.setFixedSize(250,55)
+      self.usernameText.move(125,35)
+      self.usernameText.setAlignment(QtCore.Qt.AlignCenter)
+      self.usernameText.setPlaceholderText('Username')
+      self.usernameText.setFocusPolicy(0x2)
+      
+      self.submit=QPushButton('Submit',self)
+      self.submit.setStyleSheet('''QPushButton{
+                                 font-family: Poppins; 
+                                 font-size: 21px; 
+                                 background: #69B1F4; 
+                                 border: 2px solid black;
+                                 color: black;
+                                 }
+                                 QPushButton::hover{
+                                 background: #63a9eb;}''')
+      self.submit.setFixedSize(150,55)
+      self.submit.move(175,115)
+      self.submit.clicked.connect(lambda: self.openCloseWindow(self.usernameText.text()))
+
 # main window
 class mainWindow(QWidget):
    def __init__(self):
@@ -117,7 +157,7 @@ class joinGameWindow(QWidget):
                                  }''')
       self.submitGameCode.setFixedSize(200,55)
       self.submitGameCode.move(580,310)
-      #self.submitGameCode.clicked.connect()
+      self.submitGameCode.clicked.connect(lambda: logic.joinGame(self.enterGameCode.text(),name))
 
 # host a game window
 class hostGameWindow(QWidget):
@@ -200,14 +240,20 @@ class hostGameWindow(QWidget):
       self.c2cb.clicked.connect(lambda: c2cbFunc(self))
 
 def main():
+   global name
    logic.connectMe()
    app = QApplication(sys.argv)
+   try:
+      name = logic.getName()
+      ex = mainWindow()
+      ex.show()
+   except:
+      ex = usernameWindow()
+      ex.show()
    QFontDatabase.addApplicationFont('./src/fonts/Paytone_One/PaytoneOne-Regular.ttf')
    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-Regular.ttf')
    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-ExtraBold.ttf')
    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-SemiBold.ttf')
-   ex = mainWindow()
-   ex.show()
    sys.exit(app.exec_())
    
 if __name__ == '__main__':

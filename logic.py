@@ -2,8 +2,14 @@ import mysql.connector as sql
 import os
 import random
 from dotenv import load_dotenv
+import ticket
 
 load_dotenv()
+
+def getName():
+    with open('username.txt','r') as file:
+        return file.read()
+
 def connectMe():
     global con,cur
     try:
@@ -18,17 +24,9 @@ def connectMe():
 # except:
 #     print('table already exists')
 
-try:
-    with open('./temp/gamerid.txt','r') as file:
-        gamerid=file.read()
-except:
-    gamerid=str(random.randint(10000,99999))
-    with open('./temp/gamerid.txt','w') as file:
-        file.write(gamerid)
-
 def createGame():
     gameid=str(random.randint(10000,99999))
-    cur.execute(f"insert into CurrentGames values('{gameid}','{gamerid}')")
+    # cur.execute(f"insert into CurrentGames values('{gameid}','{gamerid}')")
     return gameid
 
 # need to fix the fact that a random game id could already exist too
@@ -88,8 +86,7 @@ def generateTicket(ticketid):
     # print(acticket)
     return acticket
 
-def joinGame(gameid):
+def joinGame(gameid,gamerid):
     ticketid='T'+str(random.randint(10000,99999))
     #cur.execute(f"insert into GamePlayers values ('{gameid}','{gamerid}','{ticketid}')")
-    return generateTicket(ticketid)
-    # makeTicket()
+    ticket.ticketMain(generateTicket(ticketid[1:])).show()
