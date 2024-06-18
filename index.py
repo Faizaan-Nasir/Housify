@@ -75,7 +75,7 @@ class mainWindow(QWidget):
       self.mainTitle.setFixedSize(1120,52)
       self.mainTitle.move(0,210)
       self.mainTitle.setAlignment(QtCore.Qt.AlignCenter)
-      self.mainTitle.setStyleSheet("font-family: Paytone One; background: transparent; font-size:60px; color: black;")
+      self.mainTitle.setStyleSheet("font-family: Paytone One; font-weight: 600; background: transparent; font-size:60px; color: black;")
       
       # Host a Game Button
       self.hostGame=QPushButton('Host a Game',self)
