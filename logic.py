@@ -26,9 +26,12 @@ def connectMe():
 
 def createGame():
     gameid=str(random.randint(10000,99999))
-    # cur.execute(f"insert into CurrentGames values('{gameid}','{gamerid}')")
+    with open('username.txt','r') as file:
+        gamerid=file.read()
+    cur.execute(f"insert into CurrentGames values('{gameid}','{gamerid}')")
     return gameid
-
+# connectMe()
+# createGame()
 # need to fix the fact that a random game id could already exist too
 
 def generateTicket(ticketid):
@@ -88,5 +91,11 @@ def generateTicket(ticketid):
 
 def joinGame(gameid,gamerid):
     ticketid='T'+str(random.randint(10000,99999))
-    #cur.execute(f"insert into GamePlayers values ('{gameid}','{gamerid}','{ticketid}')")
-    ticket.ticketMain(generateTicket(ticketid[1:])).show()
+    # cur.execute('ALTER TABLE GamePlayers add foreign key (GameID) references CurrentGames(GameID)')
+    try:
+        cur.execute(f"insert into GamePlayers values ('{gameid}','{gamerid}','{ticketid}')")
+        ticket.ticketMain(generateTicket(ticketid[1:])).show()
+    except sql.errors.IntegrityError:
+        print('''One of the two errors occurred:
+              1. A game with the entered Game Code does not exist
+              2. You have already joined this game before''')
