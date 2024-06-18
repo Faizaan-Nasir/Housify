@@ -4,6 +4,48 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QFontDatabase , QPixmap , QPalette , QBrush
 import random
 import pyperclip
+from connection import Client, Triggers, Messenger
+
+
+# enter username
+class usernameWindow(QWidget):
+   def __init__(self):
+      super().__init__()
+      self.setFixedSize(500,200)
+      self.setWindowTitle("Housify")
+      self.mainUI()
+   
+   def openCloseWindow(self,username):
+      global name
+      with open('username.txt','w') as file:
+         file.write(username)
+      name=username
+      self.hide()
+      self.newin=mainWindow()
+      self.newin.show()
+
+   def mainUI(self):
+      self.usernameText=QLineEdit(self)
+      self.usernameText.setStyleSheet("color: black; font-family: Poppins; font-size: 21px; background: #D7D7D7; border: 2px solid black;")
+      self.usernameText.setFixedSize(250,55)
+      self.usernameText.move(125,35)
+      self.usernameText.setAlignment(QtCore.Qt.AlignCenter)
+      self.usernameText.setPlaceholderText('Username')
+      self.usernameText.setFocusPolicy(0x2)
+      
+      self.submit=QPushButton('Submit',self)
+      self.submit.setStyleSheet('''QPushButton{
+                                 font-family: Poppins; 
+                                 font-size: 21px; 
+                                 background: #69B1F4; 
+                                 border: 2px solid black;
+                                 color: black;
+                                 }
+                                 QPushButton::hover{
+                                 background: #63a9eb;}''')
+      self.submit.setFixedSize(150,55)
+      self.submit.move(175,115)
+      self.submit.clicked.connect(lambda: self.openCloseWindow(self.usernameText.text()))
 
 # main window
 class mainWindow(QWidget):
@@ -127,6 +169,7 @@ class joinGameWindow(QWidget):
 
 # host a game window
 class hostGameWindow(QWidget):
+   # TODO: Host a game
    def __init__(self):
       super().__init__()
       self.setFixedSize(1120,560)
@@ -206,6 +249,7 @@ class hostGameWindow(QWidget):
       self.c2cb.clicked.connect(lambda: c2cbFunc(self))
 
 class waitingLobbyWindow(QWidget):
+   # TODO: Waiting lobby
    def __init__(self):
       super().__init__()
       self.setFixedSize(1120,560)
@@ -265,11 +309,23 @@ class waitingLobbyWindow(QWidget):
       self.leaveButton.clicked.connect(self.leaveGame)
 
 def main():
+   # TODO: Entry point
+   global name, trigger, client, msgr
+
+   msgr = Messenger(_type = "CLIENT")
+   trigger = Triggers()
+   client = Client(msgr, trigger)
+
+   ex = usernameWindow()
+   ex.show()
+
    app = QApplication(sys.argv)
+
    QFontDatabase.addApplicationFont('./src/fonts/Paytone_One/PaytoneOne-Regular.ttf')
    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-Regular.ttf')
    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-ExtraBold.ttf')
    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-SemiBold.ttf')
+   
    ex = mainWindow()
    ex.show()
    sys.exit(app.exec_())
