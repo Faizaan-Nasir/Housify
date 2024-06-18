@@ -1,6 +1,7 @@
 import socket
 import pickle
 import select
+from connection import Game
 
 class Server : 
     
@@ -17,6 +18,9 @@ class Server :
 
         self.sockets_list = [self.socket]
         self.clients = {}
+        # gamecode : Game
+        self.games = {}
+
         self.socket.listen()
         print(f"Listening on port {self.port}")
 
@@ -34,10 +38,10 @@ class Server :
                     conn, addr = self.socket.accept()
                     print(f"[NEW CONN]\tNew connection from {addr}")
                     msg = self.receive_client(conn)
+                    print(f"[NEW PLAYER]\t{msg} joined the game")
                     if msg is False : 
                         continue
-                    print(f"[MSG RECVD]\tReceived '{msg}' from {addr}")
-                    self.clients[conn] = addr
+                    self.clients[conn] = msg
                     self.sockets_list.append(conn)
                 else : # Received a message from client
                     msg = self.receive_client(n_socket)
@@ -46,14 +50,8 @@ class Server :
                         del self.clients[n_socket]
                         self.sockets_list.remove(n_socket)
                         continue
-                    
-                    emsg = self._encode(msg)
-                    print(emsg)
-                    for s in self.clients: 
-                        if s != n_socket :
-                            s.send(emsg)
-                    
                     print(f"[MSG RECVD]\tReceived '{msg}' from {self.clients[n_socket]}")
+                    self._handle_event(msg, n_socket)
 
             for n_sockets in except_sockets : 
                 self.sockets_list.remove(n_sockets)
@@ -73,6 +71,16 @@ class Server :
             return msg
         except : 
             return False
+        
+    
+    def _handle_event(self, msg, c) :
+        if msg["event"] == "CREATE GAME" : 
+            code = msg["code"]
+            uname = msg["username"]
+            g = Game(code, uname, c)
+            self.games[code] = g
+            print(f"[NEW GAME]\tGame with code {code} was created by {uname}")
+
 
 
 # USAGE EXAMPLE

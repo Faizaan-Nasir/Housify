@@ -16,10 +16,13 @@ class usernameWindow(QWidget):
       self.mainUI()
    
    def openCloseWindow(self,username):
-      global name
+      global name, client
       with open('username.txt','w') as file:
          file.write(username)
       name=username
+      # Connect the client to server
+      client.connect(name)
+      client.run()
       self.hide()
       self.newin=mainWindow()
       self.newin.show()
@@ -67,7 +70,12 @@ class mainWindow(QWidget):
    
    # function to show hostGameWindow
    def hostGameButton(self):
-      self.newWin = hostGameWindow()
+      game_code = str(random.randint(10000,99999))
+      obj = {"username": name, "role" : "HOST", "event" : "CREATE GAME", "code" : game_code}
+      print(obj)
+      msgr.send(obj)
+      print("Sent obj")
+      self.newWin = hostGameWindow(game_code)
       self.newWin.show()
       # self.hide()
 
@@ -119,7 +127,6 @@ class mainWindow(QWidget):
 # join a game window
 class joinGameWindow(QWidget):
    def __init__(self):
-      # TODO: PLAYER CONNECTS TO SERVER
       super().__init__()
       self.setFixedSize(1120,560)
       self.setWindowTitle("Housify - Join a Game")
@@ -170,8 +177,9 @@ class joinGameWindow(QWidget):
 # host a game window
 class hostGameWindow(QWidget):
    # TODO: Host a game
-   def __init__(self):
+   def __init__(self, newGameCode):
       super().__init__()
+      self.newGameCode= newGameCode
       self.setFixedSize(1120,560)
       self.setWindowTitle('Housify - Host a Game')
       pixmap = QPixmap('./src/background_host.png')
@@ -202,7 +210,6 @@ class hostGameWindow(QWidget):
       self.colon.move(490,210)
 
       # Game Code
-      self.newGameCode=str(random.randint(10000,99999))
       self.gameCode=QLabel(self.newGameCode,self)
       self.gameCode.setStyleSheet("color: black; font-family: Poppins; font-weight: 900; font-size: 62px;")
       self.gameCode.move(535,215)
@@ -309,24 +316,20 @@ class waitingLobbyWindow(QWidget):
       self.leaveButton.clicked.connect(self.leaveGame)
 
 def main():
-   # TODO: Entry point
    global name, trigger, client, msgr
+
+   app = QApplication(sys.argv)
+   QFontDatabase.addApplicationFont('./src/fonts/Paytone_One/PaytoneOne-Regular.ttf')
+   QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-Regular.ttf')
+   QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-ExtraBold.ttf')
+   QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-SemiBold.ttf')
 
    msgr = Messenger(_type = "CLIENT")
    trigger = Triggers()
    client = Client(msgr, trigger)
 
+   # FIXME: FIX THE APP NOT EXITING ERROR
    ex = usernameWindow()
-   ex.show()
-
-   app = QApplication(sys.argv)
-
-   QFontDatabase.addApplicationFont('./src/fonts/Paytone_One/PaytoneOne-Regular.ttf')
-   QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-Regular.ttf')
-   QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-ExtraBold.ttf')
-   QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-SemiBold.ttf')
-   
-   ex = mainWindow()
    ex.show()
    sys.exit(app.exec_())
    

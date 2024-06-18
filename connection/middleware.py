@@ -26,3 +26,10 @@ class Triggers :
         self.PLAYER_PAUSE   = lambda x: x
         self.NEW_NUMBER     = lambda x: x
         self.STATUS_CHANGE  = lambda x: x
+
+class Game : 
+
+    def __init__(self, code, hostname, host_client) : 
+        self.code = code
+        self.hostname = hostname
+        self.host_client = host_client

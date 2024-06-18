@@ -41,9 +41,11 @@ class Client :
             self._send()
             self._receive()
             
-    def _send(self) : 
+    def _send(self) :
+        # print("Called") 
         msg = self.msgr.release()
         if msg : 
+            print(msg)
             msg = self._encode(msg)
             self.socket.send(msg)
     
