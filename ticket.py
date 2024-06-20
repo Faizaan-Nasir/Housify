@@ -67,17 +67,21 @@ class ticketMain(QWidget):
         ticketBox.show()
     
     def disable(self,buttonid):
-        buttons[buttonid].setStyleSheet('color:red')
+        buttons[buttonid].setStyleSheet('''font-family: poppins;
+                                        font-size: 30px;
+                                        border: 0px;
+                                        background: #c9c9c7;
+                                        color: #b8b8b8;''')
 
-# def main():
-#     app = QApplication(sys.argv)
-#     QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-Regular.ttf')
-#     QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-ExtraBold.ttf')
-#     QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-SemiBold.ttf')
-#     temptick=logic.generateTicket('112233')
-#     ex = ticketMain(temptick)
-#     ex.show()
-#     sys.exit(app.exec_())
+def main():
+    app = QApplication(sys.argv)
+    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-Regular.ttf')
+    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-ExtraBold.ttf')
+    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-SemiBold.ttf')
+    temptick=logic.generateTicket('112233')
+    ex = ticketMain(temptick)
+    ex.show()
+    sys.exit(app.exec_())
 
-# if __name__=='__main__':
-#     main()
+if __name__=='__main__':
+    main()
