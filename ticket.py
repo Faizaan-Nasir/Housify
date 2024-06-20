@@ -4,6 +4,7 @@ from PyQt5.QtGui import QFontDatabase
 from PyQt5 import QtCore
 from functools import partial
 
+# this is literally a ticket widget imported to the "Playing a Game" window
 class ticketMain(QWidget):
     def __init__(self,ticket,parent):
         self.ticket=ticket
@@ -74,6 +75,7 @@ class ticketMain(QWidget):
                                         background: #c9c9c7;
                                         color: #b8b8b8;''')
 
+# uncomment the following if u wish to style it here
 # def main():
 #     app = QApplication(sys.argv)
 #     QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-Regular.ttf')

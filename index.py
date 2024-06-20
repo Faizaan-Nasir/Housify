@@ -2,11 +2,11 @@ import sys
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QFontDatabase , QPixmap , QPalette , QBrush
-import pyperclip
-import logic
-import ticket
+import pyperclip # for copy to clipboard
+import logic # local file
+import ticket # local file
 
-# enter username
+# create username window
 class usernameWindow(QWidget):
    def __init__(self):
       super().__init__()
@@ -14,6 +14,7 @@ class usernameWindow(QWidget):
       self.setWindowTitle("Housify")
       self.mainUI()
    
+   # sets a permanent username
    def openCloseWindow(self,username):
       global name
       with open('username.txt','w') as file:
@@ -24,6 +25,7 @@ class usernameWindow(QWidget):
       self.newin.show()
 
    def mainUI(self):
+      # enter username text box
       self.usernameText=QLineEdit(self)
       self.usernameText.setStyleSheet("color: black; font-family: Poppins; font-size: 21px; background: #D7D7D7; border: 2px solid black;")
       self.usernameText.setFixedSize(250,55)
@@ -32,6 +34,7 @@ class usernameWindow(QWidget):
       self.usernameText.setPlaceholderText('Username')
       self.usernameText.setFocusPolicy(0x2)
       
+      # submit button
       self.submit=QPushButton('Submit',self)
       self.submit.setStyleSheet('''QPushButton{
                                  font-family: Poppins; 
@@ -127,6 +130,7 @@ class joinGameWindow(QWidget):
       self.setPalette(palette)
       self.MainUI()
 
+   # Shows the "Playing a Game" Window
    def showGameWindow(self,gameid):
       try:
          playAGameWindow(gameid).show()
@@ -260,19 +264,19 @@ class playAGameWindow(QWidget):
       self.MainUI()
       
    def MainUI(self):
-      # title PLAY
+      # Title PLAY
       self.playLabel=QLabel('PLAY',self)
       self.playLabel.setStyleSheet('font-family: Paytone One; font-weight: 600; background: transparent; font-size:50px; color: black;')
       self.playLabel.move(110,100)
 
-      # connectivity with logic
+      # Bringing Ticket to the Window
       self.code=logic.joinGame(self.gamecode,name)
       self.displayTicket=ticket.ticketMain(logic.generateTicket(self.code),self)
       self.displayTicket.move(370,110)
       self.displayTicket.parent=self
       self.displayTicket.show()
 
-
+# waiting lobby window
 class waitingLobbyWindow(QWidget):
    def __init__(self):
       super().__init__()
@@ -284,6 +288,7 @@ class waitingLobbyWindow(QWidget):
       self.setPalette(palette)
       self.MainUI()
 
+   # function to leave the game
    def leaveGame(self):
       self.close()
 

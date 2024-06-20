@@ -3,12 +3,14 @@ import os
 import random
 from dotenv import load_dotenv
 
+# to open the .env file
 load_dotenv()
 
 def getName():
     with open('username.txt','r') as file:
         return file.read()
 
+# establishing connection to the online database
 def connectMe():
     global con,cur
     try:
@@ -17,12 +19,15 @@ def connectMe():
         with open('connection-error.txt','w') as file:
             file.write(error)
     cur=con.cursor()
+
+# the following bit is for reference only, may be used to create a database locally
 # try:
 #     cur.execute("create table CurrentGames(GameID varchar(7) primary key,HostID varchar(25))")
 #     cur.execute("create table GamePlayers(GameID varchar(7),PlayerID varchar(20),TicketID varchar(6), primary key(GameID,PlayerID))")
 # except:
 #     print('table already exists')
 
+# creates a game
 def createGame():
     gameid=str(random.randint(10000,99999))
     with open('username.txt','r') as file:
@@ -30,10 +35,10 @@ def createGame():
     cur.execute(f"insert into CurrentGames values('{gameid}','{gamerid}')")
     con.commit()
     return gameid
-# connectMe()
-# createGame()
 # need to fix the fact that a random game id could already exist too
 
+# this function creates a dictionary with keys as coordinates and values as the corresponding numbers for the ticket
+# following all rules of a housie ticket
 def generateTicket(ticketid):
     def generate(x,y):
         a,b=x,y
@@ -78,7 +83,6 @@ def generateTicket(ticketid):
             value=genNum()
         else:
             ticket[coordinate]=value
-    # print(ticket)
     keys=sorted(list(ticket.keys()))
     values=sorted(list(ticket.values()))
     index=0
@@ -86,9 +90,11 @@ def generateTicket(ticketid):
     for key in keys:
         acticket[key]=values[index]
         index+=1
-    # print(acticket)
     return acticket
 
+# performs the following functions:
+# 1. generates a ticketid (seed)
+# 2. joins a game in the database
 def joinGame(gameid,gamerid):
     ticketid='T'+str(random.randint(10000,99999))
     # cur.execute('ALTER TABLE GamePlayers add foreign key (GameID) references CurrentGames(GameID)')
@@ -100,3 +106,4 @@ def joinGame(gameid,gamerid):
         print('''One of the two errors occurred:
               1. A game with the entered Game Code does not exist
               2. You have already joined this game before''')
+        # we need to put this error in some sort of a window
