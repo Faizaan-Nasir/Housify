@@ -2,8 +2,49 @@ import sys
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QFontDatabase , QPixmap , QPalette , QBrush
-import random
 import pyperclip
+import logic
+import ticket
+
+# enter username
+class usernameWindow(QWidget):
+   def __init__(self):
+      super().__init__()
+      self.setFixedSize(500,200)
+      self.setWindowTitle("Housify")
+      self.mainUI()
+   
+   def openCloseWindow(self,username):
+      global name
+      with open('username.txt','w') as file:
+         file.write(username)
+      name=username
+      self.hide()
+      self.newin=mainWindow()
+      self.newin.show()
+
+   def mainUI(self):
+      self.usernameText=QLineEdit(self)
+      self.usernameText.setStyleSheet("color: black; font-family: Poppins; font-size: 21px; background: #D7D7D7; border: 2px solid black;")
+      self.usernameText.setFixedSize(250,55)
+      self.usernameText.move(125,35)
+      self.usernameText.setAlignment(QtCore.Qt.AlignCenter)
+      self.usernameText.setPlaceholderText('Username')
+      self.usernameText.setFocusPolicy(0x2)
+      
+      self.submit=QPushButton('Submit',self)
+      self.submit.setStyleSheet('''QPushButton{
+                                 font-family: Poppins; 
+                                 font-size: 21px; 
+                                 background: #69B1F4; 
+                                 border: 2px solid black;
+                                 color: black;
+                                 }
+                                 QPushButton::hover{
+                                 background: #63a9eb;}''')
+      self.submit.setFixedSize(150,55)
+      self.submit.move(175,115)
+      self.submit.clicked.connect(lambda: self.openCloseWindow(self.usernameText.text()))
 
 # main window
 class mainWindow(QWidget):
@@ -35,7 +76,7 @@ class mainWindow(QWidget):
       self.mainTitle.setFixedSize(1120,52)
       self.mainTitle.move(0,210)
       self.mainTitle.setAlignment(QtCore.Qt.AlignCenter)
-      self.mainTitle.setStyleSheet("font-family: Paytone One; background: transparent; font-size:60px; color: black;")
+      self.mainTitle.setStyleSheet("font-family: Paytone One; font-weight: 600; background: transparent; font-size:60px; color: black;")
       
       # Host a Game Button
       self.hostGame=QPushButton('Host a Game',self)
@@ -86,10 +127,11 @@ class joinGameWindow(QWidget):
       self.setPalette(palette)
       self.MainUI()
 
-   def joinGameButton(self):
-      self.newWin = waitingLobbyWindow()
-      self.newWin.show()
-      # self.hide()
+   def showGameWindow(self,gameid):
+      try:
+         playAGameWindow(gameid).show()
+      except:
+         pass
 
    def MainUI(self):
       # HOUSIFY
@@ -122,7 +164,7 @@ class joinGameWindow(QWidget):
                                  }''')
       self.submitGameCode.setFixedSize(200,55)
       self.submitGameCode.move(580,310)
-      self.submitGameCode.clicked.connect(self.joinGameButton)
+      self.submitGameCode.clicked.connect(lambda: self.showGameWindow(self.enterGameCode.text()))
 
 # host a game window
 class hostGameWindow(QWidget):
@@ -158,7 +200,7 @@ class hostGameWindow(QWidget):
       self.colon.move(490,210)
 
       # Game Code
-      self.newGameCode=str(random.randint(10000,99999))
+      self.newGameCode=logic.createGame()
       self.gameCode=QLabel(self.newGameCode,self)
       self.gameCode.setStyleSheet("color: black; font-family: Poppins; font-weight: 900; font-size: 62px;")
       self.gameCode.move(535,215)
@@ -204,6 +246,15 @@ class hostGameWindow(QWidget):
       self.c2cb.move(580,325)
       self.c2cb.clicked.connect(lambda: c2cbFunc(self))
 
+# playing a game window
+class playAGameWindow(QWidget):
+   def __init__(self,gamecode):
+      self.gamecode=gamecode
+      super().__init__()
+      self.setFixedSize(1120,560)
+      self.setWindowTitle('Housify - Playing a Game')
+      pixmap = QPixmap('./src/gameplay-background.png')
+
 class waitingLobbyWindow(QWidget):
    def __init__(self):
       super().__init__()
@@ -214,6 +265,19 @@ class waitingLobbyWindow(QWidget):
       palette.setBrush(QPalette.Background, QBrush(pixmap))
       self.setPalette(palette)
       self.MainUI()
+   
+   def MainUI(self):
+      # title PLAY
+      self.playLabel=QLabel('PLAY',self)
+      self.playLabel.setStyleSheet('font-family: Paytone One; font-weight: 600; background: transparent; font-size:50px; color: black;')
+      self.playLabel.move(110,100)
+
+      # connectivity with logic
+      self.code=logic.joinGame(self.gamecode,name)
+      self.displayTicket=ticket.ticketMain(logic.generateTicket(self.code),self)
+      self.displayTicket.move(370,110)
+      self.displayTicket.parent=self
+      self.displayTicket.show()
 
    def leaveGame(self):
       self.close()
@@ -262,15 +326,25 @@ class waitingLobbyWindow(QWidget):
       self.leaveButton.setFixedSize(150,55)
       self.leaveButton.move(860,400)
       self.leaveButton.clicked.connect(self.leaveGame)
-
+# ---- END OF ALL MODULES ----
+      
 def main():
+   global name
+   logic.connectMe()
    app = QApplication(sys.argv)
+   try:
+      name = logic.getName()
+      # ex = playAGameWindow()
+      ex = mainWindow()
+      ex.show()
+   except Exception as error:
+      print(error)
+      ex = usernameWindow()
+      ex.show()
    QFontDatabase.addApplicationFont('./src/fonts/Paytone_One/PaytoneOne-Regular.ttf')
    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-Regular.ttf')
    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-ExtraBold.ttf')
    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-SemiBold.ttf')
-   ex = mainWindow()
-   ex.show()
    sys.exit(app.exec_())
    
 if __name__ == '__main__':
