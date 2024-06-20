@@ -184,7 +184,7 @@ class hostGameWindow(QWidget):
       self.mainTitle.setFixedSize(1120,47)
       self.mainTitle.move(0,165)
       self.mainTitle.setAlignment(QtCore.Qt.AlignCenter)
-      self.mainTitle.setStyleSheet("font-family: Poppins; font-weight: 900; background: transparent; font-size:35px; color: black;")
+      self.mainTitle.setStyleSheet("font-family: Paytone One; background: transparent; font-size:35px; color: black;")
 
       # Game Code Label
       self.gameCodeLabelGame=QLabel('Game',self)
@@ -254,6 +254,13 @@ class playAGameWindow(QWidget):
       self.setFixedSize(1120,560)
       self.setWindowTitle('Housify - Playing a Game')
       pixmap = QPixmap('./src/gameplay-background.png')
+
+class waitingLobbyWindow(QWidget):
+   def __init__(self):
+      super().__init__()
+      self.setFixedSize(1120,560)
+      self.setWindowTitle('Housify - Waiting Lobby')
+      pixmap = QPixmap('./src/background_gameplay.png')
       palette = self.palette()
       palette.setBrush(QPalette.Background, QBrush(pixmap))
       self.setPalette(palette)
@@ -272,8 +279,55 @@ class playAGameWindow(QWidget):
       self.displayTicket.parent=self
       self.displayTicket.show()
 
-# ---- END OF ALL MODULES ----
+   def leaveGame(self):
+      self.close()
 
+   def MainUI(self):
+      # HOUSIFY
+      self.mainTitle=QLabel("HOUSIFY",self)
+      self.mainTitle.setFixedSize(1120,47)
+      self.mainTitle.move(0,120)
+      self.mainTitle.setAlignment(QtCore.Qt.AlignCenter)
+      self.mainTitle.setStyleSheet("font-family: Paytone One; background: transparent; font-size:35px; color: black;")
+
+      # BODY TEXT
+      self.bodyText = QLabel('You have joined the game.',self)
+      self.bodyText.setStyleSheet("color: black; font-family: Poppins; font-weight: 400; font-size: 40px;")
+      self.bodyText.setFixedSize(1120,50)
+      self.bodyText.move(0,220)
+      self.bodyText.setAlignment(QtCore.Qt.AlignCenter)
+
+      self.bodyText2 = QLabel('Please wait for the host to start the game.😘',self)
+      self.bodyText2.setStyleSheet("color: black; font-family: Poppins; font-weight: 400; font-size: 40px;")
+      self.bodyText2.setFixedSize(1120,50)
+      self.bodyText2.move(0,280)
+      self.bodyText2.setAlignment(QtCore.Qt.AlignCenter)
+
+      self.gameCodeLabel=QLabel('Game code:',self)
+      self.gameCodeLabel.setStyleSheet("color: black; font-family: Poppins; font-weight: 700; font-size: 22px;")
+      self.gameCodeLabel.move(120,410)
+
+      #TODO: NEED TO FIGURE OUT CODE FOR BRINGING GAME CODE (SAVE INTO A LOCAL FILE/RETRIEVE FROM DB)
+      self.gameCode=QLabel('61123',self)
+      self.gameCode.setStyleSheet("color: black; font-family: Paytone One; font-size: 62px;")
+      self.gameCode.move(270,375)
+
+      # LEAVE BUTTON
+      self.leaveButton = QPushButton('Leave Game',self)
+      self.leaveButton.setStyleSheet('''QPushButton{
+                                 font-family: Poppins; 
+                                 font-size: 18px; 
+                                 background: #F46363; 
+                                 border: 2px solid black;
+                                 color: black;
+                                 }
+                                 QPushButton::hover{
+                                 background: #F27D7D;}''')
+      self.leaveButton.setFixedSize(150,55)
+      self.leaveButton.move(860,400)
+      self.leaveButton.clicked.connect(self.leaveGame)
+# ---- END OF ALL MODULES ----
+      
 def main():
    global name
    logic.connectMe()
