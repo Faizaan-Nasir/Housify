@@ -2,7 +2,6 @@ import mysql.connector as sql
 import os
 import random
 from dotenv import load_dotenv
-import ticket
 
 load_dotenv()
 
@@ -29,6 +28,7 @@ def createGame():
     with open('username.txt','r') as file:
         gamerid=file.read()
     cur.execute(f"insert into CurrentGames values('{gameid}','{gamerid}')")
+    con.commit()
     return gameid
 # connectMe()
 # createGame()
@@ -94,7 +94,8 @@ def joinGame(gameid,gamerid):
     # cur.execute('ALTER TABLE GamePlayers add foreign key (GameID) references CurrentGames(GameID)')
     try:
         cur.execute(f"insert into GamePlayers values ('{gameid}','{gamerid}','{ticketid}')")
-        ticket.ticketMain(generateTicket(ticketid[1:])).show()
+        con.commit()
+        return ticketid[1:]
     except sql.errors.IntegrityError:
         print('''One of the two errors occurred:
               1. A game with the entered Game Code does not exist

@@ -3,13 +3,12 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QFontDatabase
 from PyQt5 import QtCore
 from functools import partial
-import logic
 
 class ticketMain(QWidget):
-    def __init__(self,ticket):
+    def __init__(self,ticket,parent):
         self.ticket=ticket
-        super().__init__()
-        self.setFixedSize(722,242)
+        super().__init__(parent)
+        self.setFixedSize(634,214)
         self.MainUI()
         self.setStyleSheet('color:black;')
 
@@ -18,7 +17,9 @@ class ticketMain(QWidget):
         global buttons
         ticketBox = QScrollArea(self)
         ticketBox.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        ticketBox.resize(722,242)
+        ticketBox.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        ticketBox.resize(634,214)
+        ticketBox.setStyleSheet('border: 2px solid black;')
         new = QWidget()
         ticketButtons = QGridLayout()
         ticketButtons.setSpacing(0)
@@ -47,7 +48,7 @@ class ticketMain(QWidget):
                                                             QPushButton::hover{'''
                                                             f"background: {hovercolor};"
                                                             "}")
-                    buttons[buttonid].setFixedSize(80,80)
+                    buttons[buttonid].setFixedSize(70,70)
                     ticketButtons.addWidget(buttons[buttonid],y,x)
                     buttons[buttonid].clicked.connect(partial(self.disable,buttonid))
                     buttonid += 1
@@ -58,7 +59,7 @@ class ticketMain(QWidget):
                                         font-size: 30px; 
                                         border: 0px;'''
                                         f"background: {color};"'''}''')
-                    tempButton.setFixedSize(80,80)
+                    tempButton.setFixedSize(70,70)
                     ticketButtons.addWidget(tempButton,y,x)
                 flag = not flag
 
@@ -73,15 +74,15 @@ class ticketMain(QWidget):
                                         background: #c9c9c7;
                                         color: #b8b8b8;''')
 
-def main():
-    app = QApplication(sys.argv)
-    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-Regular.ttf')
-    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-ExtraBold.ttf')
-    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-SemiBold.ttf')
-    temptick=logic.generateTicket('112233')
-    ex = ticketMain(temptick)
-    ex.show()
-    sys.exit(app.exec_())
+# def main():
+#     app = QApplication(sys.argv)
+#     QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-Regular.ttf')
+#     QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-ExtraBold.ttf')
+#     QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-SemiBold.ttf')
+#     temptick=logic.generateTicket('112233')
+#     ex = ticketMain(temptick)
+#     ex.show()
+#     sys.exit(app.exec_())
 
-if __name__=='__main__':
-    main()
+# if __name__=='__main__':
+#     main()

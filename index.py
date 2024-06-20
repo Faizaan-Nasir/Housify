@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QFontDatabase , QPixmap , QPalette , QBrush
 import pyperclip
 import logic
+import ticket
 
 # enter username
 class usernameWindow(QWidget):
@@ -126,6 +127,12 @@ class joinGameWindow(QWidget):
       self.setPalette(palette)
       self.MainUI()
 
+   def showGameWindow(self,gameid):
+      try:
+         playAGameWindow(gameid).show()
+      except:
+         pass
+
    def MainUI(self):
       # HOUSIFY
       self.mainTitle=QLabel("HOUSIFY",self)
@@ -157,7 +164,7 @@ class joinGameWindow(QWidget):
                                  }''')
       self.submitGameCode.setFixedSize(200,55)
       self.submitGameCode.move(580,310)
-      self.submitGameCode.clicked.connect(lambda: logic.joinGame(self.enterGameCode.text(),name))
+      self.submitGameCode.clicked.connect(lambda: self.showGameWindow(self.enterGameCode.text()))
 
 # host a game window
 class hostGameWindow(QWidget):
@@ -239,15 +246,45 @@ class hostGameWindow(QWidget):
       self.c2cb.move(580,325)
       self.c2cb.clicked.connect(lambda: c2cbFunc(self))
 
+# playing a game window
+class playAGameWindow(QWidget):
+   def __init__(self,gamecode):
+      self.gamecode=gamecode
+      super().__init__()
+      self.setFixedSize(1120,560)
+      self.setWindowTitle('Housify - Playing a Game')
+      pixmap = QPixmap('./src/gameplay-background.png')
+      palette = self.palette()
+      palette.setBrush(QPalette.Background, QBrush(pixmap))
+      self.setPalette(palette)
+      self.MainUI()
+   
+   def MainUI(self):
+      # title PLAY
+      self.playLabel=QLabel('PLAY',self)
+      self.playLabel.setStyleSheet('font-family: Paytone One; font-weight: 600; background: transparent; font-size:50px; color: black;')
+      self.playLabel.move(110,100)
+
+      # connectivity with logic
+      self.code=logic.joinGame(self.gamecode,name)
+      self.displayTicket=ticket.ticketMain(logic.generateTicket(self.code),self)
+      self.displayTicket.move(370,110)
+      self.displayTicket.parent=self
+      self.displayTicket.show()
+
+# ---- END OF ALL MODULES ----
+
 def main():
    global name
    logic.connectMe()
    app = QApplication(sys.argv)
    try:
       name = logic.getName()
+      # ex = playAGameWindow()
       ex = mainWindow()
       ex.show()
-   except:
+   except Exception as error:
+      print(error)
       ex = usernameWindow()
       ex.show()
    QFontDatabase.addApplicationFont('./src/fonts/Paytone_One/PaytoneOne-Regular.ttf')
