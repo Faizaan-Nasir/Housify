@@ -254,18 +254,11 @@ class playAGameWindow(QWidget):
       self.setFixedSize(1120,560)
       self.setWindowTitle('Housify - Playing a Game')
       pixmap = QPixmap('./src/gameplay-background.png')
-
-class waitingLobbyWindow(QWidget):
-   def __init__(self):
-      super().__init__()
-      self.setFixedSize(1120,560)
-      self.setWindowTitle('Housify - Waiting Lobby')
-      pixmap = QPixmap('./src/background_gameplay.png')
       palette = self.palette()
       palette.setBrush(QPalette.Background, QBrush(pixmap))
       self.setPalette(palette)
       self.MainUI()
-   
+      
    def MainUI(self):
       # title PLAY
       self.playLabel=QLabel('PLAY',self)
@@ -278,6 +271,18 @@ class waitingLobbyWindow(QWidget):
       self.displayTicket.move(370,110)
       self.displayTicket.parent=self
       self.displayTicket.show()
+
+
+class waitingLobbyWindow(QWidget):
+   def __init__(self):
+      super().__init__()
+      self.setFixedSize(1120,560)
+      self.setWindowTitle('Housify - Waiting Lobby')
+      pixmap = QPixmap('./src/background_gameplay.png')
+      palette = self.palette()
+      palette.setBrush(QPalette.Background, QBrush(pixmap))
+      self.setPalette(palette)
+      self.MainUI()
 
    def leaveGame(self):
       self.close()
