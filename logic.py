@@ -17,7 +17,7 @@ def connectMe():
         con=sql.connect(host=os.getenv("HOST"),port=int(os.getenv("PORT")),user=os.getenv("USER"),charset="utf8mb4",password=os.getenv("PASSWORD"),database='defaultdb')
     except Exception as error:
         with open('connection-error.txt','w') as file:
-            file.write(error)
+            file.write(str(error))
     cur=con.cursor()
 
 # the following bit is for reference only, may be used to create a database locally
