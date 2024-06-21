@@ -250,32 +250,6 @@ class hostGameWindow(QWidget):
       self.c2cb.move(580,325)
       self.c2cb.clicked.connect(lambda: c2cbFunc(self))
 
-# playing a game window
-class playAGameWindow(QWidget):
-   def __init__(self,gamecode):
-      self.gamecode=gamecode
-      super().__init__()
-      self.setFixedSize(1120,560)
-      self.setWindowTitle('Housify - Playing a Game')
-      pixmap = QPixmap('./src/gameplay-background.png')
-      palette = self.palette()
-      palette.setBrush(QPalette.Background, QBrush(pixmap))
-      self.setPalette(palette)
-      self.MainUI()
-      
-   def MainUI(self):
-      # Title PLAY
-      self.playLabel=QLabel('PLAY',self)
-      self.playLabel.setStyleSheet('font-family: Paytone One; font-weight: 600; background: transparent; font-size:50px; color: black;')
-      self.playLabel.move(110,100)
-
-      # Bringing Ticket to the Window
-      self.code=logic.joinGame(self.gamecode,name)
-      self.displayTicket=ticket.ticketMain(logic.generateTicket(self.code),self)
-      self.displayTicket.move(370,110)
-      self.displayTicket.parent=self
-      self.displayTicket.show()
-
 # waiting lobby window
 class waitingLobbyWindow(QWidget):
    def __init__(self):
@@ -336,6 +310,112 @@ class waitingLobbyWindow(QWidget):
       self.leaveButton.setFixedSize(150,55)
       self.leaveButton.move(860,400)
       self.leaveButton.clicked.connect(self.leaveGame)
+
+# playing a game window
+class playAGameWindow(QWidget):
+   def __init__(self,gamecode):
+      self.gamecode=gamecode
+      super().__init__()
+      self.setFixedSize(1120,560)
+      self.setWindowTitle('Housify - Playing a Game')
+      pixmap = QPixmap('./src/gameplay-background.png')
+      palette = self.palette()
+      palette.setBrush(QPalette.Background, QBrush(pixmap))
+      self.setPalette(palette)
+      self.MainUI()
+      
+   def MainUI(self):
+      # Title PLAY
+      self.playLabel=QLabel('PLAY',self)
+      self.playLabel.setStyleSheet('font-family: Paytone One; font-weight: 600; background: transparent; font-size:50px; color: black;')
+      self.playLabel.move(110,90)
+
+      # Bringing Ticket to the Window
+      self.code=logic.joinGame(self.gamecode,name)
+      self.displayTicket=ticket.ticketMain(logic.generateTicket(self.code),self)
+      self.displayTicket.move(370,110)
+      self.displayTicket.parent=self
+      self.displayTicket.show()
+
+      self.statusLabel = QLabel('Status:',self)
+      self.statusLabel.setStyleSheet('font-family: Paytone One; font-weight: 600; background: transparent; font-size:34px; color: black;')
+      self.statusLabel.move(110,160)
+      
+      self.statusText = QLabel('''Numbers left: 48\nFirst row\nSecond row\nThird row\nFull house''',self)
+      self.statusText.setStyleSheet('font-family: Poppins; font-size: 20px; color: black;')
+      self.statusText.move(110,210)
+
+      self.number = QPushButton('Called: 16',self)
+      self.number.setStyleSheet('''QPushButton{
+                                    font-family: Poppins;
+                                    font-size: 30px;
+                                    color: black;
+                                    background-color: #F8EDD9;
+                                    padding: 15px;
+                                    border: 2px solid black;
+                                 }''')
+      self.number.move(110,380)
+
+      self.firstHouse = QPushButton('1st\nHouse',self)
+      self.firstHouse.resize(100,76)
+      self.firstHouse.setStyleSheet('''QPushButton{
+                                    font-family: Poppins;
+                                    font-size: 18px;
+                                    color: black;
+                                    background-color: #F8EDD9;
+                                    padding: 15px;
+                                    border: 2px solid black;
+                                 }''')
+      self.firstHouse.move(370,380)
+
+      self.secondHouse = QPushButton('2nd\nHouse',self)
+      self.secondHouse.resize(100,76)
+      self.secondHouse.setStyleSheet('''QPushButton{
+                                    font-family: Poppins;
+                                    font-size: 18px;
+                                    color: black;
+                                    background-color: #F8EDD9;
+                                    padding: 15px;
+                                    border: 2px solid black;
+                                 }''')
+      self.secondHouse.move(480,380)
+
+      self.thirdHouse = QPushButton('3rd\nHouse',self)
+      self.thirdHouse.resize(100,76)
+      self.thirdHouse.setStyleSheet('''QPushButton{
+                                    font-family: Poppins;
+                                    font-size: 18px;
+                                    color: black;
+                                    background-color: #F8EDD9;
+                                    padding: 15px;
+                                    border: 2px solid black;
+                                 }''')
+      self.thirdHouse.move(590,380)
+
+      self.fullHouse = QPushButton('Full\nHouse',self)
+      self.fullHouse.resize(100,76)
+      self.fullHouse.setStyleSheet('''QPushButton{
+                                    font-family: Poppins;
+                                    font-size: 18px;
+                                    color: black;
+                                    background-color: #F8EDD9;
+                                    padding: 15px;
+                                    border: 2px solid black;
+                                 }''')
+      self.fullHouse.move(700,380)
+
+      self.leaveGame = QPushButton('Leave Game',self)
+      self.leaveGame.resize(150,76)
+      self.leaveGame.setStyleSheet('''QPushButton{
+                                    font-family: Poppins;
+                                    font-size: 18px;
+                                    color: black;
+                                    background-color: #F46363;
+                                    padding: 15px;
+                                    border: 2px solid black;
+                                 }''')
+      self.leaveGame.move(855,380)
+
 # ---- END OF ALL MODULES ----
       
 def main():
@@ -349,7 +429,7 @@ def main():
       ex.show()
    except Exception as error:
       print(error)
-      ex = usernameWindow()
+      ex = playAGameWindow()
       ex.show()
    QFontDatabase.addApplicationFont('./src/fonts/Paytone_One/PaytoneOne-Regular.ttf')
    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-Regular.ttf')
