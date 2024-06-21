@@ -43,6 +43,7 @@ class ticketMain(QWidget):
                     buttons[buttonid].setStyleSheet('''QPushButton{
                                                             font-family: poppins;
                                                             font-size: 30px; 
+                                                            font-weight: 500;
                                                             border: 0px;'''
                                                             f"background: {color};"
                                                             '''}
@@ -58,6 +59,7 @@ class ticketMain(QWidget):
                     tempButton.setStyleSheet('''QPushButton{
                                         font-family: poppins;
                                         font-size: 30px; 
+                                        font-weight: 500;
                                         border: 0px;'''
                                         f"background: {color};"'''}''')
                     tempButton.setFixedSize(70,70)
@@ -72,6 +74,7 @@ class ticketMain(QWidget):
         buttons[buttonid].setStyleSheet('''font-family: poppins;
                                         font-size: 30px;
                                         border: 0px;
+                                        font-weight: 500;
                                         background: #c9c9c7;
                                         color: #b8b8b8;''')
 

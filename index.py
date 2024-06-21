@@ -338,11 +338,14 @@ class playAGameWindow(QWidget):
       self.displayTicket.show()
 
       self.statusLabel = QLabel('Status:',self)
-      self.statusLabel.setStyleSheet('font-family: Paytone One; font-weight: 600; background: transparent; font-size:34px; color: black;')
+      self.statusLabel.setStyleSheet('font-family: Paytone One; font-weight: 600; background: transparent; font-size: 34px; color: black;')
       self.statusLabel.move(110,160)
       
-      self.statusText = QLabel('''Numbers left: 48\nFirst row\nSecond row\nThird row\nFull house''',self)
-      self.statusText.setStyleSheet('font-family: Poppins; font-size: 20px; color: black;')
+      self.statusText = QLabel('''
+            <div style="font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;">
+                Numbers left: 48<br>First row<br>Second row<br>Third row<br>Full house
+            </div>
+        ''', self)
       self.statusText.move(110,210)
 
       self.number = QPushButton('Called: 16',self)
@@ -351,43 +354,44 @@ class playAGameWindow(QWidget):
                                     font-size: 30px;
                                     color: black;
                                     background-color: #F8EDD9;
-                                    padding: 15px;
+                                    font-weight: 500;
                                     border: 2px solid black;
                                  }''')
+      self.number.resize(200,76)
       self.number.move(110,380)
 
-      self.firstHouse = QPushButton('1st\nHouse',self)
+      self.firstHouse = QPushButton('1st\nRow',self)
       self.firstHouse.resize(100,76)
       self.firstHouse.setStyleSheet('''QPushButton{
                                     font-family: Poppins;
                                     font-size: 18px;
                                     color: black;
+                                    font-weight: 500;
                                     background-color: #F8EDD9;
-                                    padding: 15px;
                                     border: 2px solid black;
                                  }''')
       self.firstHouse.move(370,380)
 
-      self.secondHouse = QPushButton('2nd\nHouse',self)
+      self.secondHouse = QPushButton('2nd\nRow',self)
       self.secondHouse.resize(100,76)
       self.secondHouse.setStyleSheet('''QPushButton{
                                     font-family: Poppins;
                                     font-size: 18px;
                                     color: black;
+                                    font-weight: 500;
                                     background-color: #F8EDD9;
-                                    padding: 15px;
                                     border: 2px solid black;
                                  }''')
       self.secondHouse.move(480,380)
 
-      self.thirdHouse = QPushButton('3rd\nHouse',self)
+      self.thirdHouse = QPushButton('3rd\nrow',self)
       self.thirdHouse.resize(100,76)
       self.thirdHouse.setStyleSheet('''QPushButton{
                                     font-family: Poppins;
                                     font-size: 18px;
                                     color: black;
+                                    font-weight: 500;
                                     background-color: #F8EDD9;
-                                    padding: 15px;
                                     border: 2px solid black;
                                  }''')
       self.thirdHouse.move(590,380)
@@ -398,8 +402,8 @@ class playAGameWindow(QWidget):
                                     font-family: Poppins;
                                     font-size: 18px;
                                     color: black;
+                                    font-weight: 500;
                                     background-color: #F8EDD9;
-                                    padding: 15px;
                                     border: 2px solid black;
                                  }''')
       self.fullHouse.move(700,380)
@@ -410,8 +414,8 @@ class playAGameWindow(QWidget):
                                     font-family: Poppins;
                                     font-size: 18px;
                                     color: black;
+                                    font-weight: 500;
                                     background-color: #F46363;
-                                    padding: 15px;
                                     border: 2px solid black;
                                  }''')
       self.leaveGame.move(855,380)
