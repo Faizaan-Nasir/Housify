@@ -28,6 +28,9 @@ class Client :
         self.socket.setblocking(False)
         usr = self._encode(username)
         self.socket.send(usr)
+
+    def disconnect(self) : 
+        self.socket.close()
         
     def run(self) : 
         t = threading.Thread(target = self._run)
@@ -38,14 +41,23 @@ class Client :
 
     def _run(self) : 
         while True :
-            self._send()
-            self._receive()
+            try : 
+                self._send()
+                self._receive()
+            except Exception as e : 
+                if str(e) == "APPLICATION EXIT" :
+                    print("[DISCONNECT]\tCLOSING APPLICATION")
+                    self.disconnect() 
+                    break
+        return
+                    
             
     def _send(self) :
         # print("Called") 
         msg = self.msgr.release()
         if msg : 
-            print(msg)
+            if msg == "CLOSE APP" : 
+                raise Exception("APPLICATION EXIT")
             msg = self._encode(msg)
             self.socket.send(msg)
     

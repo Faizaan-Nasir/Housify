@@ -72,9 +72,7 @@ class mainWindow(QWidget):
    def hostGameButton(self):
       game_code = str(random.randint(10000,99999))
       obj = {"username": name, "role" : "HOST", "event" : "CREATE GAME", "code" : game_code}
-      print(obj)
       msgr.send(obj)
-      print("Sent obj")
       self.newWin = hostGameWindow(game_code)
       self.newWin.show()
       # self.hide()
@@ -327,11 +325,12 @@ def main():
    msgr = Messenger(_type = "CLIENT")
    trigger = Triggers()
    client = Client(msgr, trigger)
-
-   # FIXME: FIX THE APP NOT EXITING ERROR
+   
    ex = usernameWindow()
    ex.show()
-   sys.exit(app.exec_())
+   code = app.exec_()
+   msgr.send("CLOSE APP")
+   sys.exit(code)
    
 if __name__ == '__main__':
    main()
