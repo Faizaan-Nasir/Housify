@@ -102,7 +102,11 @@ def joinGame(gameid,gamerid):
         cur.execute(f"insert into GamePlayers values ('{gameid}','{gamerid}','{ticketid}')")
         con.commit()
         return ticketid[1:]
-    except sql.errors.IntegrityError:
+    except Exception as error:
+        if str(error)=='''1452 (23000): Cannot add or update a child row: a foreign key constraint fails ("defaultdb"."GamePlayers", CONSTRAINT "GamePlayers_ibfk_1" FOREIGN KEY ("GameID") REFERENCES "CurrentGames" ("GameID"))''':
+            raise Exception('GameNotFound')
+        elif str(error)=="1062 (23000): Duplicate entry '47127-Faizaan' for key 'GamePlayers.PRIMARY'":
+            raise Exception('AlreadyInGame')
         print('''One of the two errors occurred:
               1. A game with the entered Game Code does not exist
               2. You have already joined this game before''')

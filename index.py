@@ -134,8 +134,24 @@ class joinGameWindow(QWidget):
    def showGameWindow(self,gameid):
       try:
          playAGameWindow(gameid).show()
-      except:
-         pass
+      except Exception as error:
+         print(error)
+         if str(error)=='GameNotFound':
+            self.errorMessage=QLabel('<p>Game does not exist.',self)
+            self.errorMessage.setStyleSheet('font-family: poppins; font-size: 12px; color: #D2626E;')
+            self.errorMessage.setFixedWidth(1120)
+            self.errorMessage.setAlignment(QtCore.Qt.AlignCenter)
+            self.errorMessage.move(0,375)
+            self.errorMessage.show()
+            QtCore.QTimer.singleShot(3000, lambda: self.errorMessage.hide())
+         elif str(error)=='AlreadyInGame':
+            self.errorMessage=QLabel('<p>You have already joined this game.',self)
+            self.errorMessage.setStyleSheet('font-family: poppins; font-size: 12px; color: #D2626E;')
+            self.errorMessage.setFixedWidth(1120)
+            self.errorMessage.setAlignment(QtCore.Qt.AlignCenter)
+            self.errorMessage.move(0,375)
+            self.errorMessage.show()
+            QtCore.QTimer.singleShot(3000, lambda: self.errorMessage.hide())
 
    def MainUI(self):
       # HOUSIFY
