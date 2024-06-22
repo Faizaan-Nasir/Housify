@@ -14,7 +14,7 @@ def getName():
 def connectMe():
     global con,cur
     try:
-        con=sql.connect(host=os.getenv("HOST"),port=int(os.getenv("PORT")),user=os.getenv("USER"),charset="utf8mb4",password=os.getenv("PASSWORD"),database='defaultdb')
+        con=sql.connect(host=os.getenv("HOST"),port=int(os.getenv("PORT")),user=os.getenv("USERNAME"),charset="utf8mb4",password=os.getenv("PASSWORD"),database='defaultdb')
     except Exception as error:
         with open('connection-error.txt','w') as file:
             file.write(str(error))
