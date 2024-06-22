@@ -181,7 +181,11 @@ class hostGameWindow(QWidget):
       palette.setBrush(QPalette.Background, QBrush(pixmap))
       self.setPalette(palette)
       self.MainUI()
-   
+
+   def startingGame(self):
+      self.hostwindow=hostingGame()
+      self.hostwindow.show()
+
    def MainUI(self):
       # HOUSIFY
       self.mainTitle=QLabel("HOUSIFY",self)
@@ -222,7 +226,7 @@ class hostGameWindow(QWidget):
                                  background: #63a9eb;}''')
       self.startGame.setFixedSize(200,55)
       self.startGame.move(340,325)
-      #self.startGame.clicked.connect()
+      self.startGame.clicked.connect(self.startingGame)
 
       # Copy to Clipboard Function
       def c2cbFunc(self):
@@ -420,12 +424,67 @@ class playAGameWindow(QWidget):
                                  }''')
       self.leaveGame.move(855,380)
 
+class hostingGame(QWidget):
+   def __init__(self):
+      super().__init__()
+      self.setFixedSize(1120,560)
+      self.setWindowTitle('Housify - Hosting a Game')
+      pixmap = QPixmap('./src/gameplay-background.png')
+      palette = self.palette()
+      palette.setBrush(QPalette.Background, QBrush(pixmap))
+      self.setPalette(palette)
+      self.MainUI()
+   
+   def MainUI(self):
+      # Title HOST
+      self.hostLabel=QLabel('HOST',self)
+      self.hostLabel.setStyleSheet('font-family: Paytone One; font-weight: 600; background: transparent; font-size:50px; color: black;')
+      self.hostLabel.move(110,90)
+
+      self.statusLabel = QLabel('Status:',self)
+      self.statusLabel.setStyleSheet('font-family: "Paytone One"; font-weight: 600; background: transparent; font-size: 34px; color: black;')
+      self.statusLabel.move(110,160)
+      
+      self.statusText = QLabel('''
+            <div style="font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;">
+                Numbers left: 48<br>First row<br>Second row<br>Third row<br>Full house
+            </div>
+        ''', self)
+      self.statusText.move(110,210)
+
+      self.callOutNumber = QPushButton('Call Out Number',self)
+      self.callOutNumber.setStyleSheet('''QPushButton{
+                                    font-family: Poppins;
+                                    font-size: 20px;
+                                    color: black;
+                                    background-color: #69B1F4;
+                                    font-weight: 500;
+                                    border: 2px solid black;
+                                 }''')
+      self.callOutNumber.resize(200,76)
+      self.callOutNumber.move(110,380)
+
+      self.endGame = QPushButton('End Game',self)
+      self.endGame.setStyleSheet('''QPushButton{
+                                    font-family: Poppins;
+                                    font-size: 20px;
+                                    color: black;
+                                    background-color: #F46363;
+                                    font-weight: 500;
+                                    border: 2px solid black;
+                                 }''')
+      self.endGame.resize(200,76)
+      self.endGame.move(330,380)
 # ---- END OF ALL MODULES ----
       
 def main():
    global name
    logic.connectMe()
    app = QApplication(sys.argv)
+   QFontDatabase.addApplicationFont('./src/fonts/Paytone_One/PaytoneOne-Regular.ttf')
+   QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-Regular.ttf')
+   QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-ExtraBold.ttf')
+   QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-SemiBold.ttf')
    try:
       name = logic.getName()
       # ex = playAGameWindow()
@@ -435,10 +494,6 @@ def main():
       print(error)
       ex = playAGameWindow()
       ex.show()
-   QFontDatabase.addApplicationFont('./src/fonts/Paytone_One/PaytoneOne-Regular.ttf')
-   QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-Regular.ttf')
-   QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-ExtraBold.ttf')
-   QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-SemiBold.ttf')
    sys.exit(app.exec_())
    
 if __name__ == '__main__':
