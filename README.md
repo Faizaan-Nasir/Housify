@@ -3,11 +3,11 @@ A python based application to play Housie
 ## Checklist ✔️
 - [x] Startup Page (Host/Join a Game)
 - [x] Host Game -> Game Key -> Database
-- [ ] Join Game -> New ID -> Ticket
+- [x] Join Game -> New ID -> Ticket
 - [x] Ticket Generator
-- [ ] Play Area
+- [x] Play Area
 - [ ] Ticket Checker
-- [ ] Database to Store IDs of Players in a Game
+- [x] Database to Store IDs of Players in a Game
 
 #TODO on front end aspect:
 1. Hover effects on buttons for Playing a Game window
