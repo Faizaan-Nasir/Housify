@@ -135,7 +135,6 @@ class joinGameWindow(QWidget):
       try:
          playAGameWindow(gameid).show()
       except Exception as error:
-         print(error)
          if str(error)=='GameNotFound':
             self.errorMessage=QLabel('<p>Game does not exist.',self)
             self.errorMessage.setStyleSheet('font-family: poppins; font-size: 12px; color: #D2626E;')

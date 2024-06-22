@@ -103,11 +103,11 @@ def joinGame(gameid,gamerid):
         con.commit()
         return ticketid[1:]
     except Exception as error:
-        if str(error)=='''1452 (23000): Cannot add or update a child row: a foreign key constraint fails ("defaultdb"."GamePlayers", CONSTRAINT "GamePlayers_ibfk_1" FOREIGN KEY ("GameID") REFERENCES "CurrentGames" ("GameID"))''':
+        if '''Cannot add or update a child row: a foreign key constraint fails ("defaultdb"."GamePlayers", CONSTRAINT "GamePlayers_ibfk_1" FOREIGN KEY ("GameID") REFERENCES "CurrentGames" ("GameID"))''' in str(error):
             raise Exception('GameNotFound')
-        elif str(error)=="1062 (23000): Duplicate entry '47127-Faizaan' for key 'GamePlayers.PRIMARY'":
+        elif "Duplicate entry" in str(error):
             raise Exception('AlreadyInGame')
-        print('''One of the two errors occurred:
+        print(error,'''One of the two errors occurred:
               1. A game with the entered Game Code does not exist
               2. You have already joined this game before''')
         # we need to put this error in some sort of a window
