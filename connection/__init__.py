@@ -1,2 +1,2 @@
-from .middleware import Triggers, Messenger, Game
+from .middleware import Game
 from .client import Client

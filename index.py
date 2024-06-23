@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QFontDatabase , QPixmap , QPalette , QBrush
 import random
 import pyperclip
-from connection import Client, Triggers, Messenger
+from connection import Client
 
 
 # enter username
