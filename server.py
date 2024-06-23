@@ -84,7 +84,11 @@ class Server :
             reply = "SUCCESS"
             uname = msg["username"]
             if code in self.games :
-                self.games[code].add_player(uname, c)
+                g = self.games[code]
+                g.add_player(uname, c)
+                h_reply = {"event" : "PLAYER JOIN", "player_name" : uname}
+                print(f"Sent {h_reply} to {g.hostname}")
+                g.host_client.send(self._encode(h_reply))
             else : 
                 print(self.games)
                 reply = "FAILED"              

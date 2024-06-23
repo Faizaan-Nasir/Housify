@@ -7,6 +7,7 @@ import pyperclip
 from connection import Client
 import logic
 import ticket
+from player_list import PlayerList
 
 
 # enter username
@@ -195,20 +196,31 @@ class joinGameWindow(QWidget):
 
 # host a game window
 class hostGameWindow(QWidget):
+
    def __init__(self, newGameCode):
       super().__init__()
       self.newGameCode= newGameCode
       self.setFixedSize(1120,560)
+      self.players = []
       self.setWindowTitle('Housify - Host a Game')
       pixmap = QPixmap('./src/background_host.png')
       palette = self.palette()
       palette.setBrush(QPalette.Background, QBrush(pixmap))
       self.setPalette(palette)
       self.MainUI()
+      client.msgSignal.connect(self.updatePlayers)
 
    def startingGame(self):
       self.hostwindow=hostingGame()
       self.hostwindow.show()
+
+   @QtCore.pyqtSlot(dict)
+   def updatePlayers(self, msg): 
+      print(msg)
+      if msg["event"] == "PLAYER JOIN" :
+         self.p.add_player(msg["player_name"])
+      elif msg["event"] == "PLAYER REMOVE" : 
+         self.p.remove_player(msg["player_name"])
 
    def MainUI(self):
       # HOUSIFY
@@ -235,6 +247,11 @@ class hostGameWindow(QWidget):
       self.gameCode=QLabel(self.newGameCode,self)
       self.gameCode.setStyleSheet("color: black; font-family: Poppins; font-weight: 900; font-size: 62px;")
       self.gameCode.move(535,215)
+
+      # Player list
+      self.p = PlayerList("PLAYERS", self)
+      self.p.move(920, 120)
+      self.p.show()
 
       # Start Game Button
       self.startGame=QPushButton('Start Game',self)
