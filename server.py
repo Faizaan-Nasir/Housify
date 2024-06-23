@@ -67,7 +67,6 @@ class Server :
             mlen = int(header)
             msg = socket.recv(mlen)
             msg = pickle.loads(msg)
-            # TODO: Do something with the message
             return msg
         except : 
             return False
@@ -80,6 +79,14 @@ class Server :
             g = Game(code, uname, c)
             self.games[code] = g
             print(f"[NEW GAME]\tGame with code {code} was created by {uname}")
+        if msg["event"] == "JOIN GAME" : 
+            code = msg["code"]
+            uname = msg["username"]
+            if code in self.games :
+                self.games[code].add_player(uname, c)
+                c.send("SUCCESS")
+            else : 
+                c.send("FAILED")
 
 
 
