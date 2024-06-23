@@ -81,14 +81,15 @@ class Server :
             print(f"[NEW GAME]\tGame with code {code} was created by {uname}")
         if msg["event"] == "JOIN GAME" : 
             code = msg["code"]
+            reply = "SUCCESS"
             uname = msg["username"]
             if code in self.games :
                 self.games[code].add_player(uname, c)
-                c.send("SUCCESS")
             else : 
-                c.send("FAILED")
+                print(self.games)
+                reply = "FAILED"              
 
-
+            c.send(self._encode({"msg" : reply}))
 
 # USAGE EXAMPLE
 if __name__ == "__main__" : 

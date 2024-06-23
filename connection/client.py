@@ -3,17 +3,17 @@ import pickle
 import errno
 import sys
 import threading
-from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import pyqtSignal, QObject
 
-class Client : 
+class Client(QObject) : 
     
-    msgSignal = pyqtSignal(dict, str)
-    lock = threading.Lock()
+    msgSignal = pyqtSignal(dict)
     BUFFER_SIZE = 16
     HEADER_LENGTH = 10
     FORMATTING = "utf-8"
 
-    def __init__(self, status = "PLAYER", ip = socket.gethostbyname(socket.gethostname()), port = 4040) : 
+    def __init__(self, status = "PLAYER", ip = socket.gethostbyname(socket.gethostname()), port = 4040, parent = None) : 
+        super(Client, self).__init__(parent)
         self.b_ip = ip
         self.b_port = port
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -44,10 +44,8 @@ class Client :
     def _run(self) : 
         while True :
             msg = self._receive()
-            if msg : 
-                print("Received message, sending to main thread")
-                with self.lock : 
-                    self.msgSignal.emit(msg)
+            if msg :
+                self.msgSignal.emit(msg)
             
     def send(self, msg) :
         msg = self._encode(msg)

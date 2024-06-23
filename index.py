@@ -137,16 +137,18 @@ class joinGameWindow(QWidget):
    def joinGameButton(self):
       client.msgSignal.connect(self.onJoin)
       game_code = self.enterGameCode.text()
-      obj = {"username": name, "role" : "PLAYER", "event" : "JOIN GAME", "code" : int(game_code)}
+      obj = {"username": name, "role" : "PLAYER", "event" : "JOIN GAME", "code" : game_code}
       client.send(obj)
 
-   @QtCore.pyqtSlot(dict, str)
+   @QtCore.pyqtSlot(dict)
    def onJoin(self, msg) :
-      if type(msg) == str and msg == "SUCCESS" : 
+      msg =  msg["msg"] 
+      if msg and msg == "SUCCESS" :  
         self.newWin = waitingLobbyWindow()
         self.newWin.show()
+        client.msgSignal.disconnect(self.onJoin)
         self.hide()
-      else :
+      else:
         self.dialog = QMessageBox(self)
         self.dialog.setWindowTitle("Error")
         self.dialog.setText("There was an error in joining the game. Please make sure that you've entered a correct code")
