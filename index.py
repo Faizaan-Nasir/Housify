@@ -86,7 +86,7 @@ class mainWindow(QWidget):
       self.mainTitle.setFixedSize(1120,52)
       self.mainTitle.move(0,210)
       self.mainTitle.setAlignment(QtCore.Qt.AlignCenter)
-      self.mainTitle.setStyleSheet("font-family: Paytone One; background: transparent; font-size:60px; color: black;")
+      self.mainTitle.setStyleSheet("font-family: Paytone One; font-weight: 600; background: transparent; font-size:60px; color: black;")
       
       # Host a Game Button
       self.hostGame=QPushButton('Host a Game',self)
@@ -189,7 +189,7 @@ class joinGameWindow(QWidget):
                                  }''')
       self.submitGameCode.setFixedSize(200,55)
       self.submitGameCode.move(580,310)
-      self.submitGameCode.clicked.connect(self.joinGameButton)
+      self.submitGameCode.clicked.connect(lambda: self.showGameWindow(self.enterGameCode.text()))
 
 # host a game window
 class hostGameWindow(QWidget):
@@ -203,7 +203,11 @@ class hostGameWindow(QWidget):
       palette.setBrush(QPalette.Background, QBrush(pixmap))
       self.setPalette(palette)
       self.MainUI()
-   
+
+   def startingGame(self):
+      self.hostwindow=hostingGame()
+      self.hostwindow.show()
+
    def MainUI(self):
       # HOUSIFY
       self.mainTitle=QLabel("HOUSIFY",self)
@@ -226,6 +230,7 @@ class hostGameWindow(QWidget):
       self.colon.move(490,210)
 
       # Game Code
+      self.newGameCode=str(random.randint(10000,99999))
       self.gameCode=QLabel(self.newGameCode,self)
       self.gameCode.setStyleSheet("color: black; font-family: Poppins; font-weight: 900; font-size: 62px;")
       self.gameCode.move(535,215)
@@ -243,7 +248,7 @@ class hostGameWindow(QWidget):
                                  background: #63a9eb;}''')
       self.startGame.setFixedSize(200,55)
       self.startGame.move(340,325)
-      #self.startGame.clicked.connect()
+      self.startGame.clicked.connect(self.startingGame)
 
       # Copy to Clipboard Function
       def c2cbFunc(self):
@@ -271,6 +276,7 @@ class hostGameWindow(QWidget):
       self.c2cb.move(580,325)
       self.c2cb.clicked.connect(lambda: c2cbFunc(self))
 
+# waiting lobby window
 class waitingLobbyWindow(QWidget):
    # TODO: Waiting lobby
    def __init__(self):
@@ -283,6 +289,7 @@ class waitingLobbyWindow(QWidget):
       self.setPalette(palette)
       self.MainUI()
 
+   # function to leave the game
    def leaveGame(self):
       self.close()
 
@@ -331,6 +338,168 @@ class waitingLobbyWindow(QWidget):
       self.leaveButton.move(860,400)
       self.leaveButton.clicked.connect(self.leaveGame)
 
+# playing a game window
+class playAGameWindow(QWidget):
+   def __init__(self,gamecode):
+      self.gamecode=gamecode
+      super().__init__()
+      self.setFixedSize(1120,560)
+      self.setWindowTitle('Housify - Playing a Game')
+      pixmap = QPixmap('./src/gameplay-background.png')
+      palette = self.palette()
+      palette.setBrush(QPalette.Background, QBrush(pixmap))
+      self.setPalette(palette)
+      self.MainUI()
+      
+   def MainUI(self):
+      # Title PLAY
+      self.playLabel=QLabel('PLAY',self)
+      self.playLabel.setStyleSheet('font-family: Paytone One; font-weight: 600; background: transparent; font-size:50px; color: black;')
+      self.playLabel.move(110,90)
+
+      # Bringing Ticket to the Window
+      self.code=logic.joinGame(self.gamecode,name)
+      self.displayTicket=ticket.ticketMain(logic.generateTicket(self.code),self)
+      self.displayTicket.move(370,110)
+      self.displayTicket.parent=self
+      self.displayTicket.show()
+
+      self.statusLabel = QLabel('Status:',self)
+      self.statusLabel.setStyleSheet('font-family: Paytone One; font-weight: 600; background: transparent; font-size: 34px; color: black;')
+      self.statusLabel.move(110,160)
+      
+      self.statusText = QLabel('''
+            <div style="font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;">
+                Numbers left: 48<br>First row<br>Second row<br>Third row<br>Full house
+            </div>
+        ''', self)
+      self.statusText.move(110,210)
+
+      self.number = QPushButton('Called: 16',self)
+      self.number.setStyleSheet('''QPushButton{
+                                    font-family: Poppins;
+                                    font-size: 30px;
+                                    color: black;
+                                    background-color: #F8EDD9;
+                                    font-weight: 500;
+                                    border: 2px solid black;
+                                 }''')
+      self.number.resize(200,76)
+      self.number.move(110,380)
+
+      self.firstHouse = QPushButton('1st\nRow',self)
+      self.firstHouse.resize(100,76)
+      self.firstHouse.setStyleSheet('''QPushButton{
+                                    font-family: Poppins;
+                                    font-size: 18px;
+                                    color: black;
+                                    font-weight: 500;
+                                    background-color: #F8EDD9;
+                                    border: 2px solid black;
+                                 }''')
+      self.firstHouse.move(370,380)
+
+      self.secondHouse = QPushButton('2nd\nRow',self)
+      self.secondHouse.resize(100,76)
+      self.secondHouse.setStyleSheet('''QPushButton{
+                                    font-family: Poppins;
+                                    font-size: 18px;
+                                    color: black;
+                                    font-weight: 500;
+                                    background-color: #F8EDD9;
+                                    border: 2px solid black;
+                                 }''')
+      self.secondHouse.move(480,380)
+
+      self.thirdHouse = QPushButton('3rd\nrow',self)
+      self.thirdHouse.resize(100,76)
+      self.thirdHouse.setStyleSheet('''QPushButton{
+                                    font-family: Poppins;
+                                    font-size: 18px;
+                                    color: black;
+                                    font-weight: 500;
+                                    background-color: #F8EDD9;
+                                    border: 2px solid black;
+                                 }''')
+      self.thirdHouse.move(590,380)
+
+      self.fullHouse = QPushButton('Full\nHouse',self)
+      self.fullHouse.resize(100,76)
+      self.fullHouse.setStyleSheet('''QPushButton{
+                                    font-family: Poppins;
+                                    font-size: 18px;
+                                    color: black;
+                                    font-weight: 500;
+                                    background-color: #F8EDD9;
+                                    border: 2px solid black;
+                                 }''')
+      self.fullHouse.move(700,380)
+
+      self.leaveGame = QPushButton('Leave Game',self)
+      self.leaveGame.resize(150,76)
+      self.leaveGame.setStyleSheet('''QPushButton{
+                                    font-family: Poppins;
+                                    font-size: 18px;
+                                    color: black;
+                                    font-weight: 500;
+                                    background-color: #F46363;
+                                    border: 2px solid black;
+                                 }''')
+      self.leaveGame.move(855,380)
+
+class hostingGame(QWidget):
+   def __init__(self):
+      super().__init__()
+      self.setFixedSize(1120,560)
+      self.setWindowTitle('Housify - Hosting a Game')
+      pixmap = QPixmap('./src/gameplay-background.png')
+      palette = self.palette()
+      palette.setBrush(QPalette.Background, QBrush(pixmap))
+      self.setPalette(palette)
+      self.MainUI()
+   
+   def MainUI(self):
+      # Title HOST
+      self.hostLabel=QLabel('HOST',self)
+      self.hostLabel.setStyleSheet('font-family: Paytone One; font-weight: 600; background: transparent; font-size:50px; color: black;')
+      self.hostLabel.move(110,90)
+
+      self.statusLabel = QLabel('Status:',self)
+      self.statusLabel.setStyleSheet('font-family: "Paytone One"; font-weight: 600; background: transparent; font-size: 34px; color: black;')
+      self.statusLabel.move(110,160)
+      
+      self.statusText = QLabel('''
+            <div style="font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;">
+                Numbers left: 48<br>First row<br>Second row<br>Third row<br>Full house
+            </div>
+        ''', self)
+      self.statusText.move(110,210)
+
+      self.callOutNumber = QPushButton('Call Out Number',self)
+      self.callOutNumber.setStyleSheet('''QPushButton{
+                                    font-family: Poppins;
+                                    font-size: 20px;
+                                    color: black;
+                                    background-color: #69B1F4;
+                                    font-weight: 500;
+                                    border: 2px solid black;
+                                 }''')
+      self.callOutNumber.resize(200,76)
+      self.callOutNumber.move(110,380)
+
+      self.endGame = QPushButton('End Game',self)
+      self.endGame.setStyleSheet('''QPushButton{
+                                    font-family: Poppins;
+                                    font-size: 20px;
+                                    color: black;
+                                    background-color: #F46363;
+                                    font-weight: 500;
+                                    border: 2px solid black;
+                                 }''')
+      self.endGame.resize(200,76)
+      self.endGame.move(330,380)
+# ---- END OF ALL MODULES ----
+      
 def main():
    global name, client
 
@@ -339,13 +508,20 @@ def main():
    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-Regular.ttf')
    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-ExtraBold.ttf')
    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-SemiBold.ttf')
-
+   try:
+      name = logic.getName()
+      # ex = playAGameWindow()
+   
 #    msgr = Messenger(_type = "CLIENT")
 #    trigger = Triggers()
    client = Client()
    
    ex = usernameWindow()
-   ex.show()
+      ex.show()
+   except Exception as error:
+      print(error)
+      ex = playAGameWindow()
+      ex.show()
    code = app.exec_()
    sys.exit(code)
    
