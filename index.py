@@ -24,6 +24,7 @@ class usernameWindow(QWidget):
       client.connect(name)
       client.run()
       self.hide()
+      self.close()
       self.newin=mainWindow()
       self.newin.show()
 
@@ -67,6 +68,7 @@ class mainWindow(QWidget):
       self.newWin = joinGameWindow()
       self.newWin.show()
       self.hide()
+      self.close()
    
    # function to show hostGameWindow
    def hostGameButton(self):
@@ -76,6 +78,7 @@ class mainWindow(QWidget):
       self.newWin = hostGameWindow(game_code)
       self.newWin.show()
       self.hide()
+      self.close()
 
    def MainUI(self):
       # HOUSIFY
@@ -148,11 +151,12 @@ class joinGameWindow(QWidget):
         self.newWin.show()
         client.msgSignal.disconnect(self.onJoin)
         self.hide()
+        self.close()
       else:
         self.dialog = QMessageBox(self)
         self.dialog.setWindowTitle("Error")
         self.dialog.setText("There was an error in joining the game. Please make sure that you've entered a correct code")
-        self.dialog.show()   
+        self.dialog.show()
 
    def MainUI(self):
       # HOUSIFY
@@ -189,7 +193,6 @@ class joinGameWindow(QWidget):
 
 # host a game window
 class hostGameWindow(QWidget):
-   # TODO: Host a game
    def __init__(self, newGameCode):
       super().__init__()
       self.newGameCode= newGameCode
