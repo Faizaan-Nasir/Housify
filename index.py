@@ -5,6 +5,8 @@ from PyQt5.QtGui import QFontDatabase , QPixmap , QPalette , QBrush
 import random
 import pyperclip
 from connection import Client
+import logic
+import ticket
 
 
 # enter username
@@ -139,15 +141,15 @@ class joinGameWindow(QWidget):
 
    def joinGameButton(self):
       client.msgSignal.connect(self.onJoin)
-      game_code = self.enterGameCode.text()
-      obj = {"username": name, "role" : "PLAYER", "event" : "JOIN GAME", "code" : game_code}
+      self.game_code = self.enterGameCode.text()
+      obj = {"username": name, "role" : "PLAYER", "event" : "JOIN GAME", "code" : self.game_code}
       client.send(obj)
 
    @QtCore.pyqtSlot(dict)
    def onJoin(self, msg) :
       msg =  msg["msg"] 
       if msg and msg == "SUCCESS" :  
-        self.newWin = waitingLobbyWindow()
+        self.newWin = waitingLobbyWindow(self.game_code)
         self.newWin.show()
         client.msgSignal.disconnect(self.onJoin)
         self.hide()
@@ -189,7 +191,7 @@ class joinGameWindow(QWidget):
                                  }''')
       self.submitGameCode.setFixedSize(200,55)
       self.submitGameCode.move(580,310)
-      self.submitGameCode.clicked.connect(lambda: self.showGameWindow(self.enterGameCode.text()))
+      self.submitGameCode.clicked.connect(self.joinGameButton)
 
 # host a game window
 class hostGameWindow(QWidget):
@@ -230,7 +232,6 @@ class hostGameWindow(QWidget):
       self.colon.move(490,210)
 
       # Game Code
-      self.newGameCode=str(random.randint(10000,99999))
       self.gameCode=QLabel(self.newGameCode,self)
       self.gameCode.setStyleSheet("color: black; font-family: Poppins; font-weight: 900; font-size: 62px;")
       self.gameCode.move(535,215)
@@ -279,12 +280,13 @@ class hostGameWindow(QWidget):
 # waiting lobby window
 class waitingLobbyWindow(QWidget):
    # TODO: Waiting lobby
-   def __init__(self):
+   def __init__(self, code):
       super().__init__()
       self.setFixedSize(1120,560)
       self.setWindowTitle('Housify - Waiting Lobby')
       pixmap = QPixmap('./src/background_gameplay.png')
       palette = self.palette()
+      self.code = code
       palette.setBrush(QPalette.Background, QBrush(pixmap))
       self.setPalette(palette)
       self.MainUI()
@@ -319,7 +321,7 @@ class waitingLobbyWindow(QWidget):
       self.gameCodeLabel.move(120,410)
 
       #TODO: NEED TO FIGURE OUT CODE FOR BRINGING GAME CODE (SAVE INTO A LOCAL FILE/RETRIEVE FROM DB)
-      self.gameCode=QLabel('61123',self)
+      self.gameCode=QLabel(self.code,self)
       self.gameCode.setStyleSheet("color: black; font-family: Paytone One; font-size: 62px;")
       self.gameCode.move(270,375)
 
@@ -508,20 +510,16 @@ def main():
    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-Regular.ttf')
    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-ExtraBold.ttf')
    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-SemiBold.ttf')
-   try:
-      name = logic.getName()
-      # ex = playAGameWindow()
-   
-#    msgr = Messenger(_type = "CLIENT")
-#    trigger = Triggers()
+
    client = Client()
-   
+#    try:
+#       name = logic.getName()
+#       ex = mainWindow()
+#       ex.show()
+#    except Exception as error:
+#       print(error)
    ex = usernameWindow()
-      ex.show()
-   except Exception as error:
-      print(error)
-      ex = playAGameWindow()
-      ex.show()
+   ex.show()
    code = app.exec_()
    sys.exit(code)
    
