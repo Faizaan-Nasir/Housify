@@ -3,19 +3,20 @@ import pickle
 import errno
 import sys
 import threading
+from PyQt5.QtCore import pyqtSignal
 
 class Client : 
-
+    
+    msgSignal = pyqtSignal(dict, str)
+    lock = threading.Lock()
     BUFFER_SIZE = 16
     HEADER_LENGTH = 10
     FORMATTING = "utf-8"
 
-    def __init__(self, m, t, status = "PLAYER", ip = socket.gethostbyname(socket.gethostname()), port = 4040) : 
+    def __init__(self, status = "PLAYER", ip = socket.gethostbyname(socket.gethostname()), port = 4040) : 
         self.b_ip = ip
         self.b_port = port
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.msgr = m
-        self.trigger = t
         self.status = status
 
     def _encode(self, msg) : 
@@ -33,33 +34,24 @@ class Client :
         self.socket.close()
         
     def run(self) : 
-        t = threading.Thread(target = self._run)
+        t = threading.Thread(target = self._run, daemon=True)
         t.start()
 
-    def disconnect(self) : 
+    def disconnect(self) :
         self.socket.close()
+        sys.exit()
 
     def _run(self) : 
         while True :
-            try : 
-                self._send()
-                self._receive()
-            except Exception as e : 
-                if str(e) == "APPLICATION EXIT" :
-                    print("[DISCONNECT]\tCLOSING APPLICATION")
-                    self.disconnect() 
-                    break
-        return
-                    
+            msg = self._receive()
+            if msg : 
+                print("Received message, sending to main thread")
+                with self.lock : 
+                    self.msgSignal.emit(msg)
             
-    def _send(self) :
-        # print("Called") 
-        msg = self.msgr.release()
-        if msg : 
-            if msg == "CLOSE APP" : 
-                raise Exception("APPLICATION EXIT")
-            msg = self._encode(msg)
-            self.socket.send(msg)
+    def send(self, msg) :
+        msg = self._encode(msg)
+        self.socket.send(msg)
     
     def _receive(self) : 
         try : 
@@ -72,7 +64,7 @@ class Client :
             
                 msg = self.socket.recv(int(header))
                 msg = pickle.loads(msg)
-                self._handle_events(msg)
+                return msg
 
         except IOError as e: 
             if e.errno != errno.EAGAIN and e.errno != errno.EWOULDBLOCK : 
@@ -80,6 +72,7 @@ class Client :
                 self.socket.close()
                 sys.exit()
 
+    '''
     def _handle_events(self, msg) : 
         # This is for the player who is the host
         if self.status == "HOST" :
@@ -100,3 +93,4 @@ class Client :
                 self.trigger.NEW_NUMBER(msg)
             elif msg["msg"] == "STATUS CHANGE" : 
                 self.trigger.STATUS_CHANGE(msg)    
+    '''

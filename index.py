@@ -66,16 +66,16 @@ class mainWindow(QWidget):
    def joinGameButton(self):
       self.newWin = joinGameWindow()
       self.newWin.show()
-      # self.hide()
+      self.hide()
    
    # function to show hostGameWindow
    def hostGameButton(self):
       game_code = str(random.randint(10000,99999))
       obj = {"username": name, "role" : "HOST", "event" : "CREATE GAME", "code" : game_code}
-      msgr.send(obj)
+      client.send(obj)
       self.newWin = hostGameWindow(game_code)
       self.newWin.show()
-      # self.hide()
+      self.hide()
 
    def MainUI(self):
       # HOUSIFY
@@ -314,7 +314,7 @@ class waitingLobbyWindow(QWidget):
       self.leaveButton.clicked.connect(self.leaveGame)
 
 def main():
-   global name, trigger, client, msgr
+   global name, client
 
    app = QApplication(sys.argv)
    QFontDatabase.addApplicationFont('./src/fonts/Paytone_One/PaytoneOne-Regular.ttf')
@@ -322,14 +322,13 @@ def main():
    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-ExtraBold.ttf')
    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-SemiBold.ttf')
 
-   msgr = Messenger(_type = "CLIENT")
-   trigger = Triggers()
-   client = Client(msgr, trigger)
+#    msgr = Messenger(_type = "CLIENT")
+#    trigger = Triggers()
+   client = Client()
    
    ex = usernameWindow()
    ex.show()
    code = app.exec_()
-   msgr.send("CLOSE APP")
    sys.exit(code)
    
 if __name__ == '__main__':
