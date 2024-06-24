@@ -24,11 +24,9 @@ class PlayerList(QWidget) :
         self.label.setStyleSheet("color: black; font-family: Poppins; font-weight: 900; font-size: 22px;")
         self.label.setFixedSize(160, 80)
         self.label.setAlignment(Qt.AlignCenter)
-        self.label.set
         self.label.move(0, 40)
 
     def add_player(self, p) :
-        print("Added")
         self.players.append(p)
         self.changeSignal.emit()
 

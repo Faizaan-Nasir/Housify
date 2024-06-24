@@ -79,7 +79,7 @@ class Server :
             g = Game(code, uname, c)
             self.games[code] = g
             print(f"[NEW GAME]\tGame with code {code} was created by {uname}")
-        if msg["event"] == "JOIN GAME" : 
+        elif msg["event"] == "JOIN GAME" : 
             code = msg["code"]
             reply = "SUCCESS"
             uname = msg["username"]
@@ -92,8 +92,13 @@ class Server :
             else : 
                 print(self.games)
                 reply = "FAILED"              
-
             c.send(self._encode({"msg" : reply}))
+        elif msg["event"] == "START GAME" : 
+            code = msg["code"]
+            g = self.games[code]
+            for n, p in g.players.items() :
+                reply = {"event" : "START GAME", "name" : n}
+                p.send(self._encode(reply))
 
 # USAGE EXAMPLE
 if __name__ == "__main__" : 

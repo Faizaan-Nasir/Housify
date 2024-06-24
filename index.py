@@ -211,8 +211,13 @@ class hostGameWindow(QWidget):
       client.msgSignal.connect(self.updatePlayers)
 
    def startingGame(self):
+      msg = {"event" : "START GAME", "code" : self.newGameCode, "username" : name}
+      client.send(msg)
       self.hostwindow=hostingGame()
       self.hostwindow.show()
+      client.msgSignal.disconnect(self.updatePlayers)
+      self.hide()
+      self.close()
 
    @QtCore.pyqtSlot(dict)
    def updatePlayers(self, msg): 
@@ -307,10 +312,20 @@ class waitingLobbyWindow(QWidget):
       palette.setBrush(QPalette.Background, QBrush(pixmap))
       self.setPalette(palette)
       self.MainUI()
+      client.msgSignal.connect(self.startGame)
 
    # function to leave the game
    def leaveGame(self):
       self.close()
+   
+   @QtCore.pyqtSlot(dict)
+   def startGame(self, msg) :
+      if msg["event"] == "START GAME" : 
+         self.newin = playAGameWindow(self.code)
+         self.newin.show()
+         client.msgSignal.disconnect(self.startGame)
+         self.hide()
+         self.close()
 
    def MainUI(self):
       # HOUSIFY
@@ -377,8 +392,8 @@ class playAGameWindow(QWidget):
       self.playLabel.move(110,90)
 
       # Bringing Ticket to the Window
-      self.code=logic.joinGame(self.gamecode,name)
-      self.displayTicket=ticket.ticketMain(logic.generateTicket(self.code),self)
+      self.ticketid='T'+str(random.randint(10000,99999))
+      self.displayTicket=ticket.ticketMain(logic.generateTicket(self.ticketid), self)
       self.displayTicket.move(370,110)
       self.displayTicket.parent=self
       self.displayTicket.show()
