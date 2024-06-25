@@ -255,7 +255,7 @@ class hostGameWindow(QWidget):
 
       # Player list
       self.p = PlayerList("PLAYERS", self)
-      self.p.move(920, 120)
+      self.p.move(870, 140)
       self.p.show()
 
       # Start Game Button
