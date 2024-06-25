@@ -69,26 +69,3 @@ class Client(QObject) :
                 print(f"Reading error: {str(e)}")
                 self.socket.close()
                 sys.exit()
-
-    '''
-    def _handle_events(self, msg) : 
-        # This is for the player who is the host
-        if self.status == "HOST" :
-            if msg["msg"] == "FIRST ROW" :
-                self.trigger.HOST_FR_CALL(msg)
-            elif msg["msg"] == "SECOND ROW" :
-                self.trigger.HOST_SR_CALL(msg)
-            elif msg["msg"] == "THIRD ROW" :
-                self.trigger.HOST_TR_CALL(msg)
-            elif msg["msg"] == "FULL HOUSIE" : 
-                self.trigger.HOST_FH_CALL(msg)
-
-        # This is for a simple player
-        elif self.status == "PLAYER" : 
-            if msg["msg"] == "PAUSE GAME" : 
-                self.trigger.PLAYER_PAUSE(msg)
-            elif msg["msg"] == "NEW NUMBER" : 
-                self.trigger.NEW_NUMBER(msg)
-            elif msg["msg"] == "STATUS CHANGE" : 
-                self.trigger.STATUS_CHANGE(msg)    
-    '''
