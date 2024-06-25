@@ -201,7 +201,6 @@ class hostGameWindow(QWidget):
       super().__init__()
       self.newGameCode= newGameCode
       self.setFixedSize(1120,560)
-      self.players = []
       self.setWindowTitle('Housify - Host a Game')
       pixmap = QPixmap('./src/background_host.png')
       palette = self.palette()
@@ -403,7 +402,7 @@ class playAGameWindow(QWidget):
       self.statusLabel.setStyleSheet('font-family: Paytone One; font-weight: 600; background: transparent; font-size: 34px; color: black;')
       self.statusLabel.move(110,160)
       
-      self.statusText = QLabel('''
+      self.statusText = QLabel(f'''
             <div style="font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;">
                 Numbers left: 48<br>First row<br>Second row<br>Third row<br>Full house
             </div>
@@ -486,6 +485,7 @@ class playAGameWindow(QWidget):
    def number_recv(self, msg) : 
       if msg["event"] == "CALL NUMBER" : 
          self.number.setText(f'Called: {msg["num"]}')
+         self.statusText.setText(msg["status_text"])
 
 class hostingGame(QWidget):
    def __init__(self, gamecode):
@@ -493,6 +493,8 @@ class hostingGame(QWidget):
       self.setFixedSize(1120,560)
       self.setWindowTitle('Housify - Hosting a Game')
       pixmap = QPixmap('./src/gameplay-background.png')
+      self.numbers = random.sample(range(1, 91), 90)
+      self.called = []
       palette = self.palette()
       palette.setBrush(QPalette.Background, QBrush(pixmap))
       self.setPalette(palette)
@@ -509,9 +511,9 @@ class hostingGame(QWidget):
       self.statusLabel.setStyleSheet('font-family: "Paytone One"; font-weight: 600; background: transparent; font-size: 34px; color: black;')
       self.statusLabel.move(110,160)
       
-      self.statusText = QLabel('''
+      self.statusText = QLabel(f'''
             <div style="font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;">
-                Numbers left: 48<br>First row<br>Second row<br>Third row<br>Full house
+                Numbers left: {len(self.numbers)}<br>First row<br>Second row<br>Third row<br>Full house
             </div>
         ''', self)
       self.statusText.move(110,210)
@@ -542,10 +544,15 @@ class hostingGame(QWidget):
       self.endGame.move(330,380)
 
    def call_out(self) :
-      num = 90 
-      obj = {"event" : "CALL NUMBER", "num" : num, "code" : self.code}
+      num = self.numbers.pop()
+      self.called.append(num)
+      self.statusText.setText(f'''
+            <div style="font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;">
+                Numbers left: {len(self.numbers)}<br>First row<br>Second row<br>Third row<br>Full house
+            </div>
+        ''')
+      obj = {"event" : "CALL NUMBER", "num" : num, "code" : self.code, "status_text" : self.statusText.text()}
       client.send(obj)
-      pass 
 # ---- END OF ALL MODULES ----
       
 def main():
