@@ -73,14 +73,13 @@ class Server :
         
     
     def _handle_event(self, msg, c) :
+        code = msg["code"]
         if msg["event"] == "CREATE GAME" : 
-            code = msg["code"]
             uname = msg["username"]
             g = Game(code, uname, c)
             self.games[code] = g
             print(f"[NEW GAME]\tGame with code {code} was created by {uname}")
         elif msg["event"] == "JOIN GAME" : 
-            code = msg["code"]
             reply = "SUCCESS"
             uname = msg["username"]
             if code in self.games :
@@ -94,10 +93,14 @@ class Server :
                 reply = "FAILED"              
             c.send(self._encode({"msg" : reply}))
         elif msg["event"] == "START GAME" : 
-            code = msg["code"]
             g = self.games[code]
             for n, p in g.players.items() :
                 reply = {"event" : "START GAME", "name" : n}
+                p.send(self._encode(reply))
+        elif msg["event"] == "CALL NUMBER" : 
+            reply = msg
+            g = self.games[code]
+            for p in g.players.values() : 
                 p.send(self._encode(reply))
 
 # USAGE EXAMPLE

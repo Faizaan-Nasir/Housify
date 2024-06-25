@@ -213,7 +213,7 @@ class hostGameWindow(QWidget):
    def startingGame(self):
       msg = {"event" : "START GAME", "code" : self.newGameCode, "username" : name}
       client.send(msg)
-      self.hostwindow=hostingGame()
+      self.hostwindow=hostingGame(self.newGameCode)
       self.hostwindow.show()
       client.msgSignal.disconnect(self.updatePlayers)
       self.hide()
@@ -384,6 +384,7 @@ class playAGameWindow(QWidget):
       palette.setBrush(QPalette.Background, QBrush(pixmap))
       self.setPalette(palette)
       self.MainUI()
+      client.msgSignal.connect(self.number_recv)
       
    def MainUI(self):
       # Title PLAY
@@ -409,7 +410,7 @@ class playAGameWindow(QWidget):
         ''', self)
       self.statusText.move(110,210)
 
-      self.number = QPushButton('Called: 16',self)
+      self.number = QPushButton('Called: ',self)
       self.number.setStyleSheet('''QPushButton{
                                     font-family: Poppins;
                                     font-size: 30px;
@@ -481,8 +482,13 @@ class playAGameWindow(QWidget):
                                  }''')
       self.leaveGame.move(855,380)
 
+   @QtCore.pyqtSlot(dict)
+   def number_recv(self, msg) : 
+      if msg["event"] == "CALL NUMBER" : 
+         self.number.setText(f'Called: {msg["num"]}')
+
 class hostingGame(QWidget):
-   def __init__(self):
+   def __init__(self, gamecode):
       super().__init__()
       self.setFixedSize(1120,560)
       self.setWindowTitle('Housify - Hosting a Game')
@@ -490,6 +496,7 @@ class hostingGame(QWidget):
       palette = self.palette()
       palette.setBrush(QPalette.Background, QBrush(pixmap))
       self.setPalette(palette)
+      self.code = gamecode
       self.MainUI()
    
    def MainUI(self):
@@ -520,6 +527,7 @@ class hostingGame(QWidget):
                                  }''')
       self.callOutNumber.resize(200,76)
       self.callOutNumber.move(110,380)
+      self.callOutNumber.clicked.connect(self.call_out)
 
       self.endGame = QPushButton('End Game',self)
       self.endGame.setStyleSheet('''QPushButton{
@@ -532,6 +540,12 @@ class hostingGame(QWidget):
                                  }''')
       self.endGame.resize(200,76)
       self.endGame.move(330,380)
+
+   def call_out(self) :
+      num = 90 
+      obj = {"event" : "CALL NUMBER", "num" : num, "code" : self.code}
+      client.send(obj)
+      pass 
 # ---- END OF ALL MODULES ----
       
 def main():
