@@ -10,6 +10,9 @@ import ticket
 from player_list import PlayerList
 
 
+# TODO: create a parent window object
+# TODO: use QMessageBox.information for all occurrences
+
 # enter username
 class usernameWindow(QWidget):
    def __init__(self):
