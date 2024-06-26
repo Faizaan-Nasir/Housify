@@ -8,10 +8,9 @@ class theGrid(QWidget):
         super().__init__(parent)
         self.setFixedSize(400,360)
         self.MainUI()
+        self.allNums = {}
 
     def MainUI(self):
-        global allNums
-        allNums={}
         layout=QGridLayout()
         layout.setSpacing(0)
         layout.setContentsMargins(0,0,0,0)
@@ -23,12 +22,12 @@ class theGrid(QWidget):
                 number.setStyleSheet("font-family: poppins; font-size: 20px; font-weight: 500; border: 1px solid black; background: #FFF5DB;")
                 number.setAlignment(QtCore.Qt.AlignCenter)
                 layout.addWidget(number,x-1,y-1)
-                allNums[key]=number
+                self.allNums[key]=number
                 key+=1
         self.setLayout(layout)
 
-def updateStyle(key):
-    allNums[key].setStyleSheet("font-family: poppins; font-size: 20px; font-weight: 500; border: 1px solid black; background: #82BCF2;")
+    def updateStyle(self, key):
+        self.allNums[key].setStyleSheet("font-family: poppins; font-size: 20px; font-weight: 500; border: 1px solid black; background: #82BCF2;")
 # def main():
 #     app = QApplication(sys.argv)
 #     QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-Regular.ttf')
