@@ -159,7 +159,7 @@ class joinGameWindow(QWidget):
         self.dialog = QMessageBox(self)
         self.dialog.setWindowTitle("Error")
         self.dialog.setText("There was an error in joining the game. Please make sure that you've entered a correct code")
-        self.dialog.show()
+        self.dialog.exec()
 
    def MainUI(self):
       # HOUSIFY
@@ -220,11 +220,10 @@ class hostGameWindow(QWidget):
 
    @QtCore.pyqtSlot(dict)
    def updatePlayers(self, msg): 
-      print(msg)
       if msg["event"] == "PLAYER JOIN" :
          self.p.add_player(msg["player_name"])
-      elif msg["event"] == "PLAYER REMOVE" : 
-         self.p.remove_player(msg["player_name"])
+      elif msg["event"] == "PLAYER LEAVE"  : 
+         self.p.remove_player(msg["player"])
 
    def MainUI(self):
       # HOUSIFY
@@ -300,7 +299,6 @@ class hostGameWindow(QWidget):
 
 # waiting lobby window
 class waitingLobbyWindow(QWidget):
-   # TODO: Waiting lobby
    def __init__(self, code):
       super().__init__()
       self.setFixedSize(1120,560)
@@ -351,7 +349,6 @@ class waitingLobbyWindow(QWidget):
       self.gameCodeLabel.setStyleSheet("color: black; font-family: Poppins; font-weight: 700; font-size: 22px;")
       self.gameCodeLabel.move(120,410)
 
-      #TODO: NEED TO FIGURE OUT CODE FOR BRINGING GAME CODE (SAVE INTO A LOCAL FILE/RETRIEVE FROM DB)
       self.gameCode=QLabel(self.code,self)
       self.gameCode.setStyleSheet("color: black; font-family: Paytone One; font-size: 62px;")
       self.gameCode.move(270,375)
@@ -371,6 +368,11 @@ class waitingLobbyWindow(QWidget):
       self.leaveButton.move(860,400)
       self.leaveButton.clicked.connect(self.leaveGame)
 
+   def onLeaveGame(self) :
+      client.send({"event" : "LEAVE GAME", "code" : self.gamecode})
+      self.newin = mainWindow()
+      self.newin.show()
+
 # playing a game window
 class playAGameWindow(QWidget):
    def __init__(self,gamecode):
@@ -383,7 +385,7 @@ class playAGameWindow(QWidget):
       palette.setBrush(QPalette.Background, QBrush(pixmap))
       self.setPalette(palette)
       self.MainUI()
-      client.msgSignal.connect(self.number_recv)
+      client.msgSignal.connect(self.react)
       
    def MainUI(self):
       # Title PLAY
@@ -480,12 +482,29 @@ class playAGameWindow(QWidget):
                                     border: 2px solid black;
                                  }''')
       self.leaveGame.move(855,380)
+      self.leaveGame.clicked.connect(self.onLeaveGame)
 
+   def onLeaveGame(self) :
+      client.send({"event" : "LEAVE GAME", "code" : self.gamecode})
+      self.newin = mainWindow()
+      self.newin.show()
+       
    @QtCore.pyqtSlot(dict)
-   def number_recv(self, msg) : 
+   def react(self, msg) : 
       if msg["event"] == "CALL NUMBER" : 
          self.number.setText(f'Called: {msg["num"]}')
          self.statusText.setText(msg["status_text"])
+      if msg["event"] == "END GAME" : 
+         self.dialog = QMessageBox(self)
+         reason = msg["reason"]
+         self.dialog.setWindowTitle("GAME OVER")
+         self.dialog.setText(f"Game ended. {reason}")
+         self.dialog.exec()
+         self.newin = mainWindow()
+         self.newin.show()
+         self.hide()
+         self.close()
+         
 
 class hostingGame(QWidget):
    def __init__(self, gamecode):
@@ -500,6 +519,7 @@ class hostingGame(QWidget):
       self.setPalette(palette)
       self.code = gamecode
       self.MainUI()
+      client.msgSignal.connect(self.react)
    
    def MainUI(self):
       # Title HOST
@@ -542,6 +562,14 @@ class hostingGame(QWidget):
                                  }''')
       self.endGame.resize(200,76)
       self.endGame.move(330,380)
+      self.endGame.clicked.connect(self.endgame)
+
+   def endgame(self) : 
+      client.send({"code" : self.code, "event" : "END GAME"})
+      self.newin = mainWindow()
+      self.newin.show()
+      self.hide()
+      self.close()
 
    def call_out(self) :
       num = self.numbers.pop()
@@ -553,6 +581,15 @@ class hostingGame(QWidget):
         ''')
       obj = {"event" : "CALL NUMBER", "num" : num, "code" : self.code, "status_text" : self.statusText.text()}
       client.send(obj)
+
+   @QtCore.pyqtSlot(dict) 
+   def react(self, msg)  :
+      if msg["event"] == "PLAYER LEAVE" : 
+        self.dialog = QMessageBox(self)
+        name = msg["player"]
+        self.dialog.setWindowTitle("INFO")
+        self.dialog.setText(f"{name} left the game.")
+        self.dialog.exec()
 # ---- END OF ALL MODULES ----
       
 def main():

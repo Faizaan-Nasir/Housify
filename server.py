@@ -45,17 +45,49 @@ class Server :
                     self.sockets_list.append(conn)
                 else : # Received a message from client
                     msg = self.receive_client(n_socket)
-                    if msg is False : 
+                    if msg is False : # Client disconnect 
                         print(f"Closed connection")
+                        self.handle_leave_game(n_socket)
                         del self.clients[n_socket]
                         self.sockets_list.remove(n_socket)
                         continue
+
                     print(f"[MSG RECVD]\tReceived '{msg}' from {self.clients[n_socket]}")
                     self._handle_event(msg, n_socket)
 
-            for n_sockets in except_sockets : 
+            for n_sockets in except_sockets :
                 self.sockets_list.remove(n_sockets)
                 del self.clients[n_sockets]
+    
+    def handle_leave_game(self, socket, gcode = None, host = False) : 
+        name = self.clients[socket]
+        # Specific game is known
+        if gcode :
+            g = self.games[gcode]
+            g.remove_player(socket)
+            if host: 
+                self.on_remove_host(g, gcode)
+            else : 
+                self.on_remove_player(g, name)
+            return
+
+        # Specific game is not known. Linear search to find the game. See implementation of remove_player for Game
+        for gcode, g in self.games.items() : 
+            r = g.remove_player(socket)
+            if r == 2 : # Host left the game 
+                self.on_remove_host(g, gcode)
+                break
+            elif r == 1 : # Just a player left the game
+                self.on_remove_player(g, name)
+                break
+
+    def on_remove_player(self, g, name) : 
+        g.host_client.send(self._encode({"event" : "PLAYER LEAVE", "player" : name}))
+        
+    def on_remove_host(self, g, gcode) : 
+        for p in g.players.values() : 
+            p.send(self._encode({"event" : "END GAME", "reason" : "Host ended the game or has disconnected."}))
+        del self.games[gcode]
 
     def receive_client(self, socket) : 
         try : 
@@ -102,6 +134,12 @@ class Server :
             g = self.games[code]
             for p in g.players.values() : 
                 p.send(self._encode(reply))
+        elif msg["event"] == "LEAVE GAME" :
+            self.handle_leave_game(c, code)
+        elif msg["event"] == "END GAME" :
+            # TODO: Consult with everyone and decide on the actual function of END GAME button 
+            self.handle_leave_game(c, code, host = True)
+
 
 # USAGE EXAMPLE
 if __name__ == "__main__" : 

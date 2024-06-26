@@ -8,6 +8,7 @@ from PyQt5.QtCore import pyqtSignal, QObject
 class Client(QObject) : 
     
     msgSignal = pyqtSignal(dict)
+    offlineSignal = pyqtSignal(bool)
     BUFFER_SIZE = 16
     HEADER_LENGTH = 10
     FORMATTING = "utf-8"
@@ -57,8 +58,8 @@ class Client(QObject) :
                 header = self.socket.recv(self.HEADER_LENGTH).decode(self.FORMATTING)
                 if not len(header) : 
                     print("Connection closed by the server")
-                    self.socket.close()
-                    sys.exit()
+                    self.offlineSignal.emit(True)
+                    self.disconnect()
             
                 msg = self.socket.recv(int(header))
                 msg = pickle.loads(msg)

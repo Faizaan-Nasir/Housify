@@ -59,7 +59,6 @@ class PlayerList(QWidget) :
                 self.label.setAlignment(Qt.AlignCenter)
                 self.Layout.addWidget(self.label)
             else:
-                print(a)
                 for i in range(5-a):
                     self.label=QLabel('') 
                     self.label.setStyleSheet("color: #D2626E; font-family: Poppins; font-weight: 600; font-size: 22px;")
