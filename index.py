@@ -525,7 +525,6 @@ class hostingGame(QWidget):
       client.msgSignal.connect(self.react)
    
    def MainUI(self):
-      listONumber=list(range(1,91))
       # Title HOST
       self.hostLabel=QLabel('HOST',self)
       self.hostLabel.setStyleSheet('font-family: Paytone One; font-weight: 600; background: transparent; font-size:50px; color: black;')
@@ -542,30 +541,11 @@ class hostingGame(QWidget):
         ''', self)
       self.statusText.move(110,210)
 
-      self.displayNum=QLabel('',self)
-      self.displayNum.move(420,210)
-
-      def callingNumber():
-         if len(listONumber):
-            index=random.randint(0,len(listONumber)-1)
-            num=listONumber.pop(index)
-            self.statusText.hide()
-            self.statusText = QLabel(f'''
-               <div style="font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;">
-                  Numbers left: {len(listONumber)}<br>First row<br>Second row<br>Third row<br>Full house
-               </div>
-         ''', self)
-            self.statusText.move(110,210)
-            self.statusText.show()
-            self.displayNum.hide()
-            self.displayNum=QLabel(f'''<div style="font-family: 'Poppins'; font-weight: 500; font-size: 60px; line-height: 0.85; color: #D2626E;">{num}</div>''',self)
-            self.displayNum.setFixedWidth(90)
-            self.displayNum.setAlignment(QtCore.Qt.AlignCenter)
-            self.displayNum.move(530,375)
-            self.displayNum.show()
-            GRID.updateStyle(num)
-
-      self.statusText.move(110,210)
+      # FIXME: displayNum not showing up      
+      self.displayNum=QLabel('BRUH',self)
+      self.displayNum.setFixedWidth(90)
+      self.displayNum.setAlignment(QtCore.Qt.AlignCenter)
+      self.displayNum.move(500,375)
 
       self.callOutNumber = QPushButton('Call Out Number',self)
       self.callOutNumber.setStyleSheet('''QPushButton{
@@ -609,11 +589,18 @@ class hostingGame(QWidget):
    def call_out(self) :
       num = self.numbers.pop()
       self.called.append(num)
+
+      # Updating the status text and display text
       self.statusText.setText(f'''
             <div style="font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;">
                 Numbers left: {len(self.numbers)}<br>First row<br>Second row<br>Third row<br>Full house
             </div>
         ''')
+      self.displayNum.setText(f'''<div style="font-family: 'Poppins'; font-weight: 500; font-size: 60px; line-height: 0.85; color: #D2626E;">{num}</div>''')
+      self.displayNum.show()
+      self.grid.updateStyle(num)
+
+      # Sending it to the server  
       obj = {"event" : "CALL NUMBER", "num" : num, "code" : self.code, "status_text" : self.statusText.text()}
       client.send(obj)
 

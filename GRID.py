@@ -7,8 +7,8 @@ class theGrid(QWidget):
     def __init__(self,parent=None):
         super().__init__(parent)
         self.setFixedSize(400,360)
-        self.MainUI()
         self.allNums = {}
+        self.MainUI()
 
     def MainUI(self):
         layout=QGridLayout()
