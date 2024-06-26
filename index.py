@@ -5,6 +5,8 @@ from PyQt5.QtGui import QFontDatabase , QPixmap , QPalette , QBrush
 import pyperclip # for copy to clipboard
 import logic # local file
 import ticket # local file
+import GRID
+import random
 
 # create username window
 class usernameWindow(QWidget):
@@ -451,6 +453,7 @@ class hostingGame(QWidget):
       self.MainUI()
    
    def MainUI(self):
+      listONumber=list(range(1,91))
       # Title HOST
       self.hostLabel=QLabel('HOST',self)
       self.hostLabel.setStyleSheet('font-family: Paytone One; font-weight: 600; background: transparent; font-size:50px; color: black;')
@@ -460,11 +463,36 @@ class hostingGame(QWidget):
       self.statusLabel.setStyleSheet('font-family: "Paytone One"; font-weight: 600; background: transparent; font-size: 34px; color: black;')
       self.statusLabel.move(110,160)
       
-      self.statusText = QLabel('''
+      self.statusText = QLabel(f'''
             <div style="font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;">
-                Numbers left: 48<br>First row<br>Second row<br>Third row<br>Full house
+                Numbers left: {len(listONumber)}<br>First row<br>Second row<br>Third row<br>Full house
             </div>
         ''', self)
+      self.statusText.move(110,210)
+
+      self.displayNum=QLabel('',self)
+      self.displayNum.move(420,210)
+
+      def callingNumber():
+         if len(listONumber):
+            index=random.randint(0,len(listONumber)-1)
+            num=listONumber.pop(index)
+            self.statusText.hide()
+            self.statusText = QLabel(f'''
+               <div style="font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;">
+                  Numbers left: {len(listONumber)}<br>First row<br>Second row<br>Third row<br>Full house
+               </div>
+         ''', self)
+            self.statusText.move(110,210)
+            self.statusText.show()
+            self.displayNum.hide()
+            self.displayNum=QLabel(f'''<div style="font-family: 'Poppins'; font-weight: 500; font-size: 60px; line-height: 0.85; color: #D2626E;">{num}</div>''',self)
+            self.displayNum.setFixedWidth(90)
+            self.displayNum.setAlignment(QtCore.Qt.AlignCenter)
+            self.displayNum.move(530,375)
+            self.displayNum.show()
+            GRID.updateStyle(num)
+
       self.statusText.move(110,210)
 
       self.callOutNumber = QPushButton('Call Out Number',self)
@@ -477,7 +505,8 @@ class hostingGame(QWidget):
                                     border: 2px solid black;
                                  }''')
       self.callOutNumber.resize(200,76)
-      self.callOutNumber.move(110,380)
+      self.callOutNumber.move(110,384)
+      self.callOutNumber.clicked.connect(callingNumber)
 
       self.endGame = QPushButton('End Game',self)
       self.endGame.setStyleSheet('''QPushButton{
@@ -489,7 +518,10 @@ class hostingGame(QWidget):
                                     border: 2px solid black;
                                  }''')
       self.endGame.resize(200,76)
-      self.endGame.move(330,380)
+      self.endGame.move(330,384)
+
+      self.grid=GRID.theGrid(self)
+      self.grid.move(620,100)
 # ---- END OF ALL MODULES ----
       
 def main():
