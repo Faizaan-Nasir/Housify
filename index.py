@@ -540,12 +540,11 @@ class hostingGame(QWidget):
             </div>
         ''', self)
       self.statusText.move(110,210)
-
-      # FIXME: displayNum not showing up      
-      self.displayNum=QLabel('BRUH',self)
+     
+      self.displayNum=QLabel(f'''<div style="font-family: 'Poppins'; font-weight: 500; font-size: 60px; line-height: 0.85; color: #D2626E;">{0}</div>''',self)
       self.displayNum.setFixedWidth(90)
       self.displayNum.setAlignment(QtCore.Qt.AlignCenter)
-      self.displayNum.move(500,375)
+      self.displayNum.move(530,375)
 
       self.callOutNumber = QPushButton('Call Out Number',self)
       self.callOutNumber.setStyleSheet('''QPushButton{
@@ -573,7 +572,7 @@ class hostingGame(QWidget):
                                     border: 2px solid black;
                                  }''')
       self.endGame.resize(200,76)
-      self.endGame.move(330,384)
+      self.endGame.move(330,380)
 
       self.grid=GRID.theGrid(self)
       self.grid.move(620,100)
@@ -597,7 +596,6 @@ class hostingGame(QWidget):
             </div>
         ''')
       self.displayNum.setText(f'''<div style="font-family: 'Poppins'; font-weight: 500; font-size: 60px; line-height: 0.85; color: #D2626E;">{num}</div>''')
-      self.displayNum.show()
       self.grid.updateStyle(num)
 
       # Sending it to the server  
