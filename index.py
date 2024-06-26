@@ -503,6 +503,9 @@ class hostingGame(QWidget):
                                     background-color: #69B1F4;
                                     font-weight: 500;
                                     border: 2px solid black;
+                                    }
+                                    QPushButton::hover{
+                                    background: #63a9eb;}
                                  }''')
       self.callOutNumber.resize(200,76)
       self.callOutNumber.move(110,384)
