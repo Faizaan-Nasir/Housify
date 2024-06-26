@@ -8,7 +8,7 @@ from connection import Client
 import logic
 import ticket
 from player_list import PlayerList
-
+import GRID
 
 # TODO: create a parent window object
 # TODO: use QMessageBox.information for all occurrences
@@ -525,6 +525,7 @@ class hostingGame(QWidget):
       client.msgSignal.connect(self.react)
    
    def MainUI(self):
+      listONumber=list(range(1,91))
       # Title HOST
       self.hostLabel=QLabel('HOST',self)
       self.hostLabel.setStyleSheet('font-family: Paytone One; font-weight: 600; background: transparent; font-size:50px; color: black;')
@@ -541,6 +542,31 @@ class hostingGame(QWidget):
         ''', self)
       self.statusText.move(110,210)
 
+      self.displayNum=QLabel('',self)
+      self.displayNum.move(420,210)
+
+      def callingNumber():
+         if len(listONumber):
+            index=random.randint(0,len(listONumber)-1)
+            num=listONumber.pop(index)
+            self.statusText.hide()
+            self.statusText = QLabel(f'''
+               <div style="font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;">
+                  Numbers left: {len(listONumber)}<br>First row<br>Second row<br>Third row<br>Full house
+               </div>
+         ''', self)
+            self.statusText.move(110,210)
+            self.statusText.show()
+            self.displayNum.hide()
+            self.displayNum=QLabel(f'''<div style="font-family: 'Poppins'; font-weight: 500; font-size: 60px; line-height: 0.85; color: #D2626E;">{num}</div>''',self)
+            self.displayNum.setFixedWidth(90)
+            self.displayNum.setAlignment(QtCore.Qt.AlignCenter)
+            self.displayNum.move(530,375)
+            self.displayNum.show()
+            GRID.updateStyle(num)
+
+      self.statusText.move(110,210)
+
       self.callOutNumber = QPushButton('Call Out Number',self)
       self.callOutNumber.setStyleSheet('''QPushButton{
                                     font-family: Poppins;
@@ -549,6 +575,9 @@ class hostingGame(QWidget):
                                     background-color: #69B1F4;
                                     font-weight: 500;
                                     border: 2px solid black;
+                                    }
+                                    QPushButton::hover{
+                                    background: #63a9eb;}
                                  }''')
       self.callOutNumber.resize(200,76)
       self.callOutNumber.move(110,380)
@@ -564,7 +593,10 @@ class hostingGame(QWidget):
                                     border: 2px solid black;
                                  }''')
       self.endGame.resize(200,76)
-      self.endGame.move(330,380)
+      self.endGame.move(330,384)
+
+      self.grid=GRID.theGrid(self)
+      self.grid.move(620,100)
       self.endGame.clicked.connect(self.endgame)
 
    def endgame(self) : 
