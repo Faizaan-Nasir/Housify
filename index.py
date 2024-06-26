@@ -409,7 +409,7 @@ class playAGameWindow(QWidget):
       
       self.statusText = QLabel(f'''
             <div style="font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;">
-                Numbers left: 48<br>First row<br>Second row<br>Third row<br>Full house
+                Numbers left: 90<br>First row<br>Second row<br>Third row<br>Full house
             </div>
         ''', self)
       self.statusText.move(110,210)
@@ -541,7 +541,7 @@ class hostingGame(QWidget):
         ''', self)
       self.statusText.move(110,210)
      
-      self.displayNum=QLabel(f'''<div style="font-family: 'Poppins'; font-weight: 500; font-size: 60px; line-height: 0.85; color: #D2626E;">{0}</div>''',self)
+      self.displayNum=QLabel('''<div style="font-family: 'Poppins'; font-weight: 500; font-size: 60px; line-height: 0.85; color: #D2626E;"></div>''',self)
       self.displayNum.setFixedWidth(90)
       self.displayNum.setAlignment(QtCore.Qt.AlignCenter)
       self.displayNum.move(530,375)
@@ -559,7 +559,7 @@ class hostingGame(QWidget):
                                     background: #63a9eb;}
                                  }''')
       self.callOutNumber.resize(200,76)
-      self.callOutNumber.move(110,380)
+      self.callOutNumber.move(110,384)
       self.callOutNumber.clicked.connect(self.call_out)
 
       self.endGame = QPushButton('End Game',self)
@@ -572,7 +572,7 @@ class hostingGame(QWidget):
                                     border: 2px solid black;
                                  }''')
       self.endGame.resize(200,76)
-      self.endGame.move(330,380)
+      self.endGame.move(330,384)
 
       self.grid=GRID.theGrid(self)
       self.grid.move(620,100)
@@ -586,21 +586,22 @@ class hostingGame(QWidget):
       self.close()
 
    def call_out(self) :
-      num = self.numbers.pop()
-      self.called.append(num)
+      if len(self.numbers):
+         num = self.numbers.pop()
+         self.called.append(num)
 
-      # Updating the status text and display text
-      self.statusText.setText(f'''
-            <div style="font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;">
-                Numbers left: {len(self.numbers)}<br>First row<br>Second row<br>Third row<br>Full house
-            </div>
-        ''')
-      self.displayNum.setText(f'''<div style="font-family: 'Poppins'; font-weight: 500; font-size: 60px; line-height: 0.85; color: #D2626E;">{num}</div>''')
-      self.grid.updateStyle(num)
+         # Updating the status text and display text
+         self.statusText.setText(f'''
+               <div style="font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;">
+                  Numbers left: {len(self.numbers)}<br>First row<br>Second row<br>Third row<br>Full house
+               </div>
+         ''')
+         self.displayNum.setText(f'''<div style="font-family: 'Poppins'; font-weight: 500; font-size: 60px; line-height: 0.85; color: #D2626E;">{num}</div>''')
+         self.grid.updateStyle(num)
 
-      # Sending it to the server  
-      obj = {"event" : "CALL NUMBER", "num" : num, "code" : self.code, "status_text" : self.statusText.text()}
-      client.send(obj)
+         # Sending it to the server  
+         obj = {"event" : "CALL NUMBER", "num" : num, "code" : self.code, "status_text" : self.statusText.text()}
+         client.send(obj)
 
    @QtCore.pyqtSlot(dict) 
    def react(self, msg)  :
