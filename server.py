@@ -111,6 +111,7 @@ class Server :
             g = Game(code, uname, c)
             self.games[code] = g
             print(f"[NEW GAME]\tGame with code {code} was created by {uname}")
+
         elif msg["event"] == "JOIN GAME" : 
             reply = "SUCCESS"
             uname = msg["username"]
@@ -121,24 +122,29 @@ class Server :
                 print(f"Sent {h_reply} to {g.hostname}")
                 g.host_client.send(self._encode(h_reply))
             else : 
-                print(self.games)
                 reply = "FAILED"              
-            c.send(self._encode({"msg" : reply}))
+            c.send(self._encode({"event" : reply}))
+            print(f"Sent {reply} to {self.clients[c]}")
+
         elif msg["event"] == "START GAME" : 
             g = self.games[code]
             for n, p in g.players.items() :
                 reply = {"event" : "START GAME", "name" : n}
                 p.send(self._encode(reply))
+
         elif msg["event"] == "CALL NUMBER" : 
             reply = msg
             g = self.games[code]
             for p in g.players.values() : 
                 p.send(self._encode(reply))
+
         elif msg["event"] == "LEAVE GAME" :
             self.handle_leave_game(c, code)
+
         elif msg["event"] == "END GAME" :
             # TODO: Consult with everyone and decide on the actual function of END GAME button 
             self.handle_leave_game(c, code, host = True)
+
         elif msg["event"] == "appeal":
             g = self.games[code]
             g.host_client.send(self._encode(msg))

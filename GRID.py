@@ -19,7 +19,7 @@ class theGrid(QWidget):
             for y in range(1,11):
                 number=QLabel(f'{(x-1)*10+y}')
                 number.setFixedSize(40,40)
-                number.setStyleSheet("font-family: poppins; font-size: 20px; font-weight: 500; border: 1px solid black; background: #FFF5DB;")
+                number.setStyleSheet("font-family: poppins; font-size: 20px; font-weight: 500; border: 1px solid black; background: #FFF5DB; color : black;")
                 number.setAlignment(QtCore.Qt.AlignCenter)
                 layout.addWidget(number,x-1,y-1)
                 self.allNums[key]=number
@@ -27,7 +27,7 @@ class theGrid(QWidget):
         self.setLayout(layout)
 
     def updateStyle(self, key):
-        self.allNums[key].setStyleSheet("font-family: poppins; font-size: 20px; font-weight: 500; border: 1px solid black; background: #82BCF2;")
+        self.allNums[key].setStyleSheet("font-family: poppins; font-size: 20px; font-weight: 500; border: 1px solid black; background: #82BCF2; color : black;")
 # def main():
 #     app = QApplication(sys.argv)
 #     QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-Regular.ttf')

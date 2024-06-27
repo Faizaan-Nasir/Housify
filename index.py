@@ -140,25 +140,23 @@ class joinGameWindow(QWidget):
       pixmap = QPixmap('./src/background.png')
       palette = self.palette()
       palette.setBrush(QPalette.Background, QBrush(pixmap))
+      client.msgSignal.connect(self.onJoin)
       self.setPalette(palette)
       self.MainUI()
 
    def joinGameButton(self):
-      client.msgSignal.connect(self.onJoin)
       self.game_code = self.enterGameCode.text()
       obj = {"username": name, "role" : "PLAYER", "event" : "JOIN GAME", "code" : self.game_code}
       client.send(obj)
 
    @QtCore.pyqtSlot(dict)
    def onJoin(self, msg) :
-      msg =  msg["msg"] 
-      if msg and msg == "SUCCESS" :  
+      msg =  msg["event"] 
+      if msg and msg == "SUCCESS" : 
         self.newWin = waitingLobbyWindow(self.game_code)
         self.newWin.show()
-        client.msgSignal.disconnect(self.onJoin)
-        self.hide()
-        self.close()
-      else:
+        self.close_win()
+      elif msg == "FAILED":
         self.dialog = QMessageBox(self)
         self.dialog.setWindowTitle("Error")
         self.dialog.setText("There was an error in joining the game. Please make sure that you've entered a correct code")
@@ -197,6 +195,11 @@ class joinGameWindow(QWidget):
       self.submitGameCode.move(580,310)
       self.submitGameCode.clicked.connect(self.joinGameButton)
 
+   def close_win(self) :
+      client.msgSignal.disconnect(self.onJoin) 
+      self.hide()
+      self.close()
+
 # host a game window
 class hostGameWindow(QWidget):
 
@@ -217,9 +220,7 @@ class hostGameWindow(QWidget):
       client.send(msg)
       self.hostwindow=hostingGame(self.newGameCode)
       self.hostwindow.show()
-      client.msgSignal.disconnect(self.updatePlayers)
-      self.hide()
-      self.close()
+      self.close_win()
 
    @QtCore.pyqtSlot(dict)
    def updatePlayers(self, msg): 
@@ -300,6 +301,11 @@ class hostGameWindow(QWidget):
       self.c2cb.move(580,325)
       self.c2cb.clicked.connect(lambda: c2cbFunc(self))
 
+   def close_win(self) : 
+      client.msgSignal.disconnect(self.updatePlayers)
+      self.hide()
+      self.close() 
+
 # waiting lobby window
 class waitingLobbyWindow(QWidget):
    def __init__(self, code):
@@ -313,19 +319,13 @@ class waitingLobbyWindow(QWidget):
       self.setPalette(palette)
       self.MainUI()
       client.msgSignal.connect(self.startGame)
-
-   # function to leave the game
-   def leaveGame(self):
-      self.close()
    
    @QtCore.pyqtSlot(dict)
    def startGame(self, msg) :
       if msg["event"] == "START GAME" : 
          self.newin = playAGameWindow(self.code)
          self.newin.show()
-         client.msgSignal.disconnect(self.startGame)
-         self.hide()
-         self.close()
+         self.close_win()
 
    def MainUI(self):
       # HOUSIFY
@@ -369,12 +369,18 @@ class waitingLobbyWindow(QWidget):
                                  background: #F27D7D;}''')
       self.leaveButton.setFixedSize(150,55)
       self.leaveButton.move(860,400)
-      self.leaveButton.clicked.connect(self.leaveGame)
+      self.leaveButton.clicked.connect(self.onLeaveGame)
 
    def onLeaveGame(self) :
-      client.send({"event" : "LEAVE GAME", "code" : self.gamecode})
+      client.send({"event" : "LEAVE GAME", "code" : self.code})
       self.newin = mainWindow()
       self.newin.show()
+      self.close_win()
+
+   def close_win(self) : 
+      client.msgSignal.disconnect(self.startGame)
+      self.hide()
+      self.close()
 
 # playing a game window
 class playAGameWindow(QWidget):
@@ -423,7 +429,7 @@ class playAGameWindow(QWidget):
         ''', self)
       self.statusText.move(110,210)
 
-      self.number = QPushButton('Called: ',self)
+      self.number = QLabel('Called: ',self)
       self.number.setStyleSheet('''QPushButton{
                                     font-family: Poppins;
                                     font-size: 30px;
@@ -518,8 +524,12 @@ class playAGameWindow(QWidget):
          self.dialog.exec()
          self.newin = mainWindow()
          self.newin.show()
-         self.hide()
-         self.close()
+         self.close_win()
+
+   def close_win(self) : 
+      client.msgSignal.disconnect(self.react)
+      self.hide()
+      self.close() 
          
 
 class hostingGame(QWidget):
@@ -595,8 +605,7 @@ class hostingGame(QWidget):
       client.send({"code" : self.code, "event" : "END GAME"})
       self.newin = mainWindow()
       self.newin.show()
-      self.hide()
-      self.close()
+      self.close_win()
 
    def call_out(self) :
       if len(self.numbers):
@@ -629,6 +638,11 @@ class hostingGame(QWidget):
          self.dialog.setWindowTitle("INFO")
          self.dialog.setText(f"{msg['username']} has appealed for {msg['name']}.")
          self.dialog.exec()
+
+   def close_win(self) : 
+      client.msgSignal.disconnect(self.react)
+      self.hide()
+      self.close()     
 # ---- END OF ALL MODULES ----
       
 def main():
