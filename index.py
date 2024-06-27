@@ -1,5 +1,6 @@
 import sys
 from PyQt5 import QtCore
+from PyQt5 import QtGui
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QFontDatabase , QPixmap , QPalette , QBrush
 import random
@@ -73,8 +74,6 @@ class mainWindow(QWidget):
    def joinGameButton(self):
       self.newWin = joinGameWindow()
       self.newWin.show()
-      self.hide()
-      self.close()
    
    # function to show hostGameWindow
    def hostGameButton(self):
@@ -83,8 +82,6 @@ class mainWindow(QWidget):
       client.send(obj)
       self.newWin = hostGameWindow(game_code)
       self.newWin.show()
-      self.hide()
-      self.close()
 
    def MainUI(self):
       # HOUSIFY
@@ -153,14 +150,14 @@ class joinGameWindow(QWidget):
    def onJoin(self, msg) :
       msg =  msg["event"] 
       if msg and msg == "SUCCESS" : 
-        self.newWin = waitingLobbyWindow(self.game_code)
-        self.newWin.show()
-        self.close_win()
+         self.newWin = waitingLobbyWindow(self.game_code)
+         self.newWin.show()
+         self.close_win()
       elif msg == "FAILED":
-        self.dialog = QMessageBox(self)
-        self.dialog.setWindowTitle("Error")
-        self.dialog.setText("There was an error in joining the game. Please make sure that you've entered a correct code")
-        self.dialog.exec()
+         self.dialog = QMessageBox(self)
+         self.dialog.setWindowTitle("Error")
+         self.dialog.setText("There was an error in joining the game. Please make sure that you've entered a correct code")
+         self.dialog.exec()
 
    def MainUI(self):
       # HOUSIFY
@@ -647,8 +644,8 @@ class hostingGame(QWidget):
       
 def main():
    global name, client
-
    app = QApplication(sys.argv)
+   app.setWindowIcon(QtGui.QIcon('./src/app.ico'))
    QFontDatabase.addApplicationFont('./src/fonts/Paytone_One/PaytoneOne-Regular.ttf')
    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-Regular.ttf')
    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-ExtraBold.ttf')
