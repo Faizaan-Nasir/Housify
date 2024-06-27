@@ -389,7 +389,16 @@ class playAGameWindow(QWidget):
       self.setPalette(palette)
       self.MainUI()
       client.msgSignal.connect(self.react)
-      
+   
+   def appeal(self,appealName):
+      self.appealedLabel=QLabel(f'You have appealed for {appealName}, please wait while the host checks your ticket!',self)
+      self.appealedLabel.setStyleSheet('font-family: poppins; font-size: 12px; color: #D2626E;')
+      self.appealedLabel.move(370,340)
+      self.appealedLabel.setFixedWidth(630)
+      self.appealedLabel.setAlignment(QtCore.Qt.AlignCenter)
+      self.appealedLabel.show()
+      client.send({"event":"appeal","name":appealName,"username":name,"code":self.gamecode})
+
    def MainUI(self):
       # Title PLAY
       self.playLabel=QLabel('PLAY',self)
@@ -437,6 +446,7 @@ class playAGameWindow(QWidget):
                                     border: 2px solid black;
                                  }''')
       self.firstHouse.move(370,380)
+      self.firstHouse.clicked.connect(lambda: self.appeal('First Row'))
 
       self.secondHouse = QPushButton('2nd\nRow',self)
       self.secondHouse.resize(100,76)
@@ -449,6 +459,7 @@ class playAGameWindow(QWidget):
                                     border: 2px solid black;
                                  }''')
       self.secondHouse.move(480,380)
+      self.secondHouse.clicked.connect(lambda: self.appeal('Second Row'))
 
       self.thirdHouse = QPushButton('3rd\nrow',self)
       self.thirdHouse.resize(100,76)
@@ -461,6 +472,7 @@ class playAGameWindow(QWidget):
                                     border: 2px solid black;
                                  }''')
       self.thirdHouse.move(590,380)
+      self.thirdHouse.clicked.connect(lambda: self.appeal('Third Row'))
 
       self.fullHouse = QPushButton('Full\nHouse',self)
       self.fullHouse.resize(100,76)
@@ -473,6 +485,7 @@ class playAGameWindow(QWidget):
                                     border: 2px solid black;
                                  }''')
       self.fullHouse.move(700,380)
+      self.fullHouse.clicked.connect(lambda: self.appeal('Full House'))
 
       self.leaveGame = QPushButton('Leave Game',self)
       self.leaveGame.resize(150,76)
@@ -606,11 +619,16 @@ class hostingGame(QWidget):
    @QtCore.pyqtSlot(dict) 
    def react(self, msg)  :
       if msg["event"] == "PLAYER LEAVE" : 
-        self.dialog = QMessageBox(self)
-        name = msg["player"]
-        self.dialog.setWindowTitle("INFO")
-        self.dialog.setText(f"{name} left the game.")
-        self.dialog.exec()
+         self.dialog = QMessageBox(self)
+         name = msg["player"]
+         self.dialog.setWindowTitle("INFO")
+         self.dialog.setText(f"{name} left the game.")
+         self.dialog.exec()
+      if msg["event"] == "appeal" :
+         self.dialog = QMessageBox(self)
+         self.dialog.setWindowTitle("INFO")
+         self.dialog.setText(f"{msg['username']} has appealed for {msg['name']}.")
+         self.dialog.exec()
 # ---- END OF ALL MODULES ----
       
 def main():

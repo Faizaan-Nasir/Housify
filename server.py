@@ -139,7 +139,9 @@ class Server :
         elif msg["event"] == "END GAME" :
             # TODO: Consult with everyone and decide on the actual function of END GAME button 
             self.handle_leave_game(c, code, host = True)
-
+        elif msg["event"] == "appeal":
+            g = self.games[code]
+            g.host_client.send(self._encode(msg))
 
 # USAGE EXAMPLE
 if __name__ == "__main__" : 
