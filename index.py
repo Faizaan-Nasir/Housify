@@ -20,6 +20,7 @@ class usernameWindow(QWidget):
       super().__init__()
       self.setFixedSize(500,200)
       self.setWindowTitle("Housify")
+      self.setStyleSheet('background-color: rgb(50,50,50)')
       self.mainUI()
    
    def openCloseWindow(self,username):
