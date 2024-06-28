@@ -74,6 +74,8 @@ class mainWindow(QWidget):
    def joinGameButton(self):
       self.newWin = joinGameWindow()
       self.newWin.show()
+      self.hide()
+      self.close()
    
    # function to show hostGameWindow
    def hostGameButton(self):
@@ -82,6 +84,8 @@ class mainWindow(QWidget):
       client.send(obj)
       self.newWin = hostGameWindow(game_code)
       self.newWin.show()
+      self.hide()
+      self.close()
 
    def MainUI(self):
       # HOUSIFY
@@ -154,10 +158,7 @@ class joinGameWindow(QWidget):
          self.newWin.show()
          self.close_win()
       elif msg == "FAILED":
-         self.dialog = QMessageBox(self)
-         self.dialog.setWindowTitle("Error")
-         self.dialog.setText("There was an error in joining the game. Please make sure that you've entered a correct code")
-         self.dialog.exec()
+         self.dialog = QMessageBox.critical(self,'Error',"There was an error in joining the game. Please make sure that you've entered a correct code")
 
    def MainUI(self):
       # HOUSIFY
@@ -427,7 +428,7 @@ class playAGameWindow(QWidget):
       self.statusText.move(110,210)
 
       self.number = QLabel('Called: ',self)
-      self.number.setStyleSheet('''QPushButton{
+      self.number.setStyleSheet('''QLabel{
                                     font-family: Poppins;
                                     font-size: 30px;
                                     color: black;
@@ -436,6 +437,7 @@ class playAGameWindow(QWidget):
                                     border: 2px solid black;
                                  }''')
       self.number.resize(200,76)
+      self.number.setAlignment(QtCore.Qt.AlignCenter)
       self.number.move(110,380)
 
       self.firstHouse = QPushButton('1st\nRow',self)
@@ -507,6 +509,7 @@ class playAGameWindow(QWidget):
       client.send({"event" : "LEAVE GAME", "code" : self.gamecode})
       self.newin = mainWindow()
       self.newin.show()
+      self.close_win()
        
    @QtCore.pyqtSlot(dict)
    def react(self, msg) : 
@@ -514,11 +517,8 @@ class playAGameWindow(QWidget):
          self.number.setText(f'Called: {msg["num"]}')
          self.statusText.setText(msg["status_text"])
       if msg["event"] == "END GAME" : 
-         self.dialog = QMessageBox(self)
          reason = msg["reason"]
-         self.dialog.setWindowTitle("GAME OVER")
-         self.dialog.setText(f"Game ended. {reason}")
-         self.dialog.exec()
+         self.dialog = QMessageBox.information(self,'GAME OVER',f"Game ended. {reason}")
          self.newin = mainWindow()
          self.newin.show()
          self.close_win()
@@ -625,16 +625,10 @@ class hostingGame(QWidget):
    @QtCore.pyqtSlot(dict) 
    def react(self, msg)  :
       if msg["event"] == "PLAYER LEAVE" : 
-         self.dialog = QMessageBox(self)
          name = msg["player"]
-         self.dialog.setWindowTitle("INFO")
-         self.dialog.setText(f"{name} left the game.")
-         self.dialog.exec()
+         self.dialog = QMessageBox.information(self,"INFO",f"{name} left the game.")
       if msg["event"] == "appeal" :
-         self.dialog = QMessageBox(self)
-         self.dialog.setWindowTitle("INFO")
-         self.dialog.setText(f"{msg['username']} has appealed for {msg['name']}.")
-         self.dialog.exec()
+         self.dialog = QMessageBox.information(self,'INFO',f"{msg['username']} has appealed for {msg['name']}.")
 
    def close_win(self) : 
       client.msgSignal.disconnect(self.react)
