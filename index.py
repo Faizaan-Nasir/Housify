@@ -10,6 +10,7 @@ import logic
 import ticket
 from player_list import PlayerList
 import GRID
+import appeal
 
 # TODO: create a parent window object
 # TODO: use QMessageBox.information for all occurrences
@@ -440,7 +441,7 @@ class playAGameWindow(QWidget):
       self.appealedLabel.setFixedWidth(630)
       self.appealedLabel.setAlignment(QtCore.Qt.AlignCenter)
       self.appealedLabel.show()
-      client.send({"event":"appeal","name":appealName,"username":name,"code":self.gamecode})
+      client.send({"event":"appeal","name":appealName,"username":name,"code":self.gamecode, "ticketId":self.ticketid})
 
    def MainUI(self):
       # Title PLAY
@@ -450,7 +451,7 @@ class playAGameWindow(QWidget):
 
       # Bringing Ticket to the Window
       self.ticketid='T'+str(random.randint(10000,99999))
-      self.displayTicket=ticket.ticketMain(logic.generateTicket(self.ticketid), self)
+      self.displayTicket=ticket.ticketMain(logic.generateTicket(self.ticketid), self, 'player')
       self.displayTicket.move(370,110)
       self.displayTicket.parent=self
       self.displayTicket.show()
@@ -667,7 +668,8 @@ class hostingGame(QWidget):
          name = msg["player"]
          self.dialog = QMessageBox.information(self,"INFO",f"{name} left the game.")
       if msg["event"] == "appeal" :
-         self.dialog = QMessageBox.information(self,'INFO',f"{msg['username']} has appealed for {msg['name']}.")
+         # self.dialog = QMessageBox.information(self,'INFO',f"{msg['username']} has appealed for {msg['name']}.")
+         appeal.appealWindow(msg['name'],msg['username'],msg['ticketId'],self.called)
 
    def close_win(self) : 
       client.msgSignal.disconnect(self.react)

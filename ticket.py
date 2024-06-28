@@ -6,11 +6,13 @@ from functools import partial
 
 # this is literally a ticket widget imported to the "Playing a Game" window
 class ticketMain(QWidget):
-    def __init__(self,ticket,parent):
+    def __init__(self,ticket,parent,userType,calledNums = None):
         self.ticket=ticket
+        self.userType = userType
         super().__init__(parent)
         self.setFixedSize(634,214)
         self.MainUI()
+        self.calledNums = calledNums
         self.setStyleSheet('color:black;')
 
     def MainUI(self):
@@ -43,6 +45,7 @@ class ticketMain(QWidget):
                     buttons[buttonid].setStyleSheet('''QPushButton{
                                                             font-family: poppins;
                                                             font-size: 30px; 
+                                                            color: black;
                                                             font-weight: 500;
                                                             border: 0px;'''
                                                             f"background: {color};"
@@ -52,7 +55,11 @@ class ticketMain(QWidget):
                                                             "}")
                     buttons[buttonid].setFixedSize(70,70)
                     ticketButtons.addWidget(buttons[buttonid],y,x)
-                    buttons[buttonid].clicked.connect(partial(self.disable,buttonid))
+                    if self.userType == 'player':
+                        buttons[buttonid].clicked.connect(partial(self.disable,buttonid))
+                    else:
+                        if text in self.calledNums:
+                            self.disable(self, buttonid)
                     buttonid += 1
                 else:
                     tempButton = QPushButton('',self)
@@ -69,7 +76,7 @@ class ticketMain(QWidget):
         new.setLayout(ticketButtons)
         ticketBox.setWidget(new)
         ticketBox.show()
-    
+
     def disable(self,buttonid):
         buttons[buttonid].setStyleSheet('''font-family: poppins;
                                         font-size: 30px;
