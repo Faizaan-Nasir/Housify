@@ -9,7 +9,7 @@ A python based application to play Housie
 - [ ] Ticket Checker
 - [x] Database to Store IDs of Players in a Game
 
-#TODO on front end aspect:
+# TODO on front end aspect:
 1. Hover effects on buttons for Playing a Game window
 2. Colour coordination of buttons according to figma file for Playing a Game window
 3. Hover effects on button for Hosting a Game window
