@@ -160,6 +160,11 @@ class joinGameWindow(QWidget):
       elif msg == "FAILED":
          self.dialog = QMessageBox.critical(self,'Error',"There was an error in joining the game. Please make sure that you've entered a correct code")
 
+   def goBack(self):
+      self.oldWin = mainWindow()
+      self.close()
+      self.oldWin.show()
+
    def MainUI(self):
       # HOUSIFY
       self.mainTitle=QLabel("HOUSIFY",self)
@@ -167,6 +172,20 @@ class joinGameWindow(QWidget):
       self.mainTitle.move(0,210)
       self.mainTitle.setAlignment(QtCore.Qt.AlignCenter)
       self.mainTitle.setStyleSheet("font-family: Paytone One; background: transparent; font-size:60px; color: black;")
+
+      self.backButton = QPushButton('<  Back',self)
+      self.backButton.setStyleSheet('''QPushButton{
+                                 font-family: Poppins; 
+                                 font-size: 16px; 
+                                 background: #F0E4CD; 
+                                 border: 2px solid black;
+                                 color: black;
+                                 }
+                                 QPushButton::hover{
+                                 background: #FFF3DC;}''')
+      self.backButton.setFixedSize(90,30)
+      self.backButton.move(310,175)
+      self.backButton.clicked.connect(self.goBack)
 
       # Game Code
       self.enterGameCode=QLineEdit(self)
@@ -220,6 +239,11 @@ class hostGameWindow(QWidget):
       self.hostwindow.show()
       self.close_win()
 
+   def goBack(self):
+      self.oldWin = mainWindow()
+      self.close()
+      self.oldWin.show()
+
    @QtCore.pyqtSlot(dict)
    def updatePlayers(self, msg): 
       if msg["event"] == "PLAYER JOIN" :
@@ -235,7 +259,21 @@ class hostGameWindow(QWidget):
       self.mainTitle.setAlignment(QtCore.Qt.AlignCenter)
       self.mainTitle.setStyleSheet("font-family: Paytone One; background: transparent; font-size:35px; color: black;")
 
-      # Game Code Label
+      self.backButton = QPushButton('<  Back',self)
+      self.backButton.setStyleSheet('''QPushButton{
+                                 font-family: Poppins; 
+                                 font-size: 16px; 
+                                 background: #F0E4CD; 
+                                 border: 2px solid black;
+                                 color: black;
+                                 }
+                                 QPushButton::hover{
+                                 background: #FFF3DC;}''')
+      self.backButton.setFixedSize(90,30)
+      self.backButton.move(310,175)
+      self.backButton.clicked.connect(self.goBack)
+
+    # Game Code Label
       self.gameCodeLabelGame=QLabel('Game',self)
       self.gameCodeLabelGame.setStyleSheet("color: black; font-family: Poppins; font-weight: 700; font-size: 22px;")
       self.gameCodeLabelGame.move(393,235)
