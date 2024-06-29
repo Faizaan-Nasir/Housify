@@ -669,7 +669,7 @@ class hostingGame(QWidget):
          self.dialog = QMessageBox.information(self,"INFO",f"{name} left the game.")
       if msg["event"] == "appeal" :
          # self.dialog = QMessageBox.information(self,'INFO',f"{msg['username']} has appealed for {msg['name']}.")
-         appeal.appealWindow(msg['name'],msg['username'],msg['ticketId'],self.called)
+         appeal.appealWindow(msg['name'],msg['username'],msg['ticketId'],self.called).show()
 
    def close_win(self) : 
       client.msgSignal.disconnect(self.react)
