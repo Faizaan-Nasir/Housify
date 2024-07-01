@@ -12,6 +12,7 @@ class ticketMain(QWidget):
         self.userType = userType
         super().__init__(parent)
         self.setFixedSize(634,214)
+        self.calledNums = calledNums
         self.MainUI()
         self.setStyleSheet('color:black;')
 

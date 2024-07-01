@@ -451,7 +451,7 @@ class playAGameWindow(QWidget):
 
       # Bringing Ticket to the Window
       self.ticketid='T'+str(random.randint(10000,99999))
-      self.displayTicket=ticket.ticketMain(logic.generateTicket(self.ticketid), self, 'player')
+      self.displayTicket=ticket.ticketMain(logic.generateTicket(self.ticketid), self, 'player', None)
       self.displayTicket.move(370,110)
       self.displayTicket.parent=self
       self.displayTicket.show()
@@ -567,7 +567,6 @@ class playAGameWindow(QWidget):
       client.msgSignal.disconnect(self.react)
       self.hide()
       self.close() 
-         
 
 class hostingGame(QWidget):
    def __init__(self, gamecode):
@@ -583,7 +582,8 @@ class hostingGame(QWidget):
       self.code = gamecode
       self.MainUI()
       client.msgSignal.connect(self.react)
-   
+      # appeal.appeal.appealSignal.connect(self.appealResult)
+      
    def MainUI(self):
       # Title HOST
       self.hostLabel=QLabel('HOST',self)
@@ -669,7 +669,16 @@ class hostingGame(QWidget):
          self.dialog = QMessageBox.information(self,"INFO",f"{name} left the game.")
       if msg["event"] == "appeal" :
          # self.dialog = QMessageBox.information(self,'INFO',f"{msg['username']} has appealed for {msg['name']}.")
-         appeal.appealWindow(msg['name'],msg['username'],msg['ticketId'],self.called).show()
+         self.appealWindow = appeal.appealWindow(msg['name'],msg['username'],msg['ticketId'],self.called)
+         self.appealWindow.show()
+
+   @QtCore.pyqtSlot(list)
+   def appealResult(self,appealResult):
+      if appealResult[0] == 'Approved':
+         print(appealResult[1],'appeal approved')
+      else:
+         print(appealResult[1],'appeal declined')
+
 
    def close_win(self) : 
       client.msgSignal.disconnect(self.react)

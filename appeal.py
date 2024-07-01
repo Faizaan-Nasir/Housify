@@ -2,8 +2,16 @@ import sys
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QFontDatabase
+from PyQt5.QtCore import pyqtSignal, QObject
 import ticket
 import logic
+import index
+
+class appeal(QObject):
+    appealSignal = pyqtSignal(list)
+    def sendAppeal(self, appealDetails):
+        self.appealSignal.connect(index.hostingGame.appealResult)
+        self.appealSignal.emit(appealDetails)
 
 class appealWindow(QWidget):
     def __init__(self, appeal, player, ticketId, calledNums):
@@ -23,12 +31,38 @@ class appealWindow(QWidget):
         self.title.move(33,25)
 
         self.displayTicket=ticket.ticketMain(logic.generateTicket(self.ticketId), self, 'host', self.calledNums)
-        self.displayTicket.move(33,110)
+        self.displayTicket.move(33,90)
         self.displayTicket.parent=self
         self.displayTicket.show()
 
-        print(self.calledNums)
+        self.approveButton = QPushButton('Yes, appeal is right.',self)
+        self.approveButton.resize(250,50)
+        self.approveButton.setStyleSheet('''QPushButton{
+                                        font-family: Poppins;
+                                        font-size: 18px;
+                                        color: black;
+                                        font-weight: 500;
+                                        background-color: #77DD81;
+                                        border: 2px solid black;
+                                        }''')
+        self.approveButton.move(87,325)
+        self.approveButton.clicked.connect(lambda: appeal.sendAppeal(self,['Approved',self.appeal]))
 
+        self.declineButton = QPushButton('No, appeal is wrong.',self)
+        self.declineButton.resize(250,50)
+        self.declineButton.setStyleSheet('''QPushButton{
+                                        font-family: Poppins;
+                                        font-size: 18px;
+                                        color: black;
+                                        font-weight: 500;
+                                        background-color: #F46363;
+                                        border: 2px solid black;
+                                        }''')
+        self.declineButton.move(362,325)
+        self.declineButton.clicked.connect(lambda: appeal.sendAppeal(self,['Declined',self.appeal]))
+
+# class AppealSignal(QWidget):
+#     appealSignal = pyqtSignal(str, str)
 
     # @QtCore.pyqtSlot(dict) 
     # def react(self, msg)  :
@@ -38,16 +72,16 @@ class appealWindow(QWidget):
     #         appealUser = msg['username']
     #         gameCode = msg['code']
 
-# def main():
-#     app = QApplication(sys.argv)
-#     QFontDatabase.addApplicationFont('./src/fonts/Paytone_One/PaytoneOne-Regular.ttf')
-#     QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-Regular.ttf')
-#     QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-ExtraBold.ttf')
-#     QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-SemiBold.ttf')
-#     win = appealWindow('Full House','Aditi','T112233')
-#     win.show()
-#     code = app.exec_()
-#     sys.exit(code)
+def main():
+    app = QApplication(sys.argv)
+    QFontDatabase.addApplicationFont('./src/fonts/Paytone_One/PaytoneOne-Regular.ttf')
+    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-Regular.ttf')
+    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-ExtraBold.ttf')
+    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-SemiBold.ttf')
+    win = appealWindow('Full House','Aditi','T112233',[1,2,3,52,55,69,72,76])
+    win.show()
+    code = app.exec_()
+    sys.exit(code)
 
-# if __name__ == '__main__':
-#     main()
+if __name__ == '__main__':
+    main()
