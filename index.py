@@ -10,7 +10,6 @@ import logic
 import ticket
 from player_list import PlayerList
 import GRID
-import appeal
 
 # TODO: create a parent window object
 # TODO: use QMessageBox.information for all occurrences
@@ -662,6 +661,28 @@ class hostingGame(QWidget):
          obj = {"event" : "CALL NUMBER", "num" : num, "code" : self.code, "status_text" : self.statusText.text()}
          client.send(obj)
 
+   def approveAppeal(self,Result):
+      if Result:
+         if self.appealReason=='First Row':
+            replaceText=f'''<div style="font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;">
+                Numbers left: {len(self.numbers)}<br> First row: {self.appealPerson} <br>Second row<br>Third row<br>Full house
+            </div>'''
+         elif self.appealReason=='Second Row':
+            replaceText=f'''<div style="font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;">
+                Numbers left: {len(self.numbers)}<br>First row<br> Second row: {self.appealPerson} <br>Third row<br>Full house
+            </div>'''
+         elif self.appealReason=='Third Row':
+            replaceText=f'''<div style="font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;">
+                Numbers left: {len(self.numbers)}<br>First row<br>Second row<br> Third row: {self.appealPerson} <br>Full house
+            </div>'''
+         elif self.appealReason=='Full House':
+            replaceText=f'''<div style="font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;">
+                Numbers left: {len(self.numbers)}<br>First row<br>Second row<br>Third row<br> Full house: {self.appealPerson}
+            </div>'''
+         self.statusText.hide()
+         self.statusText.setText(replaceText)
+         self.statusText.show()
+
    @QtCore.pyqtSlot(dict) 
    def react(self, msg)  :
       if msg["event"] == "PLAYER LEAVE" : 
@@ -669,21 +690,77 @@ class hostingGame(QWidget):
          self.dialog = QMessageBox.information(self,"INFO",f"{name} left the game.")
       if msg["event"] == "appeal" :
          # self.dialog = QMessageBox.information(self,'INFO',f"{msg['username']} has appealed for {msg['name']}.")
-         self.appealWindow = appeal.appealWindow(msg['name'],msg['username'],msg['ticketId'],self.called)
+         self.appealReason=msg['name']
+         self.appealPerson=msg['username']
+         self.appealWindow = appealWindow(self.appealReason,self.appealPerson,msg['ticketId'],self.called)
          self.appealWindow.show()
+         self.appealWindow.signalObj.connect(self.approveAppeal)
 
-   @QtCore.pyqtSlot(list)
-   def appealResult(self,appealResult):
-      if appealResult[0] == 'Approved':
-         print(appealResult[1],'appeal approved')
-      else:
-         print(appealResult[1],'appeal declined')
-
+   # @QtCore.pyqtSlot(list)
+   # def appealResult(self,appealResult):
+   #    if appealResult[0] == 'Approved':
+   #       print(appealResult[1],'appeal approved')
+   #    else:
+   #       print(appealResult[1],'appeal declined')
 
    def close_win(self) : 
       client.msgSignal.disconnect(self.react)
       self.hide()
       self.close()     
+
+class appealWindow(QWidget):
+    signalObj=QtCore.pyqtSignal(bool)
+
+    def __init__(self, appeal, player, ticketId, calledNums):
+        super().__init__()
+        self.setFixedSize(700,400)
+        self.setWindowTitle('Housify - Appeal')
+        self.setStyleSheet('background-color: #F0E4CD')
+        self.appeal = appeal
+        self.player = player
+        self.ticketId = ticketId
+        self.calledNums = calledNums
+        self.MainUI()
+    
+    def MainUI(self):
+        self.title = QLabel(f"{self.player} appeals  :   {self.appeal}",self)
+        self.title.setStyleSheet('font-size: 22px; font-family: "Poppins"; color: black;')
+        self.title.move(33,25)
+
+        self.displayTicket=ticket.ticketMain(logic.generateTicket(self.ticketId), self, 'host', self.calledNums)
+        self.displayTicket.move(33,90)
+        self.displayTicket.parent=self
+        self.displayTicket.show()
+
+        self.approveButton = QPushButton('Yes, appeal is right.',self)
+        self.approveButton.resize(250,50)
+        self.approveButton.setStyleSheet('''QPushButton{
+                                        font-family: Poppins;
+                                        font-size: 18px;
+                                        color: black;
+                                        font-weight: 500;
+                                        background-color: #77DD81;
+                                        border: 2px solid black;
+                                        }''')
+        self.approveButton.move(87,325)
+        self.approveButton.clicked.connect(lambda: self.appealResult(True))
+
+        self.declineButton = QPushButton('No, appeal is wrong.',self)
+        self.declineButton.resize(250,50)
+        self.declineButton.setStyleSheet('''QPushButton{
+                                        font-family: Poppins;
+                                        font-size: 18px;
+                                        color: black;
+                                        font-weight: 500;
+                                        background-color: #F46363;
+                                        border: 2px solid black;
+                                        }''')
+        self.declineButton.move(362,325)
+        self.declineButton.clicked.connect(lambda: self.appealResult(False))
+
+    def appealResult(self, result):
+        self.signalObj.emit(result) 
+        self.hide()
 # ---- END OF ALL MODULES ----
       
 def main():
