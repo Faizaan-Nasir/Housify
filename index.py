@@ -40,10 +40,16 @@ class usernameWindow(QWidget):
       self.usernameText=QLineEdit(self)
       self.usernameText.setStyleSheet("color: black; font-family: Poppins; font-size: 21px; background: #D7D7D7; border: 2px solid black;")
       self.usernameText.setFixedSize(250,55)
-      self.usernameText.move(125,35)
+      self.usernameText.move(125,30)
+      self.usernameText.setMaxLength(12)
       self.usernameText.setAlignment(QtCore.Qt.AlignCenter)
       self.usernameText.setPlaceholderText('Username')
       self.usernameText.setFocusPolicy(0x2)
+
+      self.requirementsText = QLabel('Usernames must be short (no greater than 12 characters)',self)
+      self.requirementsText.setStyleSheet('color: white; font-size: 12px; text-align: center;')
+      self.requirementsText.setFixedWidth(500)
+      self.requirementsText.move(87,92)
       
       self.submit=QPushButton('Submit',self)
       self.submit.setStyleSheet('''QPushButton{
@@ -56,7 +62,7 @@ class usernameWindow(QWidget):
                                  QPushButton::hover{
                                  background: #63a9eb;}''')
       self.submit.setFixedSize(150,55)
-      self.submit.move(175,115)
+      self.submit.move(175,120)
       self.submit.clicked.connect(lambda: self.openCloseWindow(self.usernameText.text()))
 
 # main window
