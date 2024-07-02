@@ -148,6 +148,12 @@ class Server :
         elif msg["event"] == "appeal":
             g = self.games[code]
             g.host_client.send(self._encode(msg))
+        
+        elif msg["event"] == 'APPROVE APPEAL':
+            reply = msg
+            g = self.games[code]
+            for p in g.players.values() : 
+                p.send(self._encode(reply))
 
 # USAGE EXAMPLE
 if __name__ == "__main__" : 

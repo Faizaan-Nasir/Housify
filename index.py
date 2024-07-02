@@ -3,9 +3,9 @@ from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QFontDatabase , QPixmap , QPalette , QBrush
-import random
 import pyperclip
 from connection import Client
+import random
 import logic
 import ticket
 from player_list import PlayerList
@@ -469,12 +469,31 @@ class playAGameWindow(QWidget):
       self.statusLabel.move(110,160)
       
       # body of status
-      self.statusText = QLabel(f'''
-            <div style="font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;">
-                Numbers left: 90<br>First row<br>Second row<br>Third row<br>Full house
-            </div>
-        ''', self)
+      self.statusText = QLabel('Numbers left : 90', self)
+      self.statusText.setStyleSheet("font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;")
       self.statusText.move(110,210)
+
+      self.firstRowText = QLabel('First Row : ',self)
+      self.firstRowText.setStyleSheet("font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;")
+      self.firstRowText.move(110,240)
+      self.firstRowText.setFixedWidth(300)
+
+      self.secondRowText = QLabel('Second Row : ',self)
+      self.secondRowText.setStyleSheet("font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;")
+      self.secondRowText.move(110,270)
+      self.secondRowText.setFixedWidth(300)
+
+
+      self.thirdRowText = QLabel('Third Row : ',self)
+      self.thirdRowText.setStyleSheet("font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;")
+      self.thirdRowText.move(110,300)
+      self.thirdRowText.setFixedWidth(300)
+
+
+      self.fullHouseText = QLabel('Full House : ',self)
+      self.fullHouseText.setStyleSheet("font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;")
+      self.fullHouseText.move(110,330)
+      self.fullHouseText.setFixedWidth(300)
 
       # number called label
       self.number = QLabel('Called: ',self)
@@ -579,6 +598,13 @@ class playAGameWindow(QWidget):
          self.newin = mainWindow()
          self.newin.show()
          self.close_win()
+      if msg['event'] == 'APPROVE APPEAL' :
+         print(msg['status_text'][0])
+         self.firstRowText.setText(msg["status_text"][0])
+         self.secondRowText.setText(msg["status_text"][1])
+         self.thirdRowText.setText(msg["status_text"][2])
+         self.fullHouseText.setText(msg["status_text"][3])
+         self.appealedLabel.hide()
 
    def close_win(self) : 
       client.msgSignal.disconnect(self.react)
@@ -613,12 +639,29 @@ class hostingGame(QWidget):
       self.statusLabel.move(110,160)
       
       # status body text
-      self.statusText = QLabel(f'''
-            <div style="font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;">
-                Numbers left: {len(self.numbers)}<br>First row<br>Second row<br>Third row<br>Full house
-            </div>
-        ''', self)
+      self.statusText = QLabel(f'Numbers left: {len(self.numbers)}', self)
+      self.statusText.setStyleSheet("font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;")
       self.statusText.move(110,210)
+
+      self.firstRowText = QLabel('First Row : ',self)
+      self.firstRowText.setStyleSheet("font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;")
+      self.firstRowText.move(110,240)
+      self.firstRowText.setFixedWidth(300)
+
+      self.secondRowText = QLabel('Second Row : ',self)
+      self.secondRowText.setStyleSheet("font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;")
+      self.secondRowText.move(110,270)
+      self.secondRowText.setFixedWidth(300)
+
+      self.thirdRowText = QLabel('Third Row : ',self)
+      self.thirdRowText.setStyleSheet("font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;")
+      self.thirdRowText.move(110,300)
+      self.thirdRowText.setFixedWidth(300)
+
+      self.fullHouseText = QLabel('Full House : ',self)
+      self.fullHouseText.setStyleSheet("font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;")
+      self.fullHouseText.move(110,330)
+      self.fullHouseText.setFixedWidth(300)
 
       # displaying numbers for the host
       self.displayNum=QLabel('''<div style="font-family: 'Poppins'; font-weight: 500; font-size: 60px; line-height: 0.85; color: #D2626E;"></div>''',self)
@@ -675,11 +718,7 @@ class hostingGame(QWidget):
          self.called.append(num)
 
          # Updating the status text and display text
-         self.statusText.setText(f'''
-               <div style="font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;">
-                  Numbers left: {len(self.numbers)}<br>First row<br>Second row<br>Third row<br>Full house
-               </div>
-         ''')
+         self.statusText.setText(f"Numbers left: {len(self.numbers)}")
          self.displayNum.setText(f'''<div style="font-family: 'Poppins'; font-weight: 500; font-size: 60px; line-height: 0.85; color: #D2626E;">{num}</div>''')
          self.grid.updateStyle(num)
 
@@ -691,24 +730,19 @@ class hostingGame(QWidget):
    def approveAppeal(self,Result):
       if Result:
          if self.appealReason=='First Row':
-            replaceText=f'''<div style="font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;">
-                Numbers left: {len(self.numbers)}<br> First row: {self.appealPerson} <br>Second row<br>Third row<br>Full house
-            </div>'''
+            replaceText=f"{self.appealReason} : {self.appealPerson}"
+            self.firstRowText.setText(replaceText)
          elif self.appealReason=='Second Row':
-            replaceText=f'''<div style="font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;">
-                Numbers left: {len(self.numbers)}<br>First row<br> Second row: {self.appealPerson} <br>Third row<br>Full house
-            </div>'''
+            replaceText=f"{self.appealReason} : {self.appealPerson}"
+            self.secondRowText.setText(replaceText)
          elif self.appealReason=='Third Row':
-            replaceText=f'''<div style="font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;">
-                Numbers left: {len(self.numbers)}<br>First row<br>Second row<br> Third row: {self.appealPerson} <br>Full house
-            </div>'''
+            replaceText=f"{self.appealReason} : {self.appealPerson}"
+            self.thirdRowText.setText(replaceText)
          elif self.appealReason=='Full House':
-            replaceText=f'''<div style="font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;">
-                Numbers left: {len(self.numbers)}<br>First row<br>Second row<br>Third row<br> Full house: {self.appealPerson}
-            </div>'''
-         self.statusText.hide()
-         self.statusText.setText(replaceText)
-         self.statusText.show()
+            replaceText=f"{self.appealReason} : {self.appealPerson}"
+            self.fullHouseText.setText(replaceText)
+         msg = {"event":'APPROVE APPEAL',"code":self.code,"status_text":[self.firstRowText.text(),self.secondRowText.text(),self.thirdRowText.text(),self.fullHouseText.text()]}
+         client.send(msg)
 
    # client - server connection for leave player and appeal
    @QtCore.pyqtSlot(dict) 
@@ -731,58 +765,58 @@ class hostingGame(QWidget):
 
 # the appeal window
 class appealWindow(QWidget):
-    signalObj=QtCore.pyqtSignal(bool)
+      signalObj=QtCore.pyqtSignal(bool)
 
-    def __init__(self, appeal, player, ticketId, calledNums):
-        super().__init__()
-        self.setFixedSize(700,400)
-        self.setWindowTitle('Housify - Appeal')
-        self.setStyleSheet('background-color: #F0E4CD')
-        self.appeal = appeal
-        self.player = player
-        self.ticketId = ticketId
-        self.calledNums = calledNums
-        self.MainUI()
-    
-    def MainUI(self):
-        self.title = QLabel(f"{self.player} appeals  :   {self.appeal}",self)
-        self.title.setStyleSheet('font-size: 22px; font-family: "Poppins"; color: black;')
-        self.title.move(33,25)
+      def __init__(self, appeal, player, ticketId, calledNums):
+         super().__init__()
+         self.setFixedSize(700,400)
+         self.setWindowTitle('Housify - Appeal')
+         self.setStyleSheet('background-color: #F0E4CD')
+         self.appeal = appeal
+         self.player = player
+         self.ticketId = ticketId
+         self.calledNums = calledNums
+         self.MainUI()
+      
+      def MainUI(self):
+         self.title = QLabel(f"{self.player} appeals  :   {self.appeal}",self)
+         self.title.setStyleSheet('font-size: 22px; font-family: "Poppins"; color: black;')
+         self.title.move(33,25)
 
-        self.displayTicket=ticket.ticketMain(logic.generateTicket(self.ticketId), self, 'host', self.calledNums)
-        self.displayTicket.move(33,90)
-        self.displayTicket.parent=self
-        self.displayTicket.show()
+         self.displayTicket=ticket.ticketMain(logic.generateTicket(self.ticketId), self, 'host', self.calledNums)
+         self.displayTicket.move(33,90)
+         self.displayTicket.parent=self
+         self.displayTicket.show()
 
-        self.approveButton = QPushButton('Yes, appeal is right.',self)
-        self.approveButton.resize(250,50)
-        self.approveButton.setStyleSheet('''QPushButton{
-                                        font-family: Poppins;
-                                        font-size: 18px;
-                                        color: black;
-                                        font-weight: 500;
-                                        background-color: #77DD81;
-                                        border: 2px solid black;
-                                        }''')
-        self.approveButton.move(87,325)
-        self.approveButton.clicked.connect(lambda: self.appealResult(True))
+         self.approveButton = QPushButton('Yes, appeal is right.',self)
+         self.approveButton.resize(250,50)
+         self.approveButton.setStyleSheet('''QPushButton{
+                                          font-family: Poppins;
+                                          font-size: 18px;
+                                          color: black;
+                                          font-weight: 500;
+                                          background-color: #77DD81;
+                                          border: 2px solid black;
+                                          }''')
+         self.approveButton.move(87,325)
+         self.approveButton.clicked.connect(lambda: self.appealResult(True))
 
-        self.declineButton = QPushButton('No, appeal is wrong.',self)
-        self.declineButton.resize(250,50)
-        self.declineButton.setStyleSheet('''QPushButton{
-                                        font-family: Poppins;
-                                        font-size: 18px;
-                                        color: black;
-                                        font-weight: 500;
-                                        background-color: #F46363;
-                                        border: 2px solid black;
-                                        }''')
-        self.declineButton.move(362,325)
-        self.declineButton.clicked.connect(lambda: self.appealResult(False))
+         self.declineButton = QPushButton('No, appeal is wrong.',self)
+         self.declineButton.resize(250,50)
+         self.declineButton.setStyleSheet('''QPushButton{
+                                          font-family: Poppins;
+                                          font-size: 18px;
+                                          color: black;
+                                          font-weight: 500;
+                                          background-color: #F46363;
+                                          border: 2px solid black;
+                                          }''')
+         self.declineButton.move(362,325)
+         self.declineButton.clicked.connect(lambda: self.appealResult(False))
 
-    def appealResult(self, result):
-        self.signalObj.emit(result) 
-        self.hide()
+      def appealResult(self, result):
+         self.signalObj.emit(result) 
+         self.hide()
 # ---- END OF ALL MODULES ----
       
 def main():
