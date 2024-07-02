@@ -12,7 +12,11 @@ A python based application to play Housie
 ## TODO on front end aspect:
 1. Hover effects on buttons for Playing a Game window
 2. Hover effects on button for Hosting a Game window
-3. Alert window for when you're not allowed to enter a game since you have already entered it before or when you try joining a game that doesnt exist
+
+## TODO on user aspect:
+1. Restrict usernames to 13.5 characters
+2. Alert window for when you're not allowed to enter a game since you have already entered it before or when you try joining a game that doesnt exist
+
 
 ## Basic Algorithm
 ![image](https://github.com/Faizaan-Nasir/Housify/assets/82143161/1adb3d8a-5049-46f8-a442-209e1e995b4f)
