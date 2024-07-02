@@ -516,7 +516,8 @@ class playAGameWindow(QWidget):
                                     font-weight: 500;
                                     background-color: #d6ccba;
                                     border: 2px solid black;
-                                 }'''
+                                 }
+                                 '''
 
       # appeal button first row
       self.firstHouse = QPushButton('1st\nRow',self)
@@ -528,7 +529,9 @@ class playAGameWindow(QWidget):
                                     font-weight: 500;
                                     background-color: #F8EDD9;
                                     border: 2px solid black;
-                                 }''')
+                                    }
+                                    QPushButton::hover{
+                                    background: #f5eee1;}''')
       self.firstHouse.move(370,380)
       self.firstHouse.clicked.connect(lambda: self.appeal('First Row'))
 
@@ -542,7 +545,9 @@ class playAGameWindow(QWidget):
                                     font-weight: 500;
                                     background-color: #F8EDD9;
                                     border: 2px solid black;
-                                 }''')
+                                    }
+                                    QPushButton::hover{
+                                    background: #f5eee1;}''')
       self.secondHouse.move(480,380)
       self.secondHouse.clicked.connect(lambda: self.appeal('Second Row'))
 
@@ -556,7 +561,9 @@ class playAGameWindow(QWidget):
                                     font-weight: 500;
                                     background-color: #F8EDD9;
                                     border: 2px solid black;
-                                 }''')
+                                    }
+                                    QPushButton::hover{
+                                    background: #f5eee1;}''')
       self.thirdHouse.move(590,380)
       self.thirdHouse.clicked.connect(lambda: self.appeal('Third Row'))
 
@@ -570,7 +577,9 @@ class playAGameWindow(QWidget):
                                     font-weight: 500;
                                     background-color: #F8EDD9;
                                     border: 2px solid black;
-                                 }''')
+                                    }
+                                    QPushButton::hover{
+                                    background: #f5eee1;}''')
       self.fullHouse.move(700,380)
       self.fullHouse.clicked.connect(lambda: self.appeal('Full House'))
 
@@ -584,7 +593,9 @@ class playAGameWindow(QWidget):
                                     font-weight: 500;
                                     background-color: #F46363;
                                     border: 2px solid black;
-                                 }''')
+                                    }
+                                    QPushButton::hover{
+                                    background: #F27D7D;}''')
       self.leaveGame.move(855,380)
       self.leaveGame.clicked.connect(self.onLeaveGame)
    
@@ -716,7 +727,9 @@ class hostingGame(QWidget):
                                     background-color: #F46363;
                                     font-weight: 500;
                                     border: 2px solid black;
-                                 }''')
+                                    }
+                                    QPushButton::hover{
+                                    background: #F27D7D;}''')
       self.endGame.resize(200,76)
       self.endGame.move(330,384)
 
@@ -818,7 +831,9 @@ class appealWindow(QWidget):
                                           font-weight: 500;
                                           background-color: #77DD81;
                                           border: 2px solid black;
-                                          }''')
+                                          }
+                                          QPushButton::hover{
+                                          background: #93F29D;}''')
          self.approveButton.move(87,325)
          self.approveButton.clicked.connect(lambda: self.appealResult(True))
 
@@ -831,7 +846,9 @@ class appealWindow(QWidget):
                                           font-weight: 500;
                                           background-color: #F46363;
                                           border: 2px solid black;
-                                          }''')
+                                          }
+                                          QPushButton::hover{
+                                          background: #F27D7D;}''')
          self.declineButton.move(362,325)
          self.declineButton.clicked.connect(lambda: self.appealResult(False))
 

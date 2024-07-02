@@ -10,8 +10,8 @@ A python based application to play Housie
 - [x] Database to Store IDs of Players in a Game
 
 ## TODO on front end aspect:
-1. Hover effects on buttons for Playing a Game window
-2. Hover effects on button for Hosting a Game window
+~~1. Hover effects on buttons for Playing a Game window~~
+~~2. Hover effects on button for Hosting a Game window~~
 
 ## TODO on user aspect:
 1. Restrict usernames to 13.5 characters
