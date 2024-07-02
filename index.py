@@ -233,6 +233,7 @@ class hostGameWindow(QWidget):
       self.MainUI()
       client.msgSignal.connect(self.updatePlayers)
 
+   # function start game button
    def startingGame(self):
       msg = {"event" : "START GAME", "code" : self.newGameCode, "username" : name}
       client.send(msg)
@@ -240,11 +241,13 @@ class hostGameWindow(QWidget):
       self.hostwindow.show()
       self.close_win()
 
+   # function go back button
    def goBack(self):
       self.oldWin = mainWindow()
       self.close()
       self.oldWin.show()
 
+   # what happens when new player joins
    @QtCore.pyqtSlot(dict)
    def updatePlayers(self, msg): 
       if msg["event"] == "PLAYER JOIN" :
@@ -260,6 +263,7 @@ class hostGameWindow(QWidget):
       self.mainTitle.setAlignment(QtCore.Qt.AlignCenter)
       self.mainTitle.setStyleSheet("font-family: Paytone One; background: transparent; font-size:35px; color: black;")
 
+      # back button
       self.backButton = QPushButton('<  Back',self)
       self.backButton.setStyleSheet('''QPushButton{
                                  font-family: Poppins; 
@@ -274,7 +278,7 @@ class hostGameWindow(QWidget):
       self.backButton.move(310,175)
       self.backButton.clicked.connect(self.goBack)
 
-    # Game Code Label
+      # Game Code Label
       self.gameCodeLabelGame=QLabel('Game',self)
       self.gameCodeLabelGame.setStyleSheet("color: black; font-family: Poppins; font-weight: 700; font-size: 22px;")
       self.gameCodeLabelGame.move(393,235)
@@ -338,6 +342,7 @@ class hostGameWindow(QWidget):
       self.c2cb.move(580,325)
       self.c2cb.clicked.connect(lambda: c2cbFunc(self))
 
+   # what happens when window closes
    def close_win(self) : 
       client.msgSignal.disconnect(self.updatePlayers)
       self.hide()
@@ -385,6 +390,7 @@ class waitingLobbyWindow(QWidget):
       self.bodyText2.move(0,280)
       self.bodyText2.setAlignment(QtCore.Qt.AlignCenter)
 
+      # display of game code
       self.gameCodeLabel=QLabel('Game code:',self)
       self.gameCodeLabel.setStyleSheet("color: black; font-family: Poppins; font-weight: 700; font-size: 22px;")
       self.gameCodeLabel.move(120,410)
@@ -408,6 +414,7 @@ class waitingLobbyWindow(QWidget):
       self.leaveButton.move(860,400)
       self.leaveButton.clicked.connect(self.onLeaveGame)
 
+   # leave game button function
    def onLeaveGame(self) :
       client.send({"event" : "LEAVE GAME", "code" : self.code})
       self.newin = mainWindow()
@@ -433,6 +440,7 @@ class playAGameWindow(QWidget):
       self.MainUI()
       client.msgSignal.connect(self.react)
    
+   # when someone appeals for something function
    def appeal(self,appealName):
       self.appealedLabel=QLabel(f'You have appealed for {appealName}, please wait while the host checks your ticket!',self)
       self.appealedLabel.setStyleSheet('font-family: poppins; font-size: 12px; color: #D2626E;')
@@ -455,10 +463,12 @@ class playAGameWindow(QWidget):
       self.displayTicket.parent=self
       self.displayTicket.show()
 
+      # title of 'Status'
       self.statusLabel = QLabel('Status:',self)
       self.statusLabel.setStyleSheet('font-family: Paytone One; font-weight: 600; background: transparent; font-size: 34px; color: black;')
       self.statusLabel.move(110,160)
       
+      # body of status
       self.statusText = QLabel(f'''
             <div style="font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;">
                 Numbers left: 90<br>First row<br>Second row<br>Third row<br>Full house
@@ -466,6 +476,7 @@ class playAGameWindow(QWidget):
         ''', self)
       self.statusText.move(110,210)
 
+      # number called label
       self.number = QLabel('Called: ',self)
       self.number.setStyleSheet('''QLabel{
                                     font-family: Poppins;
@@ -479,6 +490,7 @@ class playAGameWindow(QWidget):
       self.number.setAlignment(QtCore.Qt.AlignCenter)
       self.number.move(110,380)
 
+      # appeal button first row
       self.firstHouse = QPushButton('1st\nRow',self)
       self.firstHouse.resize(100,76)
       self.firstHouse.setStyleSheet('''QPushButton{
@@ -492,6 +504,7 @@ class playAGameWindow(QWidget):
       self.firstHouse.move(370,380)
       self.firstHouse.clicked.connect(lambda: self.appeal('First Row'))
 
+      # appeal button second row
       self.secondHouse = QPushButton('2nd\nRow',self)
       self.secondHouse.resize(100,76)
       self.secondHouse.setStyleSheet('''QPushButton{
@@ -505,6 +518,7 @@ class playAGameWindow(QWidget):
       self.secondHouse.move(480,380)
       self.secondHouse.clicked.connect(lambda: self.appeal('Second Row'))
 
+      # appeal button third row
       self.thirdHouse = QPushButton('3rd\nrow',self)
       self.thirdHouse.resize(100,76)
       self.thirdHouse.setStyleSheet('''QPushButton{
@@ -518,6 +532,7 @@ class playAGameWindow(QWidget):
       self.thirdHouse.move(590,380)
       self.thirdHouse.clicked.connect(lambda: self.appeal('Third Row'))
 
+      # appeal button full house
       self.fullHouse = QPushButton('Full\nHouse',self)
       self.fullHouse.resize(100,76)
       self.fullHouse.setStyleSheet('''QPushButton{
@@ -531,6 +546,7 @@ class playAGameWindow(QWidget):
       self.fullHouse.move(700,380)
       self.fullHouse.clicked.connect(lambda: self.appeal('Full House'))
 
+      # leave game button
       self.leaveGame = QPushButton('Leave Game',self)
       self.leaveGame.resize(150,76)
       self.leaveGame.setStyleSheet('''QPushButton{
@@ -543,13 +559,15 @@ class playAGameWindow(QWidget):
                                  }''')
       self.leaveGame.move(855,380)
       self.leaveGame.clicked.connect(self.onLeaveGame)
-
+   
+   # function leave game button
    def onLeaveGame(self) :
       client.send({"event" : "LEAVE GAME", "code" : self.gamecode})
       self.newin = mainWindow()
       self.newin.show()
       self.close_win()
-       
+   
+   # client - server dealing with call number and end game
    @QtCore.pyqtSlot(dict)
    def react(self, msg) : 
       if msg["event"] == "CALL NUMBER" : 
@@ -567,6 +585,7 @@ class playAGameWindow(QWidget):
       self.hide()
       self.close() 
 
+# the window where the host is hosting game
 class hostingGame(QWidget):
    def __init__(self, gamecode):
       super().__init__()
@@ -581,7 +600,6 @@ class hostingGame(QWidget):
       self.code = gamecode
       self.MainUI()
       client.msgSignal.connect(self.react)
-      # appeal.appeal.appealSignal.connect(self.appealResult)
       
    def MainUI(self):
       # Title HOST
@@ -589,22 +607,26 @@ class hostingGame(QWidget):
       self.hostLabel.setStyleSheet('font-family: Paytone One; font-weight: 600; background: transparent; font-size:50px; color: black;')
       self.hostLabel.move(110,90)
 
+      # title status
       self.statusLabel = QLabel('Status:',self)
       self.statusLabel.setStyleSheet('font-family: "Paytone One"; font-weight: 600; background: transparent; font-size: 34px; color: black;')
       self.statusLabel.move(110,160)
       
+      # status body text
       self.statusText = QLabel(f'''
             <div style="font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;">
                 Numbers left: {len(self.numbers)}<br>First row<br>Second row<br>Third row<br>Full house
             </div>
         ''', self)
       self.statusText.move(110,210)
-     
+
+      # displaying numbers for the host
       self.displayNum=QLabel('''<div style="font-family: 'Poppins'; font-weight: 500; font-size: 60px; line-height: 0.85; color: #D2626E;"></div>''',self)
       self.displayNum.setFixedWidth(90)
       self.displayNum.setAlignment(QtCore.Qt.AlignCenter)
       self.displayNum.move(530,375)
 
+      # button to call out number
       self.callOutNumber = QPushButton('Call Out Number',self)
       self.callOutNumber.setStyleSheet('''QPushButton{
                                     font-family: Poppins;
@@ -621,6 +643,7 @@ class hostingGame(QWidget):
       self.callOutNumber.move(110,384)
       self.callOutNumber.clicked.connect(self.call_out)
 
+      # button to end game
       self.endGame = QPushButton('End Game',self)
       self.endGame.setStyleSheet('''QPushButton{
                                     font-family: Poppins;
@@ -633,16 +656,19 @@ class hostingGame(QWidget):
       self.endGame.resize(200,76)
       self.endGame.move(330,384)
 
+      # THE 9X10 GRID
       self.grid=GRID.theGrid(self)
       self.grid.move(620,100)
       self.endGame.clicked.connect(self.endgame)
 
+   # ending game button function
    def endgame(self) : 
       client.send({"code" : self.code, "event" : "END GAME"})
       self.newin = mainWindow()
       self.newin.show()
       self.close_win()
 
+   # call out button function
    def call_out(self) :
       if len(self.numbers):
          num = self.numbers.pop()
@@ -661,6 +687,7 @@ class hostingGame(QWidget):
          obj = {"event" : "CALL NUMBER", "num" : num, "code" : self.code, "status_text" : self.statusText.text()}
          client.send(obj)
 
+   # what happens when an appeal gets approved
    def approveAppeal(self,Result):
       if Result:
          if self.appealReason=='First Row':
@@ -683,6 +710,7 @@ class hostingGame(QWidget):
          self.statusText.setText(replaceText)
          self.statusText.show()
 
+   # client - server connection for leave player and appeal
    @QtCore.pyqtSlot(dict) 
    def react(self, msg)  :
       if msg["event"] == "PLAYER LEAVE" : 
@@ -696,18 +724,12 @@ class hostingGame(QWidget):
          self.appealWindow.show()
          self.appealWindow.signalObj.connect(self.approveAppeal)
 
-   # @QtCore.pyqtSlot(list)
-   # def appealResult(self,appealResult):
-   #    if appealResult[0] == 'Approved':
-   #       print(appealResult[1],'appeal approved')
-   #    else:
-   #       print(appealResult[1],'appeal declined')
-
    def close_win(self) : 
       client.msgSignal.disconnect(self.react)
       self.hide()
       self.close()     
 
+# the appeal window
 class appealWindow(QWidget):
     signalObj=QtCore.pyqtSignal(bool)
 
