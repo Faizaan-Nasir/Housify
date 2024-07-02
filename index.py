@@ -509,6 +509,15 @@ class playAGameWindow(QWidget):
       self.number.setAlignment(QtCore.Qt.AlignCenter)
       self.number.move(110,380)
 
+      self.disabledStyles = '''QPushButton{
+                                    font-family: Poppins;
+                                    font-size: 18px;
+                                    color: #b8b8b8;
+                                    font-weight: 500;
+                                    background-color: #d6ccba;
+                                    border: 2px solid black;
+                                 }'''
+
       # appeal button first row
       self.firstHouse = QPushButton('1st\nRow',self)
       self.firstHouse.resize(100,76)
@@ -600,11 +609,23 @@ class playAGameWindow(QWidget):
          self.close_win()
       if msg['event'] == 'APPROVE APPEAL' :
          print(msg['status_text'][0])
-         self.firstRowText.setText(msg["status_text"][0])
-         self.secondRowText.setText(msg["status_text"][1])
-         self.thirdRowText.setText(msg["status_text"][2])
-         self.fullHouseText.setText(msg["status_text"][3])
          self.appealedLabel.hide()
+         if msg['approvedAppeal'] == 'First Row':
+            self.firstRowText.setText(msg["status_text"][0])
+            self.firstHouse.setEnabled(False)
+            self.firstHouse.setStyleSheet(self.disabledStyles)
+         elif msg['approvedAppeal'] == 'Second Row':
+            self.secondRowText.setText(msg["status_text"][1])
+            self.secondHouse.setEnabled(False)
+            self.secondHouse.setStyleSheet(self.disabledStyles)
+         elif msg['approvedAppeal'] == 'Third Row':
+            self.thirdRowText.setText(msg["status_text"][2])
+            self.thirdHouse.setEnabled(False)
+            self.thirdHouse.setStyleSheet(self.disabledStyles)
+         elif msg['approvedAppeal'] == 'Full House':
+            self.fullHouseText.setText(msg["status_text"][3])
+            self.fullHouse.setEnabled(False)
+            self.fullHouse.setStyleSheet(self.disabledStyles)
 
    def close_win(self) : 
       client.msgSignal.disconnect(self.react)
@@ -741,7 +762,7 @@ class hostingGame(QWidget):
          elif self.appealReason=='Full House':
             replaceText=f"{self.appealReason} : {self.appealPerson}"
             self.fullHouseText.setText(replaceText)
-         msg = {"event":'APPROVE APPEAL',"code":self.code,"status_text":[self.firstRowText.text(),self.secondRowText.text(),self.thirdRowText.text(),self.fullHouseText.text()]}
+         msg = {"event":'APPROVE APPEAL',"code":self.code,"status_text":[self.firstRowText.text(),self.secondRowText.text(),self.thirdRowText.text(),self.fullHouseText.text()],"approvedAppeal":self.appealReason}
          client.send(msg)
 
    # client - server connection for leave player and appeal
