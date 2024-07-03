@@ -618,6 +618,10 @@ class playAGameWindow(QWidget):
       if msg["event"] == "CALL NUMBER" : 
          self.number.setText(f'Called: {msg["num"]}')
          self.statusText.setText(msg["status_text"])
+         try:
+            self.appealedLabel.hide()
+         except:
+            pass
       if msg["event"] == "END GAME" : 
          reason = msg["reason"]
          self.dialog = QMessageBox.information(self,'GAME OVER',f"Game ended. {reason}")
