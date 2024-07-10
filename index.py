@@ -632,7 +632,6 @@ class playAGameWindow(QWidget):
          self.close_win()
       if msg['event'] == 'APPROVE APPEAL' :
          print(msg['status_text'][0])
-         self.appealedLabel.hide()
          if msg['approvedAppeal'] == 'First Row':
             self.firstRowText.setText(msg["status_text"][0])
             self.firstHouse.setEnabled(False)
