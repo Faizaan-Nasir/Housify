@@ -1,4 +1,6 @@
 import sys
+import os
+from dotenv import load_dotenv
 from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5.QtWidgets import *
@@ -875,14 +877,8 @@ def main():
    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-Regular.ttf')
    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-ExtraBold.ttf')
    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-SemiBold.ttf')
-
-   client = Client()
-#    try:
-#       name = logic.getName()
-#       ex = mainWindow()
-#       ex.show()
-#    except Exception as error:
-#       print(error)
+   load_dotenv()
+   client = Client(ip = os.getenv("IP"))
    ex = usernameWindow()
    ex.show()
    code = app.exec_()
