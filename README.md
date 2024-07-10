@@ -19,6 +19,8 @@ A python based application to play Housie
 3. Restrict users from making multiple appeals.
 4. Restrict users from appealing when a player has already made an appeal.
 5. Make appeals spam proof.
+6. Eliminate player on incorrect appeal.
+7. Alert in absence of internet.
 
 ## Basic Algorithm
 ![image](https://github.com/Faizaan-Nasir/Housify/assets/82143161/1adb3d8a-5049-46f8-a442-209e1e995b4f)
