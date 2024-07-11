@@ -1,20 +1,20 @@
 import sys
 import os
-from dotenv import load_dotenv
-from PyQt5 import QtCore
-from PyQt5 import QtGui
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import QFontDatabase , QPixmap , QPalette , QBrush
-import pyperclip
-from connection import Client
 import random
+import pyperclip
+from dotenv import load_dotenv
+
+from PyQt5 import QtCore
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import QFontDatabase , QPixmap , QPalette , QBrush, QIcon
+
+from connection import Client
+from player_list import PlayerList
 import logic
 import ticket
-from player_list import PlayerList
 import GRID
 
 # TODO: create a parent window object
-# TODO: use QMessageBox.information for all occurrences
 
 # enter username
 class usernameWindow(QWidget):
@@ -31,12 +31,15 @@ class usernameWindow(QWidget):
          file.write(username)
       name=username
       # Connect the client to server
-      client.connect(name)
-      client.run()
-      self.hide()
-      self.close()
-      self.newin=mainWindow()
-      self.newin.show()
+      try:
+        client.connect(name)
+        client.run()
+        self.hide()
+        self.close()
+        self.newin=mainWindow()
+        self.newin.show()
+      except:
+        self.msg_dialog = QMessageBox.critical(self, "Couldn't connect", "Please check your internet connection. Connection wasn't successful.")
 
    def mainUI(self):
       self.usernameText=QLineEdit(self)
@@ -796,7 +799,6 @@ class hostingGame(QWidget):
          name = msg["player"]
          self.dialog = QMessageBox.information(self,"INFO",f"{name} left the game.")
       if msg["event"] == "appeal" :
-         # self.dialog = QMessageBox.information(self,'INFO',f"{msg['username']} has appealed for {msg['name']}.")
          self.appealReason=msg['name']
          self.appealPerson=msg['username']
          self.appealWindow = appealWindow(self.appealReason,self.appealPerson,msg['ticketId'],self.called)
@@ -871,7 +873,7 @@ class appealWindow(QWidget):
 def main():
    global name, client
    app = QApplication(sys.argv)
-   app.setWindowIcon(QtGui.QIcon('./src/app.ico'))
+   app.setWindowIcon(QIcon('./src/app.ico'))
    QFontDatabase.addApplicationFont('./src/fonts/Paytone_One/PaytoneOne-Regular.ttf')
    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-Regular.ttf')
    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-ExtraBold.ttf')
