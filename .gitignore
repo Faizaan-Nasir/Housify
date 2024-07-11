@@ -1,4 +1,4 @@
 .env
 __pycache__
-gamerid.txt
 username.txt
+.DS_Store

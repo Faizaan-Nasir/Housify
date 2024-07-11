@@ -1,42 +1,58 @@
 import sys
+import os
+from dotenv import load_dotenv
 from PyQt5 import QtCore
+from PyQt5 import QtGui
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QFontDatabase , QPixmap , QPalette , QBrush
-import pyperclip # for copy to clipboard
-import logic # local file
-import ticket # local file
-import GRID
+import pyperclip
+from connection import Client
 import random
+import logic
+import ticket
+from player_list import PlayerList
+import GRID
 
-# create username window
+# TODO: create a parent window object
+# TODO: use QMessageBox.information for all occurrences
+
+# enter username
 class usernameWindow(QWidget):
    def __init__(self):
       super().__init__()
       self.setFixedSize(500,200)
       self.setWindowTitle("Housify")
+      self.setStyleSheet('background-color: rgb(50,50,50)')
       self.mainUI()
    
-   # sets a permanent username
    def openCloseWindow(self,username):
-      global name
+      global name, client
       with open('username.txt','w') as file:
          file.write(username)
       name=username
+      # Connect the client to server
+      client.connect(name)
+      client.run()
       self.hide()
+      self.close()
       self.newin=mainWindow()
       self.newin.show()
 
    def mainUI(self):
-      # enter username text box
       self.usernameText=QLineEdit(self)
       self.usernameText.setStyleSheet("color: black; font-family: Poppins; font-size: 21px; background: #D7D7D7; border: 2px solid black;")
       self.usernameText.setFixedSize(250,55)
-      self.usernameText.move(125,35)
+      self.usernameText.move(125,30)
+      self.usernameText.setMaxLength(12)
       self.usernameText.setAlignment(QtCore.Qt.AlignCenter)
       self.usernameText.setPlaceholderText('Username')
       self.usernameText.setFocusPolicy(0x2)
+
+      self.requirementsText = QLabel('Usernames must be short (no greater than 12 characters)',self)
+      self.requirementsText.setStyleSheet('color: white; font-size: 12px; text-align: center;')
+      self.requirementsText.setFixedWidth(500)
+      self.requirementsText.move(87,92)
       
-      # submit button
       self.submit=QPushButton('Submit',self)
       self.submit.setStyleSheet('''QPushButton{
                                  font-family: Poppins; 
@@ -48,7 +64,7 @@ class usernameWindow(QWidget):
                                  QPushButton::hover{
                                  background: #63a9eb;}''')
       self.submit.setFixedSize(150,55)
-      self.submit.move(175,115)
+      self.submit.move(175,120)
       self.submit.clicked.connect(lambda: self.openCloseWindow(self.usernameText.text()))
 
 # main window
@@ -67,13 +83,18 @@ class mainWindow(QWidget):
    def joinGameButton(self):
       self.newWin = joinGameWindow()
       self.newWin.show()
-      # self.hide()
+      self.hide()
+      self.close()
    
    # function to show hostGameWindow
    def hostGameButton(self):
-      self.newWin = hostGameWindow()
+      game_code = str(random.randint(10000,99999))
+      obj = {"username": name, "role" : "HOST", "event" : "CREATE GAME", "code" : game_code}
+      client.send(obj)
+      self.newWin = hostGameWindow(game_code)
       self.newWin.show()
-      # self.hide()
+      self.hide()
+      self.close()
 
    def MainUI(self):
       # HOUSIFY
@@ -129,30 +150,29 @@ class joinGameWindow(QWidget):
       pixmap = QPixmap('./src/background.png')
       palette = self.palette()
       palette.setBrush(QPalette.Background, QBrush(pixmap))
+      client.msgSignal.connect(self.onJoin)
       self.setPalette(palette)
       self.MainUI()
 
-   # Shows the "Playing a Game" Window
-   def showGameWindow(self,gameid):
-      try:
-         playAGameWindow(gameid).show()
-      except Exception as error:
-         if str(error)=='GameNotFound':
-            self.errorMessage=QLabel('<p>Game does not exist.',self)
-            self.errorMessage.setStyleSheet('font-family: poppins; font-size: 12px; color: #D2626E;')
-            self.errorMessage.setFixedWidth(1120)
-            self.errorMessage.setAlignment(QtCore.Qt.AlignCenter)
-            self.errorMessage.move(0,375)
-            self.errorMessage.show()
-            QtCore.QTimer.singleShot(3000, lambda: self.errorMessage.hide())
-         elif str(error)=='AlreadyInGame':
-            self.errorMessage=QLabel('<p>You have already joined this game.',self)
-            self.errorMessage.setStyleSheet('font-family: poppins; font-size: 12px; color: #D2626E;')
-            self.errorMessage.setFixedWidth(1120)
-            self.errorMessage.setAlignment(QtCore.Qt.AlignCenter)
-            self.errorMessage.move(0,375)
-            self.errorMessage.show()
-            QtCore.QTimer.singleShot(3000, lambda: self.errorMessage.hide())
+   def joinGameButton(self):
+      self.game_code = self.enterGameCode.text()
+      obj = {"username": name, "role" : "PLAYER", "event" : "JOIN GAME", "code" : self.game_code}
+      client.send(obj)
+
+   @QtCore.pyqtSlot(dict)
+   def onJoin(self, msg) :
+      msg =  msg["event"] 
+      if msg and msg == "SUCCESS" : 
+         self.newWin = waitingLobbyWindow(self.game_code)
+         self.newWin.show()
+         self.close_win()
+      elif msg == "FAILED":
+         self.dialog = QMessageBox.critical(self,'Error',"There was an error in joining the game. Please make sure that you've entered a correct code")
+
+   def goBack(self):
+      self.oldWin = mainWindow()
+      self.close()
+      self.oldWin.show()
 
    def MainUI(self):
       # HOUSIFY
@@ -161,6 +181,20 @@ class joinGameWindow(QWidget):
       self.mainTitle.move(0,210)
       self.mainTitle.setAlignment(QtCore.Qt.AlignCenter)
       self.mainTitle.setStyleSheet("font-family: Paytone One; background: transparent; font-size:60px; color: black;")
+
+      self.backButton = QPushButton('<  Back',self)
+      self.backButton.setStyleSheet('''QPushButton{
+                                 font-family: Poppins; 
+                                 font-size: 16px; 
+                                 background: #F0E4CD; 
+                                 border: 2px solid black;
+                                 color: black;
+                                 }
+                                 QPushButton::hover{
+                                 background: #FFF3DC;}''')
+      self.backButton.setFixedSize(90,30)
+      self.backButton.move(310,175)
+      self.backButton.clicked.connect(self.goBack)
 
       # Game Code
       self.enterGameCode=QLineEdit(self)
@@ -185,12 +219,19 @@ class joinGameWindow(QWidget):
                                  }''')
       self.submitGameCode.setFixedSize(200,55)
       self.submitGameCode.move(580,310)
-      self.submitGameCode.clicked.connect(lambda: self.showGameWindow(self.enterGameCode.text()))
+      self.submitGameCode.clicked.connect(self.joinGameButton)
+
+   def close_win(self) :
+      client.msgSignal.disconnect(self.onJoin) 
+      self.hide()
+      self.close()
 
 # host a game window
 class hostGameWindow(QWidget):
-   def __init__(self):
+
+   def __init__(self, newGameCode):
       super().__init__()
+      self.newGameCode= newGameCode
       self.setFixedSize(1120,560)
       self.setWindowTitle('Housify - Host a Game')
       pixmap = QPixmap('./src/background_host.png')
@@ -198,10 +239,29 @@ class hostGameWindow(QWidget):
       palette.setBrush(QPalette.Background, QBrush(pixmap))
       self.setPalette(palette)
       self.MainUI()
+      client.msgSignal.connect(self.updatePlayers)
 
+   # function start game button
    def startingGame(self):
-      self.hostwindow=hostingGame()
+      msg = {"event" : "START GAME", "code" : self.newGameCode, "username" : name}
+      client.send(msg)
+      self.hostwindow=hostingGame(self.newGameCode)
       self.hostwindow.show()
+      self.close_win()
+
+   # function go back button
+   def goBack(self):
+      self.oldWin = mainWindow()
+      self.close()
+      self.oldWin.show()
+
+   # what happens when new player joins
+   @QtCore.pyqtSlot(dict)
+   def updatePlayers(self, msg): 
+      if msg["event"] == "PLAYER JOIN" :
+         self.p.add_player(msg["player_name"])
+      elif msg["event"] == "PLAYER LEAVE"  : 
+         self.p.remove_player(msg["player"])
 
    def MainUI(self):
       # HOUSIFY
@@ -210,6 +270,21 @@ class hostGameWindow(QWidget):
       self.mainTitle.move(0,165)
       self.mainTitle.setAlignment(QtCore.Qt.AlignCenter)
       self.mainTitle.setStyleSheet("font-family: Paytone One; background: transparent; font-size:35px; color: black;")
+
+      # back button
+      self.backButton = QPushButton('<  Back',self)
+      self.backButton.setStyleSheet('''QPushButton{
+                                 font-family: Poppins; 
+                                 font-size: 16px; 
+                                 background: #F0E4CD; 
+                                 border: 2px solid black;
+                                 color: black;
+                                 }
+                                 QPushButton::hover{
+                                 background: #FFF3DC;}''')
+      self.backButton.setFixedSize(90,30)
+      self.backButton.move(310,175)
+      self.backButton.clicked.connect(self.goBack)
 
       # Game Code Label
       self.gameCodeLabelGame=QLabel('Game',self)
@@ -225,10 +300,14 @@ class hostGameWindow(QWidget):
       self.colon.move(490,210)
 
       # Game Code
-      self.newGameCode=logic.createGame()
       self.gameCode=QLabel(self.newGameCode,self)
       self.gameCode.setStyleSheet("color: black; font-family: Poppins; font-weight: 900; font-size: 62px;")
       self.gameCode.move(535,215)
+
+      # Player list
+      self.p = PlayerList("PLAYERS", self)
+      self.p.move(870, 140)
+      self.p.show()
 
       # Start Game Button
       self.startGame=QPushButton('Start Game',self)
@@ -271,21 +350,32 @@ class hostGameWindow(QWidget):
       self.c2cb.move(580,325)
       self.c2cb.clicked.connect(lambda: c2cbFunc(self))
 
+   # what happens when window closes
+   def close_win(self) : 
+      client.msgSignal.disconnect(self.updatePlayers)
+      self.hide()
+      self.close() 
+
 # waiting lobby window
 class waitingLobbyWindow(QWidget):
-   def __init__(self):
+   def __init__(self, code):
       super().__init__()
       self.setFixedSize(1120,560)
       self.setWindowTitle('Housify - Waiting Lobby')
       pixmap = QPixmap('./src/background_gameplay.png')
       palette = self.palette()
+      self.code = code
       palette.setBrush(QPalette.Background, QBrush(pixmap))
       self.setPalette(palette)
       self.MainUI()
-
-   # function to leave the game
-   def leaveGame(self):
-      self.close()
+      client.msgSignal.connect(self.startGame)
+   
+   @QtCore.pyqtSlot(dict)
+   def startGame(self, msg) :
+      if msg["event"] == "START GAME" : 
+         self.newin = playAGameWindow(self.code)
+         self.newin.show()
+         self.close_win()
 
    def MainUI(self):
       # HOUSIFY
@@ -308,12 +398,12 @@ class waitingLobbyWindow(QWidget):
       self.bodyText2.move(0,280)
       self.bodyText2.setAlignment(QtCore.Qt.AlignCenter)
 
+      # display of game code
       self.gameCodeLabel=QLabel('Game code:',self)
       self.gameCodeLabel.setStyleSheet("color: black; font-family: Poppins; font-weight: 700; font-size: 22px;")
       self.gameCodeLabel.move(120,410)
 
-      #TODO: NEED TO FIGURE OUT CODE FOR BRINGING GAME CODE (SAVE INTO A LOCAL FILE/RETRIEVE FROM DB)
-      self.gameCode=QLabel('61123',self)
+      self.gameCode=QLabel(self.code,self)
       self.gameCode.setStyleSheet("color: black; font-family: Paytone One; font-size: 62px;")
       self.gameCode.move(270,375)
 
@@ -330,7 +420,19 @@ class waitingLobbyWindow(QWidget):
                                  background: #F27D7D;}''')
       self.leaveButton.setFixedSize(150,55)
       self.leaveButton.move(860,400)
-      self.leaveButton.clicked.connect(self.leaveGame)
+      self.leaveButton.clicked.connect(self.onLeaveGame)
+
+   # leave game button function
+   def onLeaveGame(self) :
+      client.send({"event" : "LEAVE GAME", "code" : self.code})
+      self.newin = mainWindow()
+      self.newin.show()
+      self.close_win()
+
+   def close_win(self) : 
+      client.msgSignal.disconnect(self.startGame)
+      self.hide()
+      self.close()
 
 # playing a game window
 class playAGameWindow(QWidget):
@@ -344,7 +446,18 @@ class playAGameWindow(QWidget):
       palette.setBrush(QPalette.Background, QBrush(pixmap))
       self.setPalette(palette)
       self.MainUI()
-      
+      client.msgSignal.connect(self.react)
+   
+   # when someone appeals for something function
+   def appeal(self,appealName):
+      self.appealedLabel=QLabel(f'You have appealed for {appealName}, please wait while the host checks your ticket!',self)
+      self.appealedLabel.setStyleSheet('font-family: poppins; font-size: 12px; color: #D2626E;')
+      self.appealedLabel.move(370,340)
+      self.appealedLabel.setFixedWidth(630)
+      self.appealedLabel.setAlignment(QtCore.Qt.AlignCenter)
+      self.appealedLabel.show()
+      client.send({"event":"appeal","name":appealName,"username":name,"code":self.gamecode, "ticketId":self.ticketid})
+
    def MainUI(self):
       # Title PLAY
       self.playLabel=QLabel('PLAY',self)
@@ -352,25 +465,47 @@ class playAGameWindow(QWidget):
       self.playLabel.move(110,90)
 
       # Bringing Ticket to the Window
-      self.code=logic.joinGame(self.gamecode,name)
-      self.displayTicket=ticket.ticketMain(logic.generateTicket(self.code),self)
+      self.ticketid='T'+str(random.randint(10000,99999))
+      self.displayTicket=ticket.ticketMain(logic.generateTicket(self.ticketid), self, 'player', None)
       self.displayTicket.move(370,110)
       self.displayTicket.parent=self
       self.displayTicket.show()
 
+      # title of 'Status'
       self.statusLabel = QLabel('Status:',self)
       self.statusLabel.setStyleSheet('font-family: Paytone One; font-weight: 600; background: transparent; font-size: 34px; color: black;')
       self.statusLabel.move(110,160)
       
-      self.statusText = QLabel('''
-            <div style="font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;">
-                Numbers left: 48<br>First row<br>Second row<br>Third row<br>Full house
-            </div>
-        ''', self)
+      # body of status
+      self.statusText = QLabel('Numbers left : 90', self)
+      self.statusText.setStyleSheet("font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;")
       self.statusText.move(110,210)
 
-      self.number = QPushButton('Called: 16',self)
-      self.number.setStyleSheet('''QPushButton{
+      self.firstRowText = QLabel('First Row : ',self)
+      self.firstRowText.setStyleSheet("font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;")
+      self.firstRowText.move(110,240)
+      self.firstRowText.setFixedWidth(300)
+
+      self.secondRowText = QLabel('Second Row : ',self)
+      self.secondRowText.setStyleSheet("font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;")
+      self.secondRowText.move(110,270)
+      self.secondRowText.setFixedWidth(300)
+
+
+      self.thirdRowText = QLabel('Third Row : ',self)
+      self.thirdRowText.setStyleSheet("font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;")
+      self.thirdRowText.move(110,300)
+      self.thirdRowText.setFixedWidth(300)
+
+
+      self.fullHouseText = QLabel('Full House : ',self)
+      self.fullHouseText.setStyleSheet("font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;")
+      self.fullHouseText.move(110,330)
+      self.fullHouseText.setFixedWidth(300)
+
+      # number called label
+      self.number = QLabel('Called: ',self)
+      self.number.setStyleSheet('''QLabel{
                                     font-family: Poppins;
                                     font-size: 30px;
                                     color: black;
@@ -379,8 +514,20 @@ class playAGameWindow(QWidget):
                                     border: 2px solid black;
                                  }''')
       self.number.resize(200,76)
+      self.number.setAlignment(QtCore.Qt.AlignCenter)
       self.number.move(110,380)
 
+      self.disabledStyles = '''QPushButton{
+                                    font-family: Poppins;
+                                    font-size: 18px;
+                                    color: #b8b8b8;
+                                    font-weight: 500;
+                                    background-color: #d6ccba;
+                                    border: 2px solid black;
+                                 }
+                                 '''
+
+      # appeal button first row
       self.firstHouse = QPushButton('1st\nRow',self)
       self.firstHouse.resize(100,76)
       self.firstHouse.setStyleSheet('''QPushButton{
@@ -390,9 +537,13 @@ class playAGameWindow(QWidget):
                                     font-weight: 500;
                                     background-color: #F8EDD9;
                                     border: 2px solid black;
-                                 }''')
+                                    }
+                                    QPushButton::hover{
+                                    background: #f5eee1;}''')
       self.firstHouse.move(370,380)
+      self.firstHouse.clicked.connect(lambda: self.appeal('First Row'))
 
+      # appeal button second row
       self.secondHouse = QPushButton('2nd\nRow',self)
       self.secondHouse.resize(100,76)
       self.secondHouse.setStyleSheet('''QPushButton{
@@ -402,9 +553,13 @@ class playAGameWindow(QWidget):
                                     font-weight: 500;
                                     background-color: #F8EDD9;
                                     border: 2px solid black;
-                                 }''')
+                                    }
+                                    QPushButton::hover{
+                                    background: #f5eee1;}''')
       self.secondHouse.move(480,380)
+      self.secondHouse.clicked.connect(lambda: self.appeal('Second Row'))
 
+      # appeal button third row
       self.thirdHouse = QPushButton('3rd\nrow',self)
       self.thirdHouse.resize(100,76)
       self.thirdHouse.setStyleSheet('''QPushButton{
@@ -414,9 +569,13 @@ class playAGameWindow(QWidget):
                                     font-weight: 500;
                                     background-color: #F8EDD9;
                                     border: 2px solid black;
-                                 }''')
+                                    }
+                                    QPushButton::hover{
+                                    background: #f5eee1;}''')
       self.thirdHouse.move(590,380)
+      self.thirdHouse.clicked.connect(lambda: self.appeal('Third Row'))
 
+      # appeal button full house
       self.fullHouse = QPushButton('Full\nHouse',self)
       self.fullHouse.resize(100,76)
       self.fullHouse.setStyleSheet('''QPushButton{
@@ -426,9 +585,13 @@ class playAGameWindow(QWidget):
                                     font-weight: 500;
                                     background-color: #F8EDD9;
                                     border: 2px solid black;
-                                 }''')
+                                    }
+                                    QPushButton::hover{
+                                    background: #f5eee1;}''')
       self.fullHouse.move(700,380)
+      self.fullHouse.clicked.connect(lambda: self.appeal('Full House'))
 
+      # leave game button
       self.leaveGame = QPushButton('Leave Game',self)
       self.leaveGame.resize(150,76)
       self.leaveGame.setStyleSheet('''QPushButton{
@@ -438,63 +601,118 @@ class playAGameWindow(QWidget):
                                     font-weight: 500;
                                     background-color: #F46363;
                                     border: 2px solid black;
-                                 }''')
+                                    }
+                                    QPushButton::hover{
+                                    background: #F27D7D;}''')
       self.leaveGame.move(855,380)
+      self.leaveGame.clicked.connect(self.onLeaveGame)
+   
+   # function leave game button
+   def onLeaveGame(self) :
+      client.send({"event" : "LEAVE GAME", "code" : self.gamecode})
+      self.newin = mainWindow()
+      self.newin.show()
+      self.close_win()
+   
+   # client - server dealing with call number and end game
+   @QtCore.pyqtSlot(dict)
+   def react(self, msg) : 
+      if msg["event"] == "CALL NUMBER" : 
+         self.number.setText(f'Called: {msg["num"]}')
+         self.statusText.setText(msg["status_text"])
+         try:
+            self.appealedLabel.hide()
+         except:
+            pass
+      if msg["event"] == "END GAME" : 
+         reason = msg["reason"]
+         self.dialog = QMessageBox.information(self,'GAME OVER',f"Game ended. {reason}")
+         self.newin = mainWindow()
+         self.newin.show()
+         self.close_win()
+      if msg['event'] == 'APPROVE APPEAL' :
+         print(msg['status_text'][0])
+         if msg['approvedAppeal'] == 'First Row':
+            self.firstRowText.setText(msg["status_text"][0])
+            self.firstHouse.setEnabled(False)
+            self.firstHouse.setStyleSheet(self.disabledStyles)
+         elif msg['approvedAppeal'] == 'Second Row':
+            self.secondRowText.setText(msg["status_text"][1])
+            self.secondHouse.setEnabled(False)
+            self.secondHouse.setStyleSheet(self.disabledStyles)
+         elif msg['approvedAppeal'] == 'Third Row':
+            self.thirdRowText.setText(msg["status_text"][2])
+            self.thirdHouse.setEnabled(False)
+            self.thirdHouse.setStyleSheet(self.disabledStyles)
+         elif msg['approvedAppeal'] == 'Full House':
+            self.fullHouseText.setText(msg["status_text"][3])
+            self.fullHouse.setEnabled(False)
+            self.fullHouse.setStyleSheet(self.disabledStyles)
 
+   def close_win(self) : 
+      client.msgSignal.disconnect(self.react)
+      self.hide()
+      self.close() 
+
+# the window where the host is hosting game
 class hostingGame(QWidget):
-   def __init__(self):
+   def __init__(self, gamecode):
       super().__init__()
       self.setFixedSize(1120,560)
       self.setWindowTitle('Housify - Hosting a Game')
       pixmap = QPixmap('./src/gameplay-background.png')
+      self.numbers = random.sample(range(1, 91), 90)
+      self.called = []
       palette = self.palette()
       palette.setBrush(QPalette.Background, QBrush(pixmap))
       self.setPalette(palette)
+      self.code = gamecode
       self.MainUI()
-   
+      client.msgSignal.connect(self.react)
+      
    def MainUI(self):
-      listONumber=list(range(1,91))
       # Title HOST
       self.hostLabel=QLabel('HOST',self)
       self.hostLabel.setStyleSheet('font-family: Paytone One; font-weight: 600; background: transparent; font-size:50px; color: black;')
       self.hostLabel.move(110,90)
 
+      # title status
       self.statusLabel = QLabel('Status:',self)
       self.statusLabel.setStyleSheet('font-family: "Paytone One"; font-weight: 600; background: transparent; font-size: 34px; color: black;')
       self.statusLabel.move(110,160)
       
-      self.statusText = QLabel(f'''
-            <div style="font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;">
-                Numbers left: {len(listONumber)}<br>First row<br>Second row<br>Third row<br>Full house
-            </div>
-        ''', self)
+      # status body text
+      self.statusText = QLabel(f'Numbers left: {len(self.numbers)}', self)
+      self.statusText.setStyleSheet("font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;")
       self.statusText.move(110,210)
 
-      self.displayNum=QLabel('',self)
-      self.displayNum.move(420,210)
+      self.firstRowText = QLabel('First Row : ',self)
+      self.firstRowText.setStyleSheet("font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;")
+      self.firstRowText.move(110,240)
+      self.firstRowText.setFixedWidth(300)
 
-      def callingNumber():
-         if len(listONumber):
-            index=random.randint(0,len(listONumber)-1)
-            num=listONumber.pop(index)
-            self.statusText.hide()
-            self.statusText = QLabel(f'''
-               <div style="font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;">
-                  Numbers left: {len(listONumber)}<br>First row<br>Second row<br>Third row<br>Full house
-               </div>
-         ''', self)
-            self.statusText.move(110,210)
-            self.statusText.show()
-            self.displayNum.hide()
-            self.displayNum=QLabel(f'''<div style="font-family: 'Poppins'; font-weight: 500; font-size: 60px; line-height: 0.85; color: #D2626E;">{num}</div>''',self)
-            self.displayNum.setFixedWidth(90)
-            self.displayNum.setAlignment(QtCore.Qt.AlignCenter)
-            self.displayNum.move(530,375)
-            self.displayNum.show()
-            GRID.updateStyle(num)
+      self.secondRowText = QLabel('Second Row : ',self)
+      self.secondRowText.setStyleSheet("font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;")
+      self.secondRowText.move(110,270)
+      self.secondRowText.setFixedWidth(300)
 
-      self.statusText.move(110,210)
+      self.thirdRowText = QLabel('Third Row : ',self)
+      self.thirdRowText.setStyleSheet("font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;")
+      self.thirdRowText.move(110,300)
+      self.thirdRowText.setFixedWidth(300)
 
+      self.fullHouseText = QLabel('Full House : ',self)
+      self.fullHouseText.setStyleSheet("font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;")
+      self.fullHouseText.move(110,330)
+      self.fullHouseText.setFixedWidth(300)
+
+      # displaying numbers for the host
+      self.displayNum=QLabel('''<div style="font-family: 'Poppins'; font-weight: 500; font-size: 60px; line-height: 0.85; color: #D2626E;"></div>''',self)
+      self.displayNum.setFixedWidth(90)
+      self.displayNum.setAlignment(QtCore.Qt.AlignCenter)
+      self.displayNum.move(530,375)
+
+      # button to call out number
       self.callOutNumber = QPushButton('Call Out Number',self)
       self.callOutNumber.setStyleSheet('''QPushButton{
                                     font-family: Poppins;
@@ -509,8 +727,9 @@ class hostingGame(QWidget):
                                  }''')
       self.callOutNumber.resize(200,76)
       self.callOutNumber.move(110,384)
-      self.callOutNumber.clicked.connect(callingNumber)
+      self.callOutNumber.clicked.connect(self.call_out)
 
+      # button to end game
       self.endGame = QPushButton('End Game',self)
       self.endGame.setStyleSheet('''QPushButton{
                                     font-family: Poppins;
@@ -519,32 +738,150 @@ class hostingGame(QWidget):
                                     background-color: #F46363;
                                     font-weight: 500;
                                     border: 2px solid black;
-                                 }''')
+                                    }
+                                    QPushButton::hover{
+                                    background: #F27D7D;}''')
       self.endGame.resize(200,76)
       self.endGame.move(330,384)
 
+      # THE 9X10 GRID
       self.grid=GRID.theGrid(self)
       self.grid.move(620,100)
+      self.endGame.clicked.connect(self.endgame)
+
+   # ending game button function
+   def endgame(self) : 
+      client.send({"code" : self.code, "event" : "END GAME"})
+      self.newin = mainWindow()
+      self.newin.show()
+      self.close_win()
+
+   # call out button function
+   def call_out(self) :
+      if len(self.numbers):
+         num = self.numbers.pop()
+         self.called.append(num)
+
+         # Updating the status text and display text
+         self.statusText.setText(f"Numbers left: {len(self.numbers)}")
+         self.displayNum.setText(f'''<div style="font-family: 'Poppins'; font-weight: 500; font-size: 60px; line-height: 0.85; color: #D2626E;">{num}</div>''')
+         self.grid.updateStyle(num)
+
+         # Sending it to the server  
+         obj = {"event" : "CALL NUMBER", "num" : num, "code" : self.code, "status_text" : self.statusText.text()}
+         client.send(obj)
+
+   # what happens when an appeal gets approved
+   def approveAppeal(self,Result):
+      if Result:
+         if self.appealReason=='First Row':
+            replaceText=f"{self.appealReason} : {self.appealPerson}"
+            self.firstRowText.setText(replaceText)
+         elif self.appealReason=='Second Row':
+            replaceText=f"{self.appealReason} : {self.appealPerson}"
+            self.secondRowText.setText(replaceText)
+         elif self.appealReason=='Third Row':
+            replaceText=f"{self.appealReason} : {self.appealPerson}"
+            self.thirdRowText.setText(replaceText)
+         elif self.appealReason=='Full House':
+            replaceText=f"{self.appealReason} : {self.appealPerson}"
+            self.fullHouseText.setText(replaceText)
+         msg = {"event":'APPROVE APPEAL',"code":self.code,"status_text":[self.firstRowText.text(),self.secondRowText.text(),self.thirdRowText.text(),self.fullHouseText.text()],"approvedAppeal":self.appealReason}
+         client.send(msg)
+
+   # client - server connection for leave player and appeal
+   @QtCore.pyqtSlot(dict) 
+   def react(self, msg)  :
+      if msg["event"] == "PLAYER LEAVE" : 
+         name = msg["player"]
+         self.dialog = QMessageBox.information(self,"INFO",f"{name} left the game.")
+      if msg["event"] == "appeal" :
+         # self.dialog = QMessageBox.information(self,'INFO',f"{msg['username']} has appealed for {msg['name']}.")
+         self.appealReason=msg['name']
+         self.appealPerson=msg['username']
+         self.appealWindow = appealWindow(self.appealReason,self.appealPerson,msg['ticketId'],self.called)
+         self.appealWindow.show()
+         self.appealWindow.signalObj.connect(self.approveAppeal)
+
+   def close_win(self) : 
+      client.msgSignal.disconnect(self.react)
+      self.hide()
+      self.close()     
+
+# the appeal window
+class appealWindow(QWidget):
+      signalObj=QtCore.pyqtSignal(bool)
+
+      def __init__(self, appeal, player, ticketId, calledNums):
+         super().__init__()
+         self.setFixedSize(700,400)
+         self.setWindowTitle('Housify - Appeal')
+         self.setStyleSheet('background-color: #F0E4CD')
+         self.appeal = appeal
+         self.player = player
+         self.ticketId = ticketId
+         self.calledNums = calledNums
+         self.MainUI()
+      
+      def MainUI(self):
+         self.title = QLabel(f"{self.player} appeals  :   {self.appeal}",self)
+         self.title.setStyleSheet('font-size: 22px; font-family: "Poppins"; color: black;')
+         self.title.move(33,25)
+
+         self.displayTicket=ticket.ticketMain(logic.generateTicket(self.ticketId), self, 'host', self.calledNums)
+         self.displayTicket.move(33,90)
+         self.displayTicket.parent=self
+         self.displayTicket.show()
+
+         self.approveButton = QPushButton('Yes, appeal is right.',self)
+         self.approveButton.resize(250,50)
+         self.approveButton.setStyleSheet('''QPushButton{
+                                          font-family: Poppins;
+                                          font-size: 18px;
+                                          color: black;
+                                          font-weight: 500;
+                                          background-color: #77DD81;
+                                          border: 2px solid black;
+                                          }
+                                          QPushButton::hover{
+                                          background: #93F29D;}''')
+         self.approveButton.move(87,325)
+         self.approveButton.clicked.connect(lambda: self.appealResult(True))
+
+         self.declineButton = QPushButton('No, appeal is wrong.',self)
+         self.declineButton.resize(250,50)
+         self.declineButton.setStyleSheet('''QPushButton{
+                                          font-family: Poppins;
+                                          font-size: 18px;
+                                          color: black;
+                                          font-weight: 500;
+                                          background-color: #F46363;
+                                          border: 2px solid black;
+                                          }
+                                          QPushButton::hover{
+                                          background: #F27D7D;}''')
+         self.declineButton.move(362,325)
+         self.declineButton.clicked.connect(lambda: self.appealResult(False))
+
+      def appealResult(self, result):
+         self.signalObj.emit(result) 
+         self.hide()
 # ---- END OF ALL MODULES ----
       
 def main():
-   global name
-   logic.connectMe()
+   global name, client
    app = QApplication(sys.argv)
+   app.setWindowIcon(QtGui.QIcon('./src/app.ico'))
    QFontDatabase.addApplicationFont('./src/fonts/Paytone_One/PaytoneOne-Regular.ttf')
    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-Regular.ttf')
    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-ExtraBold.ttf')
    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-SemiBold.ttf')
-   try:
-      name = logic.getName()
-      # ex = playAGameWindow()
-      ex = mainWindow()
-      ex.show()
-   except Exception as error:
-      print(error)
-      ex = playAGameWindow()
-      ex.show()
-   sys.exit(app.exec_())
+   load_dotenv()
+   client = Client(ip = os.getenv("IP"))
+   ex = usernameWindow()
+   ex.show()
+   code = app.exec_()
+   sys.exit(code)
    
 if __name__ == '__main__':
    main()
