@@ -21,7 +21,7 @@ A python based application to play Housie
 
 ~~3. Restrict users from making multiple appeals.~~
 
-4. Restrict users from appealing when a player has already made an appeal.
+~~4. Restrict users from appealing when a player has already made an appeal.~~
 
 ~~5. Make appeals spam proof.~~
 

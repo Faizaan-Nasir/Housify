@@ -10,7 +10,6 @@ class Game :
         self.host_client = host_client
         self.started = False
         self.players = {}
-        self.appeals = {"fr" : [], "sr" : [], "tr" : [], "fh" : []}
 
     def add_player(self, name, socket) :
         self.players[name] = socket
@@ -38,7 +37,6 @@ class Server :
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.socket.bind((self.host_ip, self.port))
-        self.currentAppeals={'appealname':[],'person':[]}
 
         self.sockets_list = [self.socket]
         self.clients = {}
@@ -127,7 +125,6 @@ class Server :
             return msg
         except : 
             return False
-        
     
     def _handle_event(self, msg, c) :
         code = msg["code"]
@@ -159,8 +156,6 @@ class Server :
                 p.send(self._encode(reply))
 
         elif msg["event"] == "CALL NUMBER" : 
-            self.currentAppeals['appealname']=[]
-            self.currentAppeals['person']=[]
             reply = msg
             g = self.games[code]
             for p in g.players.values() : 
@@ -173,15 +168,16 @@ class Server :
             self.handle_leave_game(c, code, host = True)
 
         elif msg["event"] == "appeal":
-            # TODO: Make an appeal queue
             g = self.games[code]
-            print(msg)
-            if msg['name'] not in self.currentAppeals['appealname']:
-                self.currentAppeals['appealname'].append(msg['name'])
-                self.currentAppeals['person'].append(msg['username'])
-                g.host_client.send(self._encode(msg))
+            g.host_client.send(self._encode(msg))
         
         elif msg["event"] == 'APPROVE APPEAL':
+            reply = msg
+            g = self.games[code]
+            for p in g.players.values() : 
+                p.send(self._encode(reply))
+
+        elif msg["event"] == 'REJECT APPEAL' :
             reply = msg
             g = self.games[code]
             for p in g.players.values() : 

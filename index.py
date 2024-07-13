@@ -39,7 +39,7 @@ class usernameWindow(QWidget):
         self.newin=mainWindow()
         self.newin.show()
       except:
-        self.msg_dialog = QMessageBox.critical(self, "Couldn't connect", "Please check your internet connection. Connection wasn't successful.")
+        self.msg_dialog = QMessageBox.critical(self, "Couldn't connect", "Connection wasn't successful. This may be due to your internet connection or our server. We apologize for the inconvenience.")
 
    def mainUI(self):
       self.usernameText=QLineEdit(self)
@@ -639,11 +639,8 @@ class playAGameWindow(QWidget):
          self.newin.show()
          self.close_win()
       if msg['event'] == 'APPROVE APPEAL' :
-         try:
-            self.dialog.accept()
-         except:
-            pass
-         print(msg['status_text'][0])
+         try: self.dialog.accept()
+         except: pass
          if msg['approvedAppeal'] == 'First Row':
             self.firstRowText.setText(msg["status_text"][0])
             self.firstHouse.setEnabled(False)
@@ -660,11 +657,16 @@ class playAGameWindow(QWidget):
             self.fullHouseText.setText(msg["status_text"][3])
             self.fullHouse.setEnabled(False)
             self.fullHouse.setStyleSheet(self.disabledStyles)
-
+      elif msg["event"] == "REJECT APPEAL" : 
+        print("REJECT RECEIVED", msg)
+        if msg["username"] == name :  
+            self.dialog.accept()
+            self.d = QMessageBox.information(self,"ALERT", "Your appeal was rejected 😔")  
+  
    def close_win(self) : 
       client.msgSignal.disconnect(self.react)
       self.hide()
-      self.close() 
+      self.close()
 
 # the window where the host is hosting game
 class hostingGame(QWidget):
@@ -675,6 +677,7 @@ class hostingGame(QWidget):
       pixmap = QPixmap('./src/gameplay-background.png')
       self.numbers = random.sample(range(1, 91), 90)
       self.called = []
+      self.appeals =  {"First Row" : [], "Second Row" : [], "Third Row" : [], "Full House" : []}
       palette = self.palette()
       palette.setBrush(QPalette.Background, QBrush(pixmap))
       self.setPalette(palette)
@@ -717,6 +720,13 @@ class hostingGame(QWidget):
       self.fullHouseText.setStyleSheet("font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;")
       self.fullHouseText.move(110,330)
       self.fullHouseText.setFixedWidth(300)
+
+      self.statuses = {
+        "First Row" : self.firstRowText,
+        "Second Row" : self.secondRowText,
+        "Third Row" : self.thirdRowText,
+        "Full House" : self.fullHouseText,
+      }
 
       # displaying numbers for the host
       self.displayNum=QLabel('''<div style="font-family: 'Poppins'; font-weight: 500; font-size: 60px; line-height: 0.85; color: #D2626E;"></div>''',self)
@@ -784,22 +794,63 @@ class hostingGame(QWidget):
          client.send(obj)
 
    # what happens when an appeal gets approved
-   def approveAppeal(self,Result):
-      if Result:
-         if self.appealReason=='First Row':
-            replaceText=f"{self.appealReason} : {self.appealPerson}"
-            self.firstRowText.setText(replaceText)
-         elif self.appealReason=='Second Row':
-            replaceText=f"{self.appealReason} : {self.appealPerson}"
-            self.secondRowText.setText(replaceText)
-         elif self.appealReason=='Third Row':
-            replaceText=f"{self.appealReason} : {self.appealPerson}"
-            self.thirdRowText.setText(replaceText)
-         elif self.appealReason=='Full House':
-            replaceText=f"{self.appealReason} : {self.appealPerson}"
-            self.fullHouseText.setText(replaceText)
-         msg = {"event":'APPROVE APPEAL',"code":self.code,"status_text":[self.firstRowText.text(),self.secondRowText.text(),self.thirdRowText.text(),self.fullHouseText.text()],"approvedAppeal":self.appealReason}
+   def approveAppeal(self, result, player, reason):
+      if result:
+         replaceText=f"{reason} : {player}"
+         self.statuses[reason].setText(replaceText)
+         msg = {"event":'APPROVE APPEAL',"code":self.code,"status_text":[self.firstRowText.text(),self.secondRowText.text(),self.thirdRowText.text(),self.fullHouseText.text()],"approvedAppeal":reason}
          client.send(msg)
+         self.appeals[reason] = []
+      else :
+         self.appeals[reason].pop(0)
+         if self.appeals[reason] :
+            self.showAppealWindow(self.appeals[reason][0])
+         client.send({"event" : "REJECT APPEAL", "username" : player, "code" : self.code})
+         '''
+         VERY IMPORTANT CONVERSATION------------------
+
+         PEARSON LEAVES. SHE GOES WITH JEFF MALONE. TO CHICAGO.
+         YES.
+         LOUIS AND HARVEY ARE THE ONLY ONES REMAINING AFTER THAT.
+         THEY DON'T TAKE DIFFERENT NAME. THEY KEEP JESSICA'S FOR MEMORY.
+         NO - THE POSSIBILITY THAT SHE'D COME BACK.
+
+         LOUIS IS A GOOOD GUY FOOOOL
+         HE'S MY FAVOURITE. DON'T YOU DARE ACCUSE HIM
+ 
+         BY THE WAY - BOTH OF THEM GET TOGETHER REALLY WELL - LOUIS AND HARVEY.
+ 
+         SHEILA SAZS? THEY BREAK UP - COMPLETELY. YEAHHH, IT'S MORE COMPLICATED. YOU'LL SEE
+     
+         YUP. HE ACTUALLY ROOTS WITH HIM NOW. 
+ 
+         WAIT 
+         WHERE HAVE YOU REACHED?
+         HAS THE NAME CHANGED FROM PEARSON SPECTER?
+         
+         LMAOOOO YEAH
+         LOUIS FINDS OUT ABOUT MIKE
+         USES IT AS LEVERAGE
+ 
+         BOTH - BECAUSE BOTH OF THEM KNEW. IT'S INTERESTING HOW HE FINDS OUT. 
+ 
+         BTW LOUIS LOSES HIS JOB FOR 3-4 EPISODES. HAVE YOU BEEN INTRODUCED TO THE FORSTMAN GUY?
+ 
+         YEAH HE TRAPS LOUIS IN SOME MONEY LAUNDERING SCHEME. JESSICA BECOMES FORCED TO FIRE HIM. BUT LOUIS QUITS BEFORE THAT. 
+ 
+         THAT'S WHY I FREAKING LOVE HIM. 
+         ❤️
+ 
+         CAN I COMMIT THIS?
+         THIS WHOLE CONVERSATION?
+         PLZZZZZZZZZZZ
+         THANK YOU!
+      '''
+         
+   def showAppealWindow(self, msg) :
+      self.appealWindow = appealWindow(msg["name"],msg["username"], msg["ticketId"], self.called)
+      self.appealWindow.show()
+      self.appealWindow.signalObj.connect(self.approveAppeal)
 
    # client - server connection for leave player and appeal
    @QtCore.pyqtSlot(dict) 
@@ -808,20 +859,27 @@ class hostingGame(QWidget):
          name = msg["player"]
          self.dialog = QMessageBox.information(self,"INFO",f"{name} left the game.")
       if msg["event"] == "appeal" :
-         self.appealReason=msg['name']
-         self.appealPerson=msg['username']
-         self.appealWindow = appealWindow(self.appealReason,self.appealPerson,msg['ticketId'],self.called)
-         self.appealWindow.show()
-         self.appealWindow.signalObj.connect(self.approveAppeal)
+         print(msg)
+         appealName = msg["name"]
+         if self.appeals[appealName] == [] : 
+            self.appeals[appealName].append(msg)
+            self.showAppealWindow(msg)
+         else : 
+            self.appeals[appealName].append(msg)
+         print(self.appeals[appealName])
 
    def close_win(self) : 
       client.msgSignal.disconnect(self.react)
+      try :  
+        self.appealWindow.hide()
+        self.appealWindow.close()
+      except : pass
       self.hide()
-      self.close()     
+      self.close()
 
 # the appeal window
 class appealWindow(QWidget):
-      signalObj=QtCore.pyqtSignal(bool)
+      signalObj=QtCore.pyqtSignal(bool, str, str)
 
       def __init__(self, appeal, player, ticketId, calledNums):
          super().__init__()
@@ -857,7 +915,7 @@ class appealWindow(QWidget):
                                           QPushButton::hover{
                                           background: #93F29D;}''')
          self.approveButton.move(87,325)
-         self.approveButton.clicked.connect(lambda: self.appealResult(True))
+         self.approveButton.clicked.connect(lambda: self.appealResult(True, self.player, self.appeal))
 
          self.declineButton = QPushButton('No, appeal is wrong.',self)
          self.declineButton.resize(250,50)
@@ -872,10 +930,10 @@ class appealWindow(QWidget):
                                           QPushButton::hover{
                                           background: #F27D7D;}''')
          self.declineButton.move(362,325)
-         self.declineButton.clicked.connect(lambda: self.appealResult(False))
+         self.declineButton.clicked.connect(lambda: self.appealResult(False, self.player, self.appeal))
 
-      def appealResult(self, result):
-         self.signalObj.emit(result) 
+      def appealResult(self, result, player, appeal):
+         self.signalObj.emit(result, player, appeal) 
          self.hide()
 # ---- END OF ALL MODULES ----
       
