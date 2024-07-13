@@ -453,13 +453,14 @@ class playAGameWindow(QWidget):
    
    # when someone appeals for something function
    def appeal(self,appealName):
-      self.appealedLabel=QLabel(f'You have appealed for {appealName}, please wait while the host checks your ticket!',self)
-      self.appealedLabel.setStyleSheet('font-family: poppins; font-size: 12px; color: #D2626E;')
-      self.appealedLabel.move(370,340)
-      self.appealedLabel.setFixedWidth(630)
-      self.appealedLabel.setAlignment(QtCore.Qt.AlignCenter)
-      self.appealedLabel.show()
       client.send({"event":"appeal","name":appealName,"username":name,"code":self.gamecode, "ticketId":self.ticketid})
+      self.dialog = QMessageBox(self)
+      self.dialog.setIcon(QMessageBox.Information)
+      self.dialog.setWindowTitle("Message")
+      self.dialog.setText(f'You have appealed for {appealName}, please wait while the host checks your ticket!')
+      self.dialog.setStandardButtons(QMessageBox.NoButton)
+      self.dialog.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowCloseButtonHint)
+      self.dialog.show()
 
    def MainUI(self):
       # Title PLAY
@@ -621,19 +622,27 @@ class playAGameWindow(QWidget):
    @QtCore.pyqtSlot(dict)
    def react(self, msg) : 
       if msg["event"] == "CALL NUMBER" : 
-         self.number.setText(f'Called: {msg["num"]}')
-         self.statusText.setText(msg["status_text"])
          try:
-            self.appealedLabel.hide()
+            self.dialog.accept()
          except:
             pass
+         self.number.setText(f'Called: {msg["num"]}')
+         self.statusText.setText(msg["status_text"])
       if msg["event"] == "END GAME" : 
+         try:
+            self.dialog.accept()
+         except:
+            pass
          reason = msg["reason"]
          self.dialog = QMessageBox.information(self,'GAME OVER',f"Game ended. {reason}")
          self.newin = mainWindow()
          self.newin.show()
          self.close_win()
       if msg['event'] == 'APPROVE APPEAL' :
+         try:
+            self.dialog.accept()
+         except:
+            pass
          print(msg['status_text'][0])
          if msg['approvedAppeal'] == 'First Row':
             self.firstRowText.setText(msg["status_text"][0])
@@ -879,7 +888,8 @@ def main():
    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-ExtraBold.ttf')
    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-SemiBold.ttf')
    load_dotenv()
-   client = Client(ip = os.getenv("IP"))
+   #client = Client(ip = os.getenv("IP"))
+   client = Client()
    ex = usernameWindow()
    ex.show()
    code = app.exec_()

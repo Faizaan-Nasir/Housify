@@ -11,15 +11,22 @@ A python based application to play Housie
 
 ## TODO on front end aspect:
 ~~1. Hover effects on buttons for Playing a Game window~~
+
 ~~2. Hover effects on button for Hosting a Game window~~
 
 ## TODO on user aspect:
 ~~1. Restrict usernames to 13.5 characters.~~
+
 ~~2. Alert window for when you're not allowed to enter a game since it has already started or when you try joining a game that doesnt exist.~~
-3. Restrict users from making multiple appeals.
+
+~~3. Restrict users from making multiple appeals.~~
+
 4. Restrict users from appealing when a player has already made an appeal.
-5. Make appeals spam proof.
+
+~~5. Make appeals spam proof.~~
+
 6. Eliminate player on incorrect appeal.
+
 ~~7. Alert in absence of internet.~~
 
 ## Basic Algorithm

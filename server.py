@@ -38,6 +38,7 @@ class Server :
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.socket.bind((self.host_ip, self.port))
+        self.currentAppeals={'appealname':[],'person':[]}
 
         self.sockets_list = [self.socket]
         self.clients = {}
@@ -158,6 +159,8 @@ class Server :
                 p.send(self._encode(reply))
 
         elif msg["event"] == "CALL NUMBER" : 
+            self.currentAppeals['appealname']=[]
+            self.currentAppeals['person']=[]
             reply = msg
             g = self.games[code]
             for p in g.players.values() : 
@@ -173,7 +176,10 @@ class Server :
             # TODO: Make an appeal queue
             g = self.games[code]
             print(msg)
-            g.host_client.send(self._encode(msg))
+            if msg['name'] not in self.currentAppeals['appealname']:
+                self.currentAppeals['appealname'].append(msg['name'])
+                self.currentAppeals['person'].append(msg['username'])
+                g.host_client.send(self._encode(msg))
         
         elif msg["event"] == 'APPROVE APPEAL':
             reply = msg
