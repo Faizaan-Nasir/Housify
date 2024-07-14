@@ -8,6 +8,7 @@ class Game :
         self.code = code
         self.hostname = hostname
         self.host_client = host_client
+        self.started = False
         self.players = {}
 
     def add_player(self, name, socket) :
@@ -88,6 +89,7 @@ class Server :
             g.remove_player(socket)
             if host: 
                 self.on_remove_host(g, gcode)
+                g.started = False
             else : 
                 self.on_remove_player(g, name)
             return
@@ -123,7 +125,6 @@ class Server :
             return msg
         except : 
             return False
-        
     
     def _handle_event(self, msg, c) :
         code = msg["code"]
@@ -138,17 +139,18 @@ class Server :
             uname = msg["username"]
             if code in self.games :
                 g = self.games[code]
-                g.add_player(uname, c)
-                h_reply = {"event" : "PLAYER JOIN", "player_name" : uname}
-                print(f"Sent {h_reply} to {g.hostname}")
-                g.host_client.send(self._encode(h_reply))
-            else : 
-                reply = "FAILED"              
+                if not g.started :
+                    g.add_player(uname, c)
+                    h_reply = {"event" : "PLAYER JOIN", "player_name" : uname}
+                    g.host_client.send(self._encode(h_reply))
+                else : reply = "FAILED"
+            else : reply = "FAILED"
             c.send(self._encode({"event" : reply}))
             print(f"Sent {reply} to {self.clients[c]}")
 
         elif msg["event"] == "START GAME" : 
             g = self.games[code]
+            g.started = True
             for n, p in g.players.items() :
                 reply = {"event" : "START GAME", "name" : n}
                 p.send(self._encode(reply))
@@ -163,7 +165,6 @@ class Server :
             self.handle_leave_game(c, code)
 
         elif msg["event"] == "END GAME" :
-            # TODO: Consult with everyone and decide on the actual function of END GAME button 
             self.handle_leave_game(c, code, host = True)
 
         elif msg["event"] == "appeal":
@@ -171,6 +172,12 @@ class Server :
             g.host_client.send(self._encode(msg))
         
         elif msg["event"] == 'APPROVE APPEAL':
+            reply = msg
+            g = self.games[code]
+            for p in g.players.values() : 
+                p.send(self._encode(reply))
+
+        elif msg["event"] == 'REJECT APPEAL' :
             reply = msg
             g = self.games[code]
             for p in g.players.values() : 

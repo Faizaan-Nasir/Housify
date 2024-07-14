@@ -1,20 +1,14 @@
-import sys
-import os
-from dotenv import load_dotenv
-from PyQt5 import QtCore
-from PyQt5 import QtGui
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import QFontDatabase , QPixmap , QPalette , QBrush
+import sys, os, random
 import pyperclip
-from connection import Client
-import random
-import logic
-import ticket
-from player_list import PlayerList
-import GRID
+from dotenv import load_dotenv
 
-# TODO: create a parent window object
-# TODO: use QMessageBox.information for all occurrences
+from PyQt5 import QtCore
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import QFontDatabase , QPixmap , QPalette , QBrush, QIcon
+
+import logic
+from connection import Client
+import player_list, ticket, GRID
 
 # enter username
 class usernameWindow(QWidget):
@@ -31,12 +25,15 @@ class usernameWindow(QWidget):
          file.write(username)
       name=username
       # Connect the client to server
-      client.connect(name)
-      client.run()
-      self.hide()
-      self.close()
-      self.newin=mainWindow()
-      self.newin.show()
+      try:
+        client.connect(name)
+        client.run()
+        self.hide()
+        self.close()
+        self.newin=mainWindow()
+        self.newin.show()
+      except:
+        self.msg_dialog = QMessageBox.critical(self, "Couldn't connect", "Connection wasn't successful. This may be due to your internet connection or our server. We apologize for the inconvenience.")
 
    def mainUI(self):
       self.usernameText=QLineEdit(self)
@@ -305,7 +302,7 @@ class hostGameWindow(QWidget):
       self.gameCode.move(535,215)
 
       # Player list
-      self.p = PlayerList("PLAYERS", self)
+      self.p = player_list.PlayerList("PLAYERS", self)
       self.p.move(870, 140)
       self.p.show()
 
@@ -450,13 +447,14 @@ class playAGameWindow(QWidget):
    
    # when someone appeals for something function
    def appeal(self,appealName):
-      self.appealedLabel=QLabel(f'You have appealed for {appealName}, please wait while the host checks your ticket!',self)
-      self.appealedLabel.setStyleSheet('font-family: poppins; font-size: 12px; color: #D2626E;')
-      self.appealedLabel.move(370,340)
-      self.appealedLabel.setFixedWidth(630)
-      self.appealedLabel.setAlignment(QtCore.Qt.AlignCenter)
-      self.appealedLabel.show()
       client.send({"event":"appeal","name":appealName,"username":name,"code":self.gamecode, "ticketId":self.ticketid})
+      self.dialog = QMessageBox(self)
+      self.dialog.setIcon(QMessageBox.Information)
+      self.dialog.setWindowTitle("Message")
+      self.dialog.setText(f'You have appealed for {appealName}, please wait while the host checks your ticket!')
+      self.dialog.setStandardButtons(QMessageBox.NoButton)
+      self.dialog.setWindowFlags(self.windowFlags() & ~QtCore.Qt.WindowCloseButtonHint)
+      self.dialog.show()
 
    def MainUI(self):
       # Title PLAY
@@ -618,20 +616,25 @@ class playAGameWindow(QWidget):
    @QtCore.pyqtSlot(dict)
    def react(self, msg) : 
       if msg["event"] == "CALL NUMBER" : 
-         self.number.setText(f'Called: {msg["num"]}')
-         self.statusText.setText(msg["status_text"])
          try:
-            self.appealedLabel.hide()
+            self.dialog.accept()
          except:
             pass
+         self.number.setText(f'Called: {msg["num"]}')
+         self.statusText.setText(msg["status_text"])
       if msg["event"] == "END GAME" : 
+         try:
+            self.dialog.accept()
+         except:
+            pass
          reason = msg["reason"]
          self.dialog = QMessageBox.information(self,'GAME OVER',f"Game ended. {reason}")
          self.newin = mainWindow()
          self.newin.show()
          self.close_win()
       if msg['event'] == 'APPROVE APPEAL' :
-         print(msg['status_text'][0])
+         try: self.dialog.accept()
+         except: pass
          if msg['approvedAppeal'] == 'First Row':
             self.firstRowText.setText(msg["status_text"][0])
             self.firstHouse.setEnabled(False)
@@ -648,11 +651,16 @@ class playAGameWindow(QWidget):
             self.fullHouseText.setText(msg["status_text"][3])
             self.fullHouse.setEnabled(False)
             self.fullHouse.setStyleSheet(self.disabledStyles)
-
+      elif msg["event"] == "REJECT APPEAL" : 
+        print("REJECT RECEIVED", msg)
+        if msg["username"] == name :  
+            self.dialog.accept()
+            self.d = QMessageBox.information(self,"ALERT", "Your appeal was rejected 😔")  
+  
    def close_win(self) : 
       client.msgSignal.disconnect(self.react)
       self.hide()
-      self.close() 
+      self.close()
 
 # the window where the host is hosting game
 class hostingGame(QWidget):
@@ -663,6 +671,7 @@ class hostingGame(QWidget):
       pixmap = QPixmap('./src/gameplay-background.png')
       self.numbers = random.sample(range(1, 91), 90)
       self.called = []
+      self.appeals =  {"First Row" : [], "Second Row" : [], "Third Row" : [], "Full House" : []}
       palette = self.palette()
       palette.setBrush(QPalette.Background, QBrush(pixmap))
       self.setPalette(palette)
@@ -705,6 +714,13 @@ class hostingGame(QWidget):
       self.fullHouseText.setStyleSheet("font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;")
       self.fullHouseText.move(110,330)
       self.fullHouseText.setFixedWidth(300)
+
+      self.statuses = {
+        "First Row" : self.firstRowText,
+        "Second Row" : self.secondRowText,
+        "Third Row" : self.thirdRowText,
+        "Full House" : self.fullHouseText,
+      }
 
       # displaying numbers for the host
       self.displayNum=QLabel('''<div style="font-family: 'Poppins'; font-weight: 500; font-size: 60px; line-height: 0.85; color: #D2626E;"></div>''',self)
@@ -772,22 +788,23 @@ class hostingGame(QWidget):
          client.send(obj)
 
    # what happens when an appeal gets approved
-   def approveAppeal(self,Result):
-      if Result:
-         if self.appealReason=='First Row':
-            replaceText=f"{self.appealReason} : {self.appealPerson}"
-            self.firstRowText.setText(replaceText)
-         elif self.appealReason=='Second Row':
-            replaceText=f"{self.appealReason} : {self.appealPerson}"
-            self.secondRowText.setText(replaceText)
-         elif self.appealReason=='Third Row':
-            replaceText=f"{self.appealReason} : {self.appealPerson}"
-            self.thirdRowText.setText(replaceText)
-         elif self.appealReason=='Full House':
-            replaceText=f"{self.appealReason} : {self.appealPerson}"
-            self.fullHouseText.setText(replaceText)
-         msg = {"event":'APPROVE APPEAL',"code":self.code,"status_text":[self.firstRowText.text(),self.secondRowText.text(),self.thirdRowText.text(),self.fullHouseText.text()],"approvedAppeal":self.appealReason}
+   def approveAppeal(self, result, player, reason):
+      if result:
+         replaceText=f"{reason} : {player}"
+         self.statuses[reason].setText(replaceText)
+         msg = {"event":'APPROVE APPEAL',"code":self.code,"status_text":[self.firstRowText.text(),self.secondRowText.text(),self.thirdRowText.text(),self.fullHouseText.text()],"approvedAppeal":reason}
          client.send(msg)
+         self.appeals[reason] = []
+      else :
+         self.appeals[reason].pop(0)
+         if self.appeals[reason] :
+            self.showAppealWindow(self.appeals[reason][0])
+         client.send({"event" : "REJECT APPEAL", "username" : player, "code" : self.code})
+         
+   def showAppealWindow(self, msg) :
+      self.appealWindow = appealWindow(msg["name"],msg["username"], msg["ticketId"], self.called)
+      self.appealWindow.show()
+      self.appealWindow.signalObj.connect(self.approveAppeal)
 
    # client - server connection for leave player and appeal
    @QtCore.pyqtSlot(dict) 
@@ -796,21 +813,27 @@ class hostingGame(QWidget):
          name = msg["player"]
          self.dialog = QMessageBox.information(self,"INFO",f"{name} left the game.")
       if msg["event"] == "appeal" :
-         # self.dialog = QMessageBox.information(self,'INFO',f"{msg['username']} has appealed for {msg['name']}.")
-         self.appealReason=msg['name']
-         self.appealPerson=msg['username']
-         self.appealWindow = appealWindow(self.appealReason,self.appealPerson,msg['ticketId'],self.called)
-         self.appealWindow.show()
-         self.appealWindow.signalObj.connect(self.approveAppeal)
+         print(msg)
+         appealName = msg["name"]
+         if self.appeals[appealName] == [] : 
+            self.appeals[appealName].append(msg)
+            self.showAppealWindow(msg)
+         else : 
+            self.appeals[appealName].append(msg)
+         print(self.appeals[appealName])
 
    def close_win(self) : 
       client.msgSignal.disconnect(self.react)
+      try :  
+        self.appealWindow.hide()
+        self.appealWindow.close()
+      except : pass
       self.hide()
-      self.close()     
+      self.close()
 
 # the appeal window
 class appealWindow(QWidget):
-      signalObj=QtCore.pyqtSignal(bool)
+      signalObj=QtCore.pyqtSignal(bool, str, str)
 
       def __init__(self, appeal, player, ticketId, calledNums):
          super().__init__()
@@ -846,7 +869,7 @@ class appealWindow(QWidget):
                                           QPushButton::hover{
                                           background: #93F29D;}''')
          self.approveButton.move(87,325)
-         self.approveButton.clicked.connect(lambda: self.appealResult(True))
+         self.approveButton.clicked.connect(lambda: self.appealResult(True, self.player, self.appeal))
 
          self.declineButton = QPushButton('No, appeal is wrong.',self)
          self.declineButton.resize(250,50)
@@ -861,17 +884,17 @@ class appealWindow(QWidget):
                                           QPushButton::hover{
                                           background: #F27D7D;}''')
          self.declineButton.move(362,325)
-         self.declineButton.clicked.connect(lambda: self.appealResult(False))
+         self.declineButton.clicked.connect(lambda: self.appealResult(False, self.player, self.appeal))
 
-      def appealResult(self, result):
-         self.signalObj.emit(result) 
+      def appealResult(self, result, player, appeal):
+         self.signalObj.emit(result, player, appeal) 
          self.hide()
 # ---- END OF ALL MODULES ----
       
 def main():
    global name, client
    app = QApplication(sys.argv)
-   app.setWindowIcon(QtGui.QIcon('./src/app.ico'))
+   app.setWindowIcon(QIcon('./src/app.ico'))
    QFontDatabase.addApplicationFont('./src/fonts/Paytone_One/PaytoneOne-Regular.ttf')
    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-Regular.ttf')
    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-ExtraBold.ttf')

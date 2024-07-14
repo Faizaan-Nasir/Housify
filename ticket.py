@@ -1,6 +1,4 @@
-import sys
 from PyQt5.QtWidgets import *
-from PyQt5.QtGui import QFontDatabase
 from PyQt5 import QtCore
 from functools import partial
 
@@ -85,17 +83,3 @@ class ticketMain(QWidget):
                                         font-weight: 500;
                                         background: #c9c9c7;
                                         color: #b8b8b8;''')
-
-# uncomment the following if u wish to style it here
-# def main():
-#     app = QApplication(sys.argv)
-#     QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-Regular.ttf')
-#     QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-ExtraBold.ttf')
-#     QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-SemiBold.ttf')
-#     temptick=logic.generateTicket('112233')
-#     ex = ticketMain(temptick)
-#     ex.show()
-#     sys.exit(app.exec_())
-
-# if __name__=='__main__':
-#     main()
