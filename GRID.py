@@ -1,7 +1,5 @@
-import sys
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import *
-from PyQt5.QtGui import QFontDatabase
 
 class theGrid(QWidget):
     def __init__(self,parent=None):
@@ -28,14 +26,3 @@ class theGrid(QWidget):
 
     def updateStyle(self, key):
         self.allNums[key].setStyleSheet("color: black; font-family: poppins; font-size: 20px; font-weight: 500; border: 1px solid black; background: #82BCF2; color : black;")
-# def main():
-#     app = QApplication(sys.argv)
-#     QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-Regular.ttf')
-#     QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-ExtraBold.ttf')
-#     QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-SemiBold.ttf')
-#     ex = theGrid()
-#     ex.show()
-#     sys.exit(app.exec_())
-
-# if __name__=='__main__':
-#     main()

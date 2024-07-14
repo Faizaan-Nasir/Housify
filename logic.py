@@ -1,9 +1,4 @@
-import mysql.connector as sql
 import random
-
-def getName():
-    with open('username.txt','r') as file:
-        return file.read()
 
 # this function creates a dictionary with keys as coordinates and values as the corresponding numbers for the ticket
 # following all rules of a housie ticket

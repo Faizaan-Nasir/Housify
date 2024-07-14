@@ -1,6 +1,4 @@
-import sys
-import os
-import random
+import sys, os, random
 import pyperclip
 from dotenv import load_dotenv
 
@@ -8,13 +6,9 @@ from PyQt5 import QtCore
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QFontDatabase , QPixmap , QPalette , QBrush, QIcon
 
-from connection import Client
-from player_list import PlayerList
 import logic
-import ticket
-import GRID
-
-# TODO: create a parent window object
+from connection import Client
+import player_list, ticket, GRID
 
 # enter username
 class usernameWindow(QWidget):
@@ -308,7 +302,7 @@ class hostGameWindow(QWidget):
       self.gameCode.move(535,215)
 
       # Player list
-      self.p = PlayerList("PLAYERS", self)
+      self.p = player_list.PlayerList("PLAYERS", self)
       self.p.move(870, 140)
       self.p.show()
 
@@ -806,46 +800,6 @@ class hostingGame(QWidget):
          if self.appeals[reason] :
             self.showAppealWindow(self.appeals[reason][0])
          client.send({"event" : "REJECT APPEAL", "username" : player, "code" : self.code})
-         '''
-         VERY IMPORTANT CONVERSATION------------------
-
-         PEARSON LEAVES. SHE GOES WITH JEFF MALONE. TO CHICAGO.
-         YES.
-         LOUIS AND HARVEY ARE THE ONLY ONES REMAINING AFTER THAT.
-         THEY DON'T TAKE DIFFERENT NAME. THEY KEEP JESSICA'S FOR MEMORY.
-         NO - THE POSSIBILITY THAT SHE'D COME BACK.
-
-         LOUIS IS A GOOOD GUY FOOOOL
-         HE'S MY FAVOURITE. DON'T YOU DARE ACCUSE HIM
- 
-         BY THE WAY - BOTH OF THEM GET TOGETHER REALLY WELL - LOUIS AND HARVEY.
- 
-         SHEILA SAZS? THEY BREAK UP - COMPLETELY. YEAHHH, IT'S MORE COMPLICATED. YOU'LL SEE
-     
-         YUP. HE ACTUALLY ROOTS WITH HIM NOW. 
- 
-         WAIT 
-         WHERE HAVE YOU REACHED?
-         HAS THE NAME CHANGED FROM PEARSON SPECTER?
-         
-         LMAOOOO YEAH
-         LOUIS FINDS OUT ABOUT MIKE
-         USES IT AS LEVERAGE
- 
-         BOTH - BECAUSE BOTH OF THEM KNEW. IT'S INTERESTING HOW HE FINDS OUT. 
- 
-         BTW LOUIS LOSES HIS JOB FOR 3-4 EPISODES. HAVE YOU BEEN INTRODUCED TO THE FORSTMAN GUY?
- 
-         YEAH HE TRAPS LOUIS IN SOME MONEY LAUNDERING SCHEME. JESSICA BECOMES FORCED TO FIRE HIM. BUT LOUIS QUITS BEFORE THAT. 
- 
-         THAT'S WHY I FREAKING LOVE HIM. 
-         ❤️
- 
-         CAN I COMMIT THIS?
-         THIS WHOLE CONVERSATION?
-         PLZZZZZZZZZZZ
-         THANK YOU!
-      '''
          
    def showAppealWindow(self, msg) :
       self.appealWindow = appealWindow(msg["name"],msg["username"], msg["ticketId"], self.called)
@@ -946,8 +900,7 @@ def main():
    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-ExtraBold.ttf')
    QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-SemiBold.ttf')
    load_dotenv()
-   #client = Client(ip = os.getenv("IP"))
-   client = Client()
+   client = Client(ip = os.getenv("IP"))
    ex = usernameWindow()
    ex.show()
    code = app.exec_()
