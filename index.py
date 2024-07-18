@@ -10,6 +10,7 @@ import logic
 from connection import Client
 import player_list, ticket, GRID
 
+base_dir = os.path.dirname(__file__)
 # enter username
 class usernameWindow(QWidget):
    def __init__(self):
@@ -21,8 +22,6 @@ class usernameWindow(QWidget):
    
    def openCloseWindow(self,username):
       global name, client
-      with open('username.txt','w') as file:
-         file.write(username)
       name=username
       # Connect the client to server
       try:
@@ -70,7 +69,7 @@ class mainWindow(QWidget):
       super().__init__()
       self.setFixedSize(1120,560)
       self.setWindowTitle("Housify")
-      pixmap = QPixmap('./src/background.png')
+      pixmap = QPixmap(os.path.join(base_dir, 'src', 'background.png'))
       palette = self.palette()
       palette.setBrush(QPalette.Background, QBrush(pixmap))
       self.setPalette(palette)
@@ -144,7 +143,7 @@ class joinGameWindow(QWidget):
       super().__init__()
       self.setFixedSize(1120,560)
       self.setWindowTitle("Housify - Join a Game")
-      pixmap = QPixmap('./src/background.png')
+      pixmap = QPixmap(os.path.join(base_dir, 'src', 'background.png'))
       palette = self.palette()
       palette.setBrush(QPalette.Background, QBrush(pixmap))
       client.msgSignal.connect(self.onJoin)
@@ -231,7 +230,7 @@ class hostGameWindow(QWidget):
       self.newGameCode= newGameCode
       self.setFixedSize(1120,560)
       self.setWindowTitle('Housify - Host a Game')
-      pixmap = QPixmap('./src/background_host.png')
+      pixmap = QPixmap(os.path.join(base_dir, 'src', 'background_host.png'))
       palette = self.palette()
       palette.setBrush(QPalette.Background, QBrush(pixmap))
       self.setPalette(palette)
@@ -359,7 +358,7 @@ class waitingLobbyWindow(QWidget):
       super().__init__()
       self.setFixedSize(1120,560)
       self.setWindowTitle('Housify - Waiting Lobby')
-      pixmap = QPixmap('./src/background_gameplay.png')
+      pixmap = QPixmap(os.path.join(base_dir, 'src', 'background_gameplay.png'))
       palette = self.palette()
       self.code = code
       palette.setBrush(QPalette.Background, QBrush(pixmap))
@@ -438,7 +437,7 @@ class playAGameWindow(QWidget):
       super().__init__()
       self.setFixedSize(1120,560)
       self.setWindowTitle('Housify - Playing a Game')
-      pixmap = QPixmap('./src/gameplay-background.png')
+      pixmap = QPixmap(os.path.join(base_dir, 'src', 'gameplay-background.png'))
       palette = self.palette()
       palette.setBrush(QPalette.Background, QBrush(pixmap))
       self.setPalette(palette)
@@ -668,7 +667,7 @@ class hostingGame(QWidget):
       super().__init__()
       self.setFixedSize(1120,560)
       self.setWindowTitle('Housify - Hosting a Game')
-      pixmap = QPixmap('./src/gameplay-background.png')
+      pixmap = QPixmap(os.path.join(base_dir, 'src', 'gameplay-background.png'))
       self.numbers = random.sample(range(1, 91), 90)
       self.called = []
       self.appeals =  {"First Row" : [], "Second Row" : [], "Third Row" : [], "Full House" : []}
@@ -894,13 +893,13 @@ class appealWindow(QWidget):
 def main():
    global name, client
    app = QApplication(sys.argv)
-   app.setWindowIcon(QIcon('./src/app.ico'))
-   QFontDatabase.addApplicationFont('./src/fonts/Paytone_One/PaytoneOne-Regular.ttf')
-   QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-Regular.ttf')
-   QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-ExtraBold.ttf')
-   QFontDatabase.addApplicationFont('./src/fonts/Poppins/Poppins-SemiBold.ttf')
+   app.setWindowIcon(QIcon(os.path.join(base_dir, 'src', 'app.ico')))
+   QFontDatabase.addApplicationFont(os.path.join(base_dir, 'src', 'fonts', 'Paytone_One/PaytoneOne-Regular.ttf'))
+   QFontDatabase.addApplicationFont(os.path.join(base_dir, 'src', 'fonts', 'Poppins/Poppins-Regular.ttf'))
+   QFontDatabase.addApplicationFont(os.path.join(base_dir, 'src', 'fonts', 'Poppins/Poppins-ExtraBold.ttf'))
+   QFontDatabase.addApplicationFont(os.path.join(base_dir, 'src', 'fonts', 'Poppins/Poppins-SemiBold.ttf'))
    load_dotenv()
-   client = Client(ip = os.getenv("IP"))
+   client = Client(ip = os.getenv('IP'))
    ex = usernameWindow()
    ex.show()
    code = app.exec_()
