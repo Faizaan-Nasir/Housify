@@ -29,6 +29,10 @@ A python based application to play Housie
 
 ~~7. Alert in absence of internet.~~
 
+## TODO Features:
+
+1. Give hosts choice to rename appeals
+
 ## Basic Algorithm
 ![image](https://github.com/Faizaan-Nasir/Housify/assets/82143161/1adb3d8a-5049-46f8-a442-209e1e995b4f)
 
