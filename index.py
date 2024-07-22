@@ -8,7 +8,7 @@ from PyQt5.QtGui import QFontDatabase , QPixmap , QPalette , QBrush, QIcon
 
 import logic
 from connection import Client
-import player_list, ticket, GRID
+from components import theGrid, PlayerList, ticketMain
 
 base_dir = os.path.dirname(__file__)
 # enter username
@@ -301,7 +301,7 @@ class hostGameWindow(QWidget):
       self.gameCode.move(535,215)
 
       # Player list
-      self.p = player_list.PlayerList("PLAYERS", self)
+      self.p = PlayerList("PLAYERS", self)
       self.p.move(870, 140)
       self.p.show()
 
@@ -463,7 +463,7 @@ class playAGameWindow(QWidget):
 
       # Bringing Ticket to the Window
       self.ticketid='T'+str(random.randint(10000,99999))
-      self.displayTicket=ticket.ticketMain(logic.generateTicket(self.ticketid), self, 'player', None)
+      self.displayTicket=ticketMain(logic.generateTicket(self.ticketid), self, 'player', None)
       self.displayTicket.move(370,110)
       self.displayTicket.parent=self
       self.displayTicket.show()
@@ -760,7 +760,7 @@ class hostingGame(QWidget):
       self.endGame.move(330,384)
 
       # THE 9X10 GRID
-      self.grid=GRID.theGrid(self)
+      self.grid=theGrid(self)
       self.grid.move(620,100)
       self.endGame.clicked.connect(self.endgame)
 
@@ -850,7 +850,7 @@ class appealWindow(QWidget):
          self.title.setStyleSheet('font-size: 22px; font-family: "Poppins"; color: black;')
          self.title.move(33,25)
 
-         self.displayTicket=ticket.ticketMain(logic.generateTicket(self.ticketId), self, 'host', self.calledNums)
+         self.displayTicket=ticketMain(logic.generateTicket(self.ticketId), self, 'host', self.calledNums)
          self.displayTicket.move(33,90)
          self.displayTicket.parent=self
          self.displayTicket.show()
