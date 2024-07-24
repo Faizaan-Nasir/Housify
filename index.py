@@ -232,7 +232,24 @@ class chooseAppeals(QWidget):
       self.MainUI()
 
    def setNewAppeals(self):
-      self.newWin = hostGameWindow(self.game_code,self.firstAppeal.text(),self.secondAppeal.text(),self.thirdAppeal.text(),self.fourthAppeal.text())
+      if self.firstAppeal.text().strip()=='':
+         self.newFirstAppeal='1st Row'
+      else:
+         self.newFirstAppeal=self.firstAppeal.text()
+      if self.secondAppeal.text().strip()=='':
+         self.newSecondAppeal='2nd Row'
+      else:
+         self.newSecondAppeal=self.secondAppeal.text()
+      if self.thirdAppeal.text().strip()=='':
+         self.newThirdAppeal='3rd Row'
+      else:
+         self.newThirdAppeal=self.thirdAppeal.text()
+      if self.fourthAppeal.text().strip()=='':
+         self.newFourthAppeal='Full House'
+      else:
+         self.newFourthAppeal=self.fourthAppeal.text()
+
+      self.newWin = hostGameWindow(self.game_code,self.newFirstAppeal,self.newSecondAppeal,self.newThirdAppeal,self.newFourthAppeal)
       self.newWin.show()
       self.hide()
 
@@ -994,8 +1011,8 @@ def main():
    QFontDatabase.addApplicationFont(os.path.join(base_dir, 'src', 'fonts', 'Poppins','Poppins-ExtraBold.ttf'))
    QFontDatabase.addApplicationFont(os.path.join(base_dir, 'src', 'fonts', 'Poppins','Poppins-SemiBold.ttf'))
    load_dotenv()
-   # client = Client(ip = os.getenv('IP'))
-   client=Client()
+   client = Client(ip = os.getenv('IP'))
+   # client=Client()
    ex = usernameWindow()
    ex.show()
    code = app.exec_()
