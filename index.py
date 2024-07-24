@@ -89,6 +89,8 @@ class mainWindow(QWidget):
       client.send(obj)
       self.newWin = hostGameWindow(game_code)
       self.newWin.show()
+      self.appealsChoice=chooseAppeals()
+      self.appealsChoice.show()
       self.hide()
       self.close()
 
@@ -221,6 +223,67 @@ class joinGameWindow(QWidget):
       client.msgSignal.disconnect(self.onJoin) 
       self.hide()
       self.close()
+
+class chooseAppeals(QWidget):
+   def __init__(self):
+      super().__init__()
+      self.setFixedSize(700,560)
+      self.setWindowTitle('Housify - Choose Appeals')
+      self.setStyleSheet('background: #fffde8')
+      self.MainUI()
+
+   def MainUI(self):
+      self.mainTitle=QLabel('CHOOSE APPEALS',self)
+      self.mainTitle.setFixedWidth(700)
+      self.mainTitle.move(0,60)
+      self.mainTitle.setAlignment(QtCore.Qt.AlignCenter)
+      self.mainTitle.setStyleSheet("font-family: Paytone One; background: transparent; font-size:35px; color: black;")
+      
+      self.firstAppeal=QLineEdit(self)
+      self.firstAppeal.setStyleSheet("color: black; font-family: Poppins; font-size: 21px; background: #D7D7D7; border: 2px solid black;")
+      self.firstAppeal.setFixedSize(250,55)
+      self.firstAppeal.move(225,145)
+      self.firstAppeal.setPlaceholderText('First Appeal')
+      self.firstAppeal.setFocusPolicy(0x2)
+      self.firstAppeal.setAlignment(QtCore.Qt.AlignCenter)
+
+      self.secondAppeal=QLineEdit(self)
+      self.secondAppeal.setStyleSheet("color: black; font-family: Poppins; font-size: 21px; background: #D7D7D7; border: 2px solid black;")
+      self.secondAppeal.setFixedSize(250,55)
+      self.secondAppeal.move(225,215)
+      self.secondAppeal.setPlaceholderText('Second Appeal')
+      self.secondAppeal.setFocusPolicy(0x2)
+      self.secondAppeal.setAlignment(QtCore.Qt.AlignCenter)
+
+      self.thirdAppeal=QLineEdit(self)
+      self.thirdAppeal.setStyleSheet("color: black; font-family: Poppins; font-size: 21px; background: #D7D7D7; border: 2px solid black;")
+      self.thirdAppeal.setFixedSize(250,55)
+      self.thirdAppeal.move(225,285)
+      self.thirdAppeal.setPlaceholderText('Third Appeal')
+      self.thirdAppeal.setFocusPolicy(0x2)
+      self.thirdAppeal.setAlignment(QtCore.Qt.AlignCenter)
+
+      self.fourthAppeal=QLineEdit(self)
+      self.fourthAppeal.setStyleSheet("color: black; font-family: Poppins; font-size: 21px; background: #D7D7D7; border: 2px solid black;")
+      self.fourthAppeal.setFixedSize(250,55)
+      self.fourthAppeal.move(225,355)
+      self.fourthAppeal.setPlaceholderText('Final Appeal')
+      self.fourthAppeal.setFocusPolicy(0x2)
+      self.fourthAppeal.setAlignment(QtCore.Qt.AlignCenter)
+      
+      self.appealSubmit=QPushButton('Submit',self)
+      self.appealSubmit.setStyleSheet('''QPushButton{
+                                 font-family: Poppins; 
+                                 font-size: 18px; 
+                                 background: #69B1F4; 
+                                 border: 2px solid black;
+                                 color: black;
+                                 }
+                                 QPushButton::hover{
+                                 background: #63a9eb;}''')
+      self.appealSubmit.setFixedSize(200,55)
+      self.appealSubmit.move(250,440)
+      # self.appealSubmit.clicked.connect()
 
 # host a game window
 class hostGameWindow(QWidget):
