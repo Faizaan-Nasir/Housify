@@ -152,7 +152,7 @@ class Server :
             g = self.games[code]
             g.started = True
             for n, p in g.players.items() :
-                reply = {"event" : "START GAME", "name" : n}
+                reply = {"event" : "START GAME", "name" : n,"appealNames":msg['appealNames']}
                 p.send(self._encode(reply))
 
         elif msg["event"] == "CALL NUMBER" : 

@@ -87,9 +87,7 @@ class mainWindow(QWidget):
       game_code = str(random.randint(10000,99999))
       obj = {"username": name, "role" : "HOST", "event" : "CREATE GAME", "code" : game_code}
       client.send(obj)
-      self.newWin = hostGameWindow(game_code)
-      self.newWin.show()
-      self.appealsChoice=chooseAppeals()
+      self.appealsChoice=chooseAppeals(game_code)
       self.appealsChoice.show()
       self.hide()
       self.close()
@@ -225,12 +223,18 @@ class joinGameWindow(QWidget):
       self.close()
 
 class chooseAppeals(QWidget):
-   def __init__(self):
+   def __init__(self,gameCode):
       super().__init__()
+      self.game_code=gameCode
       self.setFixedSize(700,560)
       self.setWindowTitle('Housify - Choose Appeals')
       self.setStyleSheet('background: #fffde8')
       self.MainUI()
+
+   def setNewAppeals(self):
+      self.newWin = hostGameWindow(self.game_code,self.firstAppeal.text(),self.secondAppeal.text(),self.thirdAppeal.text(),self.fourthAppeal.text())
+      self.newWin.show()
+      self.hide()
 
    def MainUI(self):
       self.mainTitle=QLabel('CHOOSE APPEALS',self)
@@ -244,6 +248,7 @@ class chooseAppeals(QWidget):
       self.firstAppeal.setFixedSize(250,55)
       self.firstAppeal.move(225,145)
       self.firstAppeal.setPlaceholderText('First Appeal')
+      self.firstAppeal.setMaxLength(8)
       self.firstAppeal.setFocusPolicy(0x2)
       self.firstAppeal.setAlignment(QtCore.Qt.AlignCenter)
 
@@ -252,6 +257,7 @@ class chooseAppeals(QWidget):
       self.secondAppeal.setFixedSize(250,55)
       self.secondAppeal.move(225,215)
       self.secondAppeal.setPlaceholderText('Second Appeal')
+      self.secondAppeal.setMaxLength(8)
       self.secondAppeal.setFocusPolicy(0x2)
       self.secondAppeal.setAlignment(QtCore.Qt.AlignCenter)
 
@@ -260,6 +266,7 @@ class chooseAppeals(QWidget):
       self.thirdAppeal.setFixedSize(250,55)
       self.thirdAppeal.move(225,285)
       self.thirdAppeal.setPlaceholderText('Third Appeal')
+      self.thirdAppeal.setMaxLength(8)
       self.thirdAppeal.setFocusPolicy(0x2)
       self.thirdAppeal.setAlignment(QtCore.Qt.AlignCenter)
 
@@ -268,6 +275,7 @@ class chooseAppeals(QWidget):
       self.fourthAppeal.setFixedSize(250,55)
       self.fourthAppeal.move(225,355)
       self.fourthAppeal.setPlaceholderText('Final Appeal')
+      self.fourthAppeal.setMaxLength(8)
       self.fourthAppeal.setFocusPolicy(0x2)
       self.fourthAppeal.setAlignment(QtCore.Qt.AlignCenter)
       
@@ -283,14 +291,18 @@ class chooseAppeals(QWidget):
                                  background: #63a9eb;}''')
       self.appealSubmit.setFixedSize(200,55)
       self.appealSubmit.move(250,440)
-      # self.appealSubmit.clicked.connect()
+      self.appealSubmit.clicked.connect(self.setNewAppeals)
 
 # host a game window
 class hostGameWindow(QWidget):
 
-   def __init__(self, newGameCode):
+   def __init__(self, newGameCode, firstAppeal, secondAppeal, thirdAppeal, fourthAppeal):
       super().__init__()
       self.newGameCode= newGameCode
+      self.firstAppeal=firstAppeal
+      self.secondAppeal=secondAppeal
+      self.thirdAppeal=thirdAppeal
+      self.fourthAppeal=fourthAppeal
       self.setFixedSize(1120,560)
       self.setWindowTitle('Housify - Host a Game')
       pixmap = QPixmap(os.path.join(base_dir, 'src', 'background_host.png'))
@@ -302,9 +314,9 @@ class hostGameWindow(QWidget):
 
    # function start game button
    def startingGame(self):
-      msg = {"event" : "START GAME", "code" : self.newGameCode, "username" : name}
+      msg = {"event" : "START GAME", "code" : self.newGameCode, "username" : name, "appealNames":[self.firstAppeal,self.secondAppeal,self.thirdAppeal,self.fourthAppeal]}
       client.send(msg)
-      self.hostwindow=hostingGame(self.newGameCode)
+      self.hostwindow=hostingGame(self.newGameCode,self.firstAppeal,self.secondAppeal,self.thirdAppeal,self.fourthAppeal)
       self.hostwindow.show()
       self.close_win()
 
@@ -432,7 +444,8 @@ class waitingLobbyWindow(QWidget):
    @QtCore.pyqtSlot(dict)
    def startGame(self, msg) :
       if msg["event"] == "START GAME" : 
-         self.newin = playAGameWindow(self.code)
+         self.appealNames=msg['appealNames']
+         self.newin = playAGameWindow(self.code,self.appealNames)
          self.newin.show()
          self.close_win()
 
@@ -495,8 +508,9 @@ class waitingLobbyWindow(QWidget):
 
 # playing a game window
 class playAGameWindow(QWidget):
-   def __init__(self,gamecode):
+   def __init__(self,gamecode,appealNames):
       self.gamecode=gamecode
+      self.appealNames=appealNames
       super().__init__()
       self.setFixedSize(1120,560)
       self.setWindowTitle('Housify - Playing a Game')
@@ -541,24 +555,24 @@ class playAGameWindow(QWidget):
       self.statusText.setStyleSheet("font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;")
       self.statusText.move(110,210)
 
-      self.firstRowText = QLabel('First Row : ',self)
+      self.firstRowText = QLabel(f'{self.appealNames[0]} : ',self)
       self.firstRowText.setStyleSheet("font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;")
       self.firstRowText.move(110,240)
       self.firstRowText.setFixedWidth(300)
 
-      self.secondRowText = QLabel('Second Row : ',self)
+      self.secondRowText = QLabel(f'{self.appealNames[1]} : ',self)
       self.secondRowText.setStyleSheet("font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;")
       self.secondRowText.move(110,270)
       self.secondRowText.setFixedWidth(300)
 
 
-      self.thirdRowText = QLabel('Third Row : ',self)
+      self.thirdRowText = QLabel(f'{self.appealNames[2]} : ',self)
       self.thirdRowText.setStyleSheet("font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;")
       self.thirdRowText.move(110,300)
       self.thirdRowText.setFixedWidth(300)
 
 
-      self.fullHouseText = QLabel('Full House : ',self)
+      self.fullHouseText = QLabel(f'{self.appealNames[3]} : ',self)
       self.fullHouseText.setStyleSheet("font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;")
       self.fullHouseText.move(110,330)
       self.fullHouseText.setFixedWidth(300)
@@ -588,7 +602,7 @@ class playAGameWindow(QWidget):
                                  '''
 
       # appeal button first row
-      self.firstHouse = QPushButton('1st\nRow',self)
+      self.firstHouse = QPushButton(f'{self.appealNames[0]}',self)
       self.firstHouse.resize(100,76)
       self.firstHouse.setStyleSheet('''QPushButton{
                                     font-family: Poppins;
@@ -601,10 +615,10 @@ class playAGameWindow(QWidget):
                                     QPushButton::hover{
                                     background: #f5eee1;}''')
       self.firstHouse.move(370,380)
-      self.firstHouse.clicked.connect(lambda: self.appeal('First Row'))
+      self.firstHouse.clicked.connect(lambda: self.appeal(f'{self.appealNames[0]}'))
 
       # appeal button second row
-      self.secondHouse = QPushButton('2nd\nRow',self)
+      self.secondHouse = QPushButton(f'{self.appealNames[1]}',self)
       self.secondHouse.resize(100,76)
       self.secondHouse.setStyleSheet('''QPushButton{
                                     font-family: Poppins;
@@ -617,10 +631,10 @@ class playAGameWindow(QWidget):
                                     QPushButton::hover{
                                     background: #f5eee1;}''')
       self.secondHouse.move(480,380)
-      self.secondHouse.clicked.connect(lambda: self.appeal('Second Row'))
+      self.secondHouse.clicked.connect(lambda: self.appeal(f'{self.appealNames[1]}'))
 
       # appeal button third row
-      self.thirdHouse = QPushButton('3rd\nrow',self)
+      self.thirdHouse = QPushButton(f'{self.appealNames[2]}',self)
       self.thirdHouse.resize(100,76)
       self.thirdHouse.setStyleSheet('''QPushButton{
                                     font-family: Poppins;
@@ -633,10 +647,10 @@ class playAGameWindow(QWidget):
                                     QPushButton::hover{
                                     background: #f5eee1;}''')
       self.thirdHouse.move(590,380)
-      self.thirdHouse.clicked.connect(lambda: self.appeal('Third Row'))
+      self.thirdHouse.clicked.connect(lambda: self.appeal(f'{self.appealNames[2]}'))
 
       # appeal button full house
-      self.fullHouse = QPushButton('Full\nHouse',self)
+      self.fullHouse = QPushButton(f'{self.appealNames[3]}',self)
       self.fullHouse.resize(100,76)
       self.fullHouse.setStyleSheet('''QPushButton{
                                     font-family: Poppins;
@@ -649,7 +663,7 @@ class playAGameWindow(QWidget):
                                     QPushButton::hover{
                                     background: #f5eee1;}''')
       self.fullHouse.move(700,380)
-      self.fullHouse.clicked.connect(lambda: self.appeal('Full House'))
+      self.fullHouse.clicked.connect(lambda: self.appeal(f'{self.appealNames[3]}'))
 
       # leave game button
       self.leaveGame = QPushButton('Leave Game',self)
@@ -697,19 +711,19 @@ class playAGameWindow(QWidget):
       if msg['event'] == 'APPROVE APPEAL' :
          try: self.dialog.accept()
          except: pass
-         if msg['approvedAppeal'] == 'First Row':
+         if msg['approvedAppeal'] == f'{self.appealNames[0]}':
             self.firstRowText.setText(msg["status_text"][0])
             self.firstHouse.setEnabled(False)
             self.firstHouse.setStyleSheet(self.disabledStyles)
-         elif msg['approvedAppeal'] == 'Second Row':
+         elif msg['approvedAppeal'] == f'{self.appealNames[1]}':
             self.secondRowText.setText(msg["status_text"][1])
             self.secondHouse.setEnabled(False)
             self.secondHouse.setStyleSheet(self.disabledStyles)
-         elif msg['approvedAppeal'] == 'Third Row':
+         elif msg['approvedAppeal'] == f'{self.appealNames[2]}':
             self.thirdRowText.setText(msg["status_text"][2])
             self.thirdHouse.setEnabled(False)
             self.thirdHouse.setStyleSheet(self.disabledStyles)
-         elif msg['approvedAppeal'] == 'Full House':
+         elif msg['approvedAppeal'] == f'{self.appealNames[3]}':
             self.fullHouseText.setText(msg["status_text"][3])
             self.fullHouse.setEnabled(False)
             self.fullHouse.setStyleSheet(self.disabledStyles)
@@ -726,14 +740,18 @@ class playAGameWindow(QWidget):
 
 # the window where the host is hosting game
 class hostingGame(QWidget):
-   def __init__(self, gamecode):
+   def __init__(self, gamecode, firstAppeal, secondAppeal, thirdAppeal, fourthAppeal):
       super().__init__()
+      self.firstAppeal=firstAppeal
+      self.secondAppeal=secondAppeal
+      self.thirdAppeal=thirdAppeal
+      self.fourthAppeal=fourthAppeal
       self.setFixedSize(1120,560)
       self.setWindowTitle('Housify - Hosting a Game')
       pixmap = QPixmap(os.path.join(base_dir, 'src', 'gameplay-background.png'))
       self.numbers = random.sample(range(1, 91), 90)
       self.called = []
-      self.appeals =  {"First Row" : [], "Second Row" : [], "Third Row" : [], "Full House" : []}
+      self.appeals =  {f"{self.firstAppeal}" : [], f"{self.secondAppeal}" : [], f"{self.thirdAppeal}" : [], f"{self.fourthAppeal}" : []}
       palette = self.palette()
       palette.setBrush(QPalette.Background, QBrush(pixmap))
       self.setPalette(palette)
@@ -757,31 +775,31 @@ class hostingGame(QWidget):
       self.statusText.setStyleSheet("font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;")
       self.statusText.move(110,210)
 
-      self.firstRowText = QLabel('First Row : ',self)
+      self.firstRowText = QLabel(f'{self.firstAppeal} : ',self)
       self.firstRowText.setStyleSheet("font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;")
       self.firstRowText.move(110,240)
       self.firstRowText.setFixedWidth(300)
 
-      self.secondRowText = QLabel('Second Row : ',self)
+      self.secondRowText = QLabel(f'{self.secondAppeal} : ',self)
       self.secondRowText.setStyleSheet("font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;")
       self.secondRowText.move(110,270)
       self.secondRowText.setFixedWidth(300)
 
-      self.thirdRowText = QLabel('Third Row : ',self)
+      self.thirdRowText = QLabel(f'{self.thirdAppeal} : ',self)
       self.thirdRowText.setStyleSheet("font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;")
       self.thirdRowText.move(110,300)
       self.thirdRowText.setFixedWidth(300)
 
-      self.fullHouseText = QLabel('Full House : ',self)
+      self.fullHouseText = QLabel(f'{self.fourthAppeal} : ',self)
       self.fullHouseText.setStyleSheet("font-family: 'Poppins'; font-weight: 500; font-size: 20px; line-height: 0.85; color: black;")
       self.fullHouseText.move(110,330)
       self.fullHouseText.setFixedWidth(300)
 
       self.statuses = {
-        "First Row" : self.firstRowText,
-        "Second Row" : self.secondRowText,
-        "Third Row" : self.thirdRowText,
-        "Full House" : self.fullHouseText,
+        f"{self.firstAppeal}" : self.firstRowText,
+        f"{self.secondAppeal}" : self.secondRowText,
+        f"{self.thirdAppeal}" : self.thirdRowText,
+        f"{self.fourthAppeal}" : self.fullHouseText,
       }
 
       # displaying numbers for the host
@@ -962,7 +980,8 @@ def main():
    QFontDatabase.addApplicationFont(os.path.join(base_dir, 'src', 'fonts', 'Poppins','Poppins-ExtraBold.ttf'))
    QFontDatabase.addApplicationFont(os.path.join(base_dir, 'src', 'fonts', 'Poppins','Poppins-SemiBold.ttf'))
    load_dotenv()
-   client = Client(ip = os.getenv('IP'))
+   # client = Client(ip = os.getenv('IP'))
+   client=Client()
    ex = usernameWindow()
    ex.show()
    code = app.exec_()
