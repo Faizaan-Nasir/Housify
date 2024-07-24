@@ -230,26 +230,18 @@ class chooseAppeals(QWidget):
       self.setWindowTitle('Housify - Choose Appeals')
       self.setStyleSheet('background: #fffde8')
       self.MainUI()
+      self.defaults = ["First Row", "Second Row", "Third Row", "Full House"]
+      self.appeal_inputs = [self.firstAppeal, self.secondAppeal, self.thirdAppeal, self.fourthAppeal]
 
    def setNewAppeals(self):
-      if self.firstAppeal.text().strip()=='':
-         self.newFirstAppeal='1st Row'
-      else:
-         self.newFirstAppeal=self.firstAppeal.text()
-      if self.secondAppeal.text().strip()=='':
-         self.newSecondAppeal='2nd Row'
-      else:
-         self.newSecondAppeal=self.secondAppeal.text()
-      if self.thirdAppeal.text().strip()=='':
-         self.newThirdAppeal='3rd Row'
-      else:
-         self.newThirdAppeal=self.thirdAppeal.text()
-      if self.fourthAppeal.text().strip()=='':
-         self.newFourthAppeal='Full House'
-      else:
-         self.newFourthAppeal=self.fourthAppeal.text()
-
-      self.newWin = hostGameWindow(self.game_code,self.newFirstAppeal,self.newSecondAppeal,self.newThirdAppeal,self.newFourthAppeal)
+      appeals = []
+      for i, a in enumerate(self.appeal_inputs) :
+         tmp = a.text().strip() 
+         if tmp == '' : 
+            appeals.append(self.defaults[i])
+         else : 
+            appeals.append(tmp) 
+      self.newWin = hostGameWindow(self.game_code, *appeals)
       self.newWin.show()
       self.hide()
 
