@@ -237,7 +237,7 @@ class chooseAppeals(QWidget):
       self.hide()
 
    def MainUI(self):
-      self.mainTitle=QLabel('CHOOSE APPEALS',self)
+      self.mainTitle=QLabel('SET YOUR APPEALS',self)
       self.mainTitle.setFixedWidth(700)
       self.mainTitle.move(0,60)
       self.mainTitle.setAlignment(QtCore.Qt.AlignCenter)
@@ -248,7 +248,6 @@ class chooseAppeals(QWidget):
       self.firstAppeal.setFixedSize(250,55)
       self.firstAppeal.move(225,145)
       self.firstAppeal.setPlaceholderText('First Appeal')
-      self.firstAppeal.setMaxLength(8)
       self.firstAppeal.setFocusPolicy(0x2)
       self.firstAppeal.setAlignment(QtCore.Qt.AlignCenter)
 
@@ -257,7 +256,6 @@ class chooseAppeals(QWidget):
       self.secondAppeal.setFixedSize(250,55)
       self.secondAppeal.move(225,215)
       self.secondAppeal.setPlaceholderText('Second Appeal')
-      self.secondAppeal.setMaxLength(8)
       self.secondAppeal.setFocusPolicy(0x2)
       self.secondAppeal.setAlignment(QtCore.Qt.AlignCenter)
 
@@ -266,7 +264,6 @@ class chooseAppeals(QWidget):
       self.thirdAppeal.setFixedSize(250,55)
       self.thirdAppeal.move(225,285)
       self.thirdAppeal.setPlaceholderText('Third Appeal')
-      self.thirdAppeal.setMaxLength(8)
       self.thirdAppeal.setFocusPolicy(0x2)
       self.thirdAppeal.setAlignment(QtCore.Qt.AlignCenter)
 
@@ -275,7 +272,6 @@ class chooseAppeals(QWidget):
       self.fourthAppeal.setFixedSize(250,55)
       self.fourthAppeal.move(225,355)
       self.fourthAppeal.setPlaceholderText('Final Appeal')
-      self.fourthAppeal.setMaxLength(8)
       self.fourthAppeal.setFocusPolicy(0x2)
       self.fourthAppeal.setAlignment(QtCore.Qt.AlignCenter)
       
@@ -292,6 +288,12 @@ class chooseAppeals(QWidget):
       self.appealSubmit.setFixedSize(200,55)
       self.appealSubmit.move(250,440)
       self.appealSubmit.clicked.connect(self.setNewAppeals)
+
+      self.tip=QLabel('Tip: An appeal is a checkpoint, can be something like: "1st Row" or "Jaldi 5" or "Full House"',self)
+      self.tip.setStyleSheet('font-family: Poppins; font-size: 12px; background: transparent; color: black;')
+      self.tip.setFixedWidth(700)
+      self.tip.setAlignment(QtCore.Qt.AlignCenter)
+      self.tip.move(0,510)
 
 # host a game window
 class hostGameWindow(QWidget):
@@ -577,6 +579,12 @@ class playAGameWindow(QWidget):
       self.fullHouseText.move(110,330)
       self.fullHouseText.setFixedWidth(300)
 
+      self.tip=QLabel('Tip: You can click the numbers in your ticket to cross them out for your reference.',self)
+      self.tip.setStyleSheet('font-family: Poppins; font-size: 12px; background: transparent; color: black;')
+      self.tip.setFixedWidth(634)
+      self.tip.setAlignment(QtCore.Qt.AlignCenter)
+      self.tip.move(370,335)
+
       # number called label
       self.number = QLabel('Called: ',self)
       self.number.setStyleSheet('''QLabel{
@@ -602,7 +610,7 @@ class playAGameWindow(QWidget):
                                  '''
 
       # appeal button first row
-      self.firstHouse = QPushButton(f'{self.appealNames[0]}',self)
+      self.firstHouse = QPushButton('\n'.join(self.appealNames[0].split()),self)
       self.firstHouse.resize(100,76)
       self.firstHouse.setStyleSheet('''QPushButton{
                                     font-family: Poppins;
@@ -618,7 +626,7 @@ class playAGameWindow(QWidget):
       self.firstHouse.clicked.connect(lambda: self.appeal(f'{self.appealNames[0]}'))
 
       # appeal button second row
-      self.secondHouse = QPushButton(f'{self.appealNames[1]}',self)
+      self.secondHouse = QPushButton('\n'.join(self.appealNames[1].split()),self)
       self.secondHouse.resize(100,76)
       self.secondHouse.setStyleSheet('''QPushButton{
                                     font-family: Poppins;
@@ -634,7 +642,7 @@ class playAGameWindow(QWidget):
       self.secondHouse.clicked.connect(lambda: self.appeal(f'{self.appealNames[1]}'))
 
       # appeal button third row
-      self.thirdHouse = QPushButton(f'{self.appealNames[2]}',self)
+      self.thirdHouse = QPushButton('\n'.join(self.appealNames[2].split()),self)
       self.thirdHouse.resize(100,76)
       self.thirdHouse.setStyleSheet('''QPushButton{
                                     font-family: Poppins;
@@ -650,7 +658,7 @@ class playAGameWindow(QWidget):
       self.thirdHouse.clicked.connect(lambda: self.appeal(f'{self.appealNames[2]}'))
 
       # appeal button full house
-      self.fullHouse = QPushButton(f'{self.appealNames[3]}',self)
+      self.fullHouse = QPushButton('\n'.join(self.appealNames[3].split()),self)
       self.fullHouse.resize(100,76)
       self.fullHouse.setStyleSheet('''QPushButton{
                                     font-family: Poppins;
@@ -935,6 +943,12 @@ class appealWindow(QWidget):
          self.displayTicket.move(33,90)
          self.displayTicket.parent=self
          self.displayTicket.show()
+
+         self.tip=QLabel('Tip: The ticket shown below is cross-checked with the numbers called out.',self)
+         self.tip.setStyleSheet('font-family: Poppins; font-size: 12px; background: transparent; color: black;')
+         self.tip.setFixedWidth(700)
+         self.tip.setAlignment(QtCore.Qt.AlignCenter)
+         self.tip.move(0,65)
 
          self.approveButton = QPushButton('Yes, appeal is right.',self)
          self.approveButton.resize(250,50)
