@@ -1,28 +1,34 @@
 # -*- mode: python ; coding: utf-8 -*-
 
 
+block_cipher = None
+
+
 a = Analysis(
     ['index.py'],
     pathex=[],
     binaries=[],
-    datas=[('src/*', 'src')],
+    datas=[('src/*', 'src'),('src/fonts/Paytone_One/*', 'src/fonts/Paytone_One'),('src/fonts/Poppins/*', 'src/fonts/Poppins')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
     excludes=[],
+    win_no_prefer_redirects=False,
+    win_private_assemblies=False,
+    cipher=block_cipher,
     noarchive=False,
-    optimize=0,
 )
-pyz = PYZ(a.pure)
+pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 
 exe = EXE(
     pyz,
     a.scripts,
     a.binaries,
+    a.zipfiles,
     a.datas,
     [],
-    name='Housify',
+    name='index',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -35,11 +41,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['src/app.icns'],
-)
-app = BUNDLE(
-    exe,
-    name='Housify.app',
-    icon='./src/app.icns',
-    bundle_identifier=None,
+    icon=['src\\app.ico'],
 )
