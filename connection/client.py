@@ -25,11 +25,11 @@ class Client(QObject) :
         header = f"{len(msg):<{self.HEADER_LENGTH}}".encode("utf-8")
         return header + msg
     
-    def connect(self, username) : 
+    def connect(self, username, version) : 
         self.socket.connect((self.b_ip, self.b_port))
         self.socket.setblocking(False)
-        usr = self._encode(username)
-        self.socket.send(usr)
+        inf = self._encode((username, version))
+        self.socket.send(inf)
 
     def disconnect(self) : 
         self.socket.close()

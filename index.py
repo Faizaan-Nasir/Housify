@@ -10,6 +10,8 @@ import logic
 from connection import Client
 from components import theGrid, PlayerList, ticketMain
 
+VERSION = "1.1.0"
+
 base_dir = os.path.dirname(__file__)
 # enter username
 class usernameWindow(QWidget):
@@ -25,15 +27,27 @@ class usernameWindow(QWidget):
       name=username
       # Connect the client to server
       try:
-        client.connect(name)
+        client.connect(name, VERSION)
         client.run()
-        self.hide()
-        self.close()
-        self.newin=mainWindow()
-        self.newin.show()
+        client.msgSignal.connect(self.onConnect)
       except:
         self.msg_dialog = QMessageBox.critical(self, "Couldn't connect", "Connection wasn't successful. This may be due to your internet connection or our server. We apologize for the inconvenience.")
 
+   @QtCore.pyqtSlot(dict)
+   def onConnect(self, msg) : 
+      if 'event' in msg and msg['event'] == "VERSION CHECK":
+         if not msg['status'] :
+            self.msg_dialog = QMessageBox.critical(self, "Version Error", "You seem to be using an old version of our app. Please visit the releases page to download the latest version.")
+         else: 
+            self.close_win()
+            self.newin=mainWindow()
+            self.newin.show()
+
+   def close_win(self) : 
+      self.hide()
+      self.close()
+      client.msgSignal.disconnect(self.onConnect) 
+         
    def mainUI(self):
       self.usernameText=QLineEdit(self)
       self.usernameText.setStyleSheet("color: black; font-family: Poppins; font-size: 21px; background: #D7D7D7; border: 2px solid black;")

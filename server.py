@@ -2,6 +2,8 @@ import socket
 import pickle
 import select
 
+VERSION = "1.1.0"
+
 class Game : 
 
     def __init__(self, code, hostname, host_client) : 
@@ -59,11 +61,14 @@ class Server :
                 if n_socket == self.socket : # Connection request
                     conn, addr = self.socket.accept()
                     print(f"[NEW CONN]\tNew connection from {addr}")
-                    msg = self.receive_client(conn)
-                    print(f"[NEW PLAYER]\t{msg} joined the game")
-                    if msg is False : 
+                    usr, version = self.receive_client(conn)
+                    print(f"[NEW PLAYER]\t{usr} joined the game")
+                    
+                    conn.send(self._encode({'event' : "VERSION CHECK", 'status' : version == VERSION}))
+
+                    if usr is False : 
                         continue
-                    self.clients[conn] = msg
+                    self.clients[conn] = usr
                     self.sockets_list.append(conn)
                 else : # Received a message from client
                     msg = self.receive_client(n_socket)
