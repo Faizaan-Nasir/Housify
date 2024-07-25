@@ -7,3 +7,4 @@ Housify Version 1.0.0.zip
 *.txt
 build
 dist
+*.spec
