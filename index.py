@@ -30,7 +30,8 @@ class usernameWindow(QWidget):
         client.connect(name, VERSION)
         client.run()
         client.msgSignal.connect(self.onConnect)
-      except:
+      except Exception as e:
+        print(str(e))
         self.msg_dialog = QMessageBox.critical(self, "Couldn't connect", "Connection wasn't successful. This may be due to your internet connection or our server. We apologize for the inconvenience.")
 
    @QtCore.pyqtSlot(dict)
@@ -318,6 +319,11 @@ class chooseAppeals(QWidget):
       self.tip.setAlignment(QtCore.Qt.AlignCenter)
       self.tip.move(0,510)
 
+   def closeEvent(self, event) : 
+      client.send({"code" : self.game_code, "event" : "END GAME"}) 
+      self.newin = mainWindow()
+      self.newin.show()
+      event.accept()
 # host a game window
 class hostGameWindow(QWidget):
 
@@ -347,9 +353,10 @@ class hostGameWindow(QWidget):
 
    # function go back button
    def goBack(self):
+      client.send({"code" : self.newGameCode, "event" : "END GAME"})
       self.oldWin = mainWindow()
-      self.close()
       self.oldWin.show()
+      self.close_win()
 
    # what happens when new player joins
    @QtCore.pyqtSlot(dict)
@@ -464,13 +471,18 @@ class waitingLobbyWindow(QWidget):
       palette.setBrush(QPalette.Background, QBrush(pixmap))
       self.setPalette(palette)
       self.MainUI()
-      client.msgSignal.connect(self.startGame)
-   
+      client.msgSignal.connect(self.react)
+
    @QtCore.pyqtSlot(dict)
-   def startGame(self, msg) :
+   def react(self, msg) :
       if msg["event"] == "START GAME" : 
          self.appealNames=msg['appealNames']
          self.newin = playAGameWindow(self.code,self.appealNames)
+         self.newin.show()
+         self.close_win()
+      elif msg["event"] == "END GAME" :
+         self.m = QMessageBox.information(self, "Game Ended", "Game was ended by the host.")
+         self.newin = mainWindow()
          self.newin.show()
          self.close_win()
 
@@ -527,7 +539,7 @@ class waitingLobbyWindow(QWidget):
       self.close_win()
 
    def close_win(self) : 
-      client.msgSignal.disconnect(self.startGame)
+      client.msgSignal.disconnect(self.react)
       self.hide()
       self.close()
 
@@ -1006,6 +1018,11 @@ class appealWindow(QWidget):
       def appealResult(self, result, player, appeal):
          self.signalObj.emit(result, player, appeal) 
          self.hide()
+
+      def closeEvent(self, event) : 
+         self.appealResult(False, self.player, self.appeal)
+         event.accept()
+    
 # ---- END OF ALL MODULES ----
       
 def main():
