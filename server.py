@@ -53,6 +53,9 @@ class Server :
         header = f"{len(msg):<{self.HEADER_LENGTH}}".encode("utf-8")
         return header + msg
     
+    def _check_version(self, ver) : 
+        return ver[:-2] == VERSION[:-2]
+    
     def start(self) :
         while True : 
             read_sockets, _, except_sockets = select.select(self.sockets_list, [], self.sockets_list)
@@ -64,9 +67,9 @@ class Server :
                     usr, version = self.receive_client(conn)
                     print(f"[NEW PLAYER]\t{usr} joined the game")
                     
-                    conn.send(self._encode({'event' : "VERSION CHECK", 'status' : version == VERSION}))
+                    conn.send(self._encode({'event' : "VERSION CHECK", 'status' : self._check_version(version)}))
 
-                    if usr is False : 
+                    if usr is False or not self._check_version(version): 
                         continue
                     self.clients[conn] = usr
                     self.sockets_list.append(conn)
