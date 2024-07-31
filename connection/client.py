@@ -13,7 +13,7 @@ class Client(QObject) :
     HEADER_LENGTH = 10
     FORMATTING = "utf-8"
 
-    def __init__(self, status = "PLAYER", ip = socket.gethostbyname(socket.gethostname()), port = 4040, parent = None) : 
+    def __init__(self, status = "PLAYER", ip = socket.gethostbyname(socket.gethostname()), port = 4000, parent = None) : 
         super(Client, self).__init__(parent)
         self.b_ip = ip
         self.b_port = port

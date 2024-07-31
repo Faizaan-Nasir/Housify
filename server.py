@@ -34,7 +34,7 @@ class Server :
     FORMATTING = "utf-8"
 
     def __init__(self) : 
-        self.port = 4040
+        self.port = 4000
         self.host_ip = socket.gethostbyname(socket.gethostname())
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -64,7 +64,10 @@ class Server :
                 if n_socket == self.socket : # Connection request
                     conn, addr = self.socket.accept()
                     print(f"[NEW CONN]\tNew connection from {addr}")
-                    usr, version = self.receive_client(conn)
+                    try:
+                        usr, version = self.receive_client(conn)
+                    except:
+                        continue
                     print(f"[NEW PLAYER]\t{usr} joined the game")
                     
                     conn.send(self._encode({'event' : "VERSION CHECK", 'status' : self._check_version(version)}))
