@@ -27,12 +27,12 @@ class usernameWindow(QWidget):
       name=username
       # Connect the client to server
       try:
-        client.connect(name, VERSION)
-        client.run()
-        client.msgSignal.connect(self.onConnect)
+         client.connect(name, VERSION)
+         client.run()
+         client.msgSignal.connect(self.onConnect)
       except Exception as e:
-        print(str(e))
-        self.msg_dialog = QMessageBox.critical(self, "Couldn't connect", "Connection wasn't successful. This may be due to your internet connection or our server. We apologize for the inconvenience.")
+         print(str(e))
+         self.msg_dialog = QMessageBox.critical(self, "Couldn't connect", "Connection wasn't successful. This may be due to your internet connection or our server. We apologize for the inconvenience.")
 
    @QtCore.pyqtSlot(dict)
    def onConnect(self, msg) : 
@@ -298,6 +298,10 @@ class chooseAppeals(QWidget):
       self.fourthAppeal.setPlaceholderText('Final Appeal')
       self.fourthAppeal.setFocusPolicy(0x2)
       self.fourthAppeal.setAlignment(QtCore.Qt.AlignCenter)
+
+      self.setTabOrder(self.firstAppeal,self.secondAppeal)
+      self.setTabOrder(self.secondAppeal,self.thirdAppeal)
+      self.setTabOrder(self.thirdAppeal,self.fourthAppeal)
       
       self.appealSubmit=QPushButton('Submit',self)
       self.appealSubmit.setStyleSheet('''QPushButton{
@@ -846,10 +850,10 @@ class hostingGame(QWidget):
       }
 
       # displaying numbers for the host
-      self.displayNum=QLabel('''<div style="font-family: 'Poppins'; font-weight: 500; font-size: 60px; line-height: 0.85; color: #D2626E;"></div>''',self)
+      self.displayNum=QLabel('''<div style="font-family: 'Poppins'; font-weight: 500; font-size: 60px; line-height: 0.85; color: #000000;"></div>''',self)
       self.displayNum.setFixedWidth(90)
       self.displayNum.setAlignment(QtCore.Qt.AlignCenter)
-      self.displayNum.move(530,375)
+      self.displayNum.move(530,380)
 
       # button to call out number
       self.callOutNumber = QPushButton('Call Out Number',self)
@@ -903,7 +907,7 @@ class hostingGame(QWidget):
 
          # Updating the status text and display text
          self.statusText.setText(f"Numbers left: {len(self.numbers)}")
-         self.displayNum.setText(f'''<div style="font-family: 'Poppins'; font-weight: 500; font-size: 60px; line-height: 0.85; color: #D2626E;">{num}</div>''')
+         self.displayNum.setText(f'''<div style="font-family: 'Poppins'; font-weight: 500; font-size: 50px; line-height: 0.85; color: #000000;">{num}</div>''')
          self.grid.updateStyle(num)
 
          # Sending it to the server  
