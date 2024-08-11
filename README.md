@@ -1,42 +1,31 @@
 # Housify
-A python based application to play Housie
-## Checklist ✔️
-- [x] Startup Page (Host/Join a Game)
-- [x] Host Game -> Game Key -> Database
-- [x] Join Game -> New ID -> Ticket
-- [x] Ticket Generator
-- [x] Play Area
-- [x] Ticket Checker
-- [x] Database to Store IDs of Players in a Game
+A Python based application to play Housie
 
-## TODO on front end aspect:
-~~1. Hover effects on buttons for Playing a Game window~~
+## Installation Guide
+### Windows
 
-~~2. Hover effects on button for Hosting a Game window~~
+1. Install the .exe file in the release assets.
+2. Run the executable. 
+3. If a Windows Defender advisory popup blocks execution: Click on "More details..." > "Run Anyways". Please read our statement below about the reason for this popup.
+4. Save the .exe file in a desired directory for later use.
 
-## TODO on user aspect:
-~~1. Restrict usernames to 13.5 characters.~~
+### MacOS
 
-~~2. Alert window for when you're not allowed to enter a game since it has already started or when you try joining a game that doesnt exist.~~
+1. Install the .dmg file in the release assets and run the file. 
+5. Drag the Housify icon in the prompt to the Application folder. 
+6. **DO NOT instantly run the application from Launchpad.** Please read our statement below regarding this.
+7. Open Finder and locate the app in the applications folder. 
+8. Control-click the app for the shortcut menu to appear
+9. Choose Open. 
+10. In the popup menu that appears, choose Open again
+11. Wait for the file to run - _this might take some time_.
 
-~~3. Restrict users from making multiple appeals.~~
-
-~~4. Restrict users from appealing when a player has already made an appeal.~~
-
-~~5. Make appeals spam proof.~~
-
-6. Eliminate player on incorrect appeal.
-
-~~7. Alert in absence of internet.~~
-
-## TODO Features:
-
-1. Give hosts choice to rename appeals
+The file will now be added as a security exception and you can run it directly from your Launchpad the next time you want to play Housify!
 
 ## Basic Algorithm
 ![image](https://github.com/Faizaan-Nasir/Housify/assets/82143161/1adb3d8a-5049-46f8-a442-209e1e995b4f)
 
 ## Design
-![image](https://github.com/Faizaan-Nasir/Housify/assets/82143161/ef72a8e9-26cb-4219-b51d-a9b170a42bbf)
+![image](https://github.com/user-attachments/assets/dac4421a-b968-44c9-b77b-d395b3bac461)
 
 ### © 2024 Housify. All Rights Reserved.
