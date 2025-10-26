@@ -4,7 +4,6 @@ username.txt
 .DS_Store
 Housify Version 0.1.0.zip
 Housify Version 1.0.0.zip
-*.txt
 build
 dist
 *.spec
